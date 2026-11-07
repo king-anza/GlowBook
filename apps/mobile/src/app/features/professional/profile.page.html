@@ -1,0 +1,46 @@
+<ion-header
+  ><ion-toolbar><ion-title>Professional profile</ion-title></ion-toolbar></ion-header
+>
+<ion-content class="ion-padding">
+  <p>Status: {{ status() }}</p>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <ion-list>
+      <ion-item><ion-input label="Trading name" labelPlacement="stacked" formControlName="tradingName" /></ion-item>
+      <ion-item><ion-textarea label="Description" labelPlacement="stacked" formControlName="description" /></ion-item>
+      <ion-item
+        ><ion-textarea label="Cancellation policy" labelPlacement="stacked" formControlName="cancellationPolicy"
+      /></ion-item>
+      <ion-item><ion-input label="Public email" labelPlacement="stacked" formControlName="publicEmail" /></ion-item>
+      <ion-item><ion-input label="Public phone" labelPlacement="stacked" formControlName="publicPhone" /></ion-item>
+      <ion-item><ion-input label="Address" labelPlacement="stacked" formControlName="addressLine1" /></ion-item>
+      <ion-item><ion-input label="Address line 2" labelPlacement="stacked" formControlName="addressLine2" /></ion-item>
+      <ion-item><ion-input label="Suburb" labelPlacement="stacked" formControlName="suburb" /></ion-item>
+      <ion-item><ion-input label="City" labelPlacement="stacked" formControlName="city" /></ion-item>
+      <ion-item><ion-input label="Province" labelPlacement="stacked" formControlName="province" /></ion-item>
+      <ion-item
+        ><ion-input label="Postal code" labelPlacement="stacked" formControlName="postalCode"
+      /></ion-item> </ion-list
+    ><ion-button expand="block" type="submit">Save draft</ion-button>
+  </form>
+  <ion-button expand="block" fill="outline" (click)="submitForReview()">Submit for review</ion-button>
+  <h2>Portfolio image</h2>
+  <form [formGroup]="portfolioForm" (ngSubmit)="addPortfolioImage()">
+    <ion-list>
+      <ion-item><ion-input label="HTTPS image URL" labelPlacement="stacked" formControlName="imageUrl" /></ion-item>
+      <ion-item><ion-input label="Image description" labelPlacement="stacked" formControlName="altText" /></ion-item>
+      <ion-item
+        ><ion-input type="number" label="Position (0–9)" labelPlacement="stacked" formControlName="displayOrder"
+      /></ion-item>
+    </ion-list>
+    <ion-button type="submit">Add image</ion-button>
+  </form>
+  @for (image of portfolioImages(); track image.id) {
+  <p>
+    <img [src]="image.imageUrl" [alt]="image.altText" loading="lazy" /> Position {{ image.displayOrder }} · {{
+    image.status }}
+    <ion-button size="small" color="danger" (click)="deletePortfolioImage(image)">Remove image</ion-button>
+  </p>
+  } @if (message()) {
+  <p role="status">{{ message() }}</p>
+  }
+</ion-content>

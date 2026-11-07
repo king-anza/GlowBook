@@ -1,0 +1,26 @@
+<ion-header
+  ><ion-toolbar><ion-title>Manage bookings</ion-title></ion-toolbar></ion-header
+>
+<ion-content
+  ><ion-list
+    >@for (booking of bookings(); track booking.id) {
+    <ion-item
+      ><div>
+        <strong>{{ booking.serviceName }}</strong>
+        <p>{{ booking.staffName }} &middot; {{ booking.startUtc | date: 'medium' }} &middot; {{ booking.status }}</p>
+        @if (booking.status === 'Pending') {
+        <ion-button size="small" (click)="act(booking, 'confirm')">Confirm</ion-button
+        ><ion-button size="small" color="danger" (click)="act(booking, 'reject')">Reject</ion-button> } @if
+        (booking.status === 'Confirmed') {
+        <ion-button size="small" (click)="act(booking, 'complete')">Complete</ion-button
+        ><ion-button size="small" color="medium" (click)="act(booking, 'no-show')">No-show</ion-button
+        ><ion-button size="small" color="danger" (click)="act(booking, 'cancel')">Cancel</ion-button> }
+      </div></ion-item
+    >
+    } @empty {
+    <p class="ion-padding">No bookings yet.</p>
+    }</ion-list
+  >@if (message()) {
+  <p class="ion-padding" role="status">{{ message() }}</p>
+  }</ion-content
+>

@@ -1,0 +1,22 @@
+<ion-header
+  ><ion-toolbar><ion-title>Account recovery</ion-title></ion-toolbar></ion-header
+>
+<ion-content class="ion-padding"
+  ><ion-list
+    ><ion-item><ion-input type="email" label="Email" labelPlacement="stacked" [(ngModel)]="email" /></ion-item
+    ><ion-item
+      ><ion-input label="User ID from verification email" labelPlacement="stacked" [(ngModel)]="userId" /></ion-item
+    ><ion-item><ion-input label="Verification or reset token" labelPlacement="stacked" [(ngModel)]="token" /></ion-item
+    ><ion-item
+      ><ion-input
+        type="password"
+        label="New password"
+        labelPlacement="stacked"
+        [(ngModel)]="newPassword" /></ion-item></ion-list
+  ><ion-button expand="block" (click)="requestVerification()">Resend verification email</ion-button
+  ><ion-button expand="block" (click)="requestReset()">Request password reset</ion-button
+  ><ion-button expand="block" (click)="verify()">Verify email</ion-button
+  ><ion-button expand="block" (click)="reset()">Reset password</ion-button>@if (message()) {
+  <p role="status">{{ message() }}</p>
+  }</ion-content
+>

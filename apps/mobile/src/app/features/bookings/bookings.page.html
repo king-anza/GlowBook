@@ -1,0 +1,42 @@
+<ion-header
+  ><ion-toolbar><ion-title>My bookings</ion-title></ion-toolbar></ion-header
+>
+<ion-content
+  ><ion-list
+    >@for (booking of bookings(); track booking.id) {
+    <ion-item
+      ><div>
+        <strong>{{ booking.serviceName }}</strong>
+        <p>{{ booking.businessName }} &mdash; {{ booking.staffName }}</p>
+        <p>{{ booking.startUtc | date: 'medium' }} &mdash; {{ booking.status }}</p>
+        @if (booking.status === 'Pending' || booking.status === 'Confirmed') {
+        <ion-button size="small" color="danger" (click)="cancel(booking)">Cancel booking</ion-button> } @if
+        (booking.status === 'Completed') { @if (reviewFor(booking.id); as existing) {
+        <ion-select label="Rating" [(ngModel)]="reviewRatings[existing.id]"
+          ><ion-select-option [value]="5">5</ion-select-option><ion-select-option [value]="4">4</ion-select-option
+          ><ion-select-option [value]="3">3</ion-select-option><ion-select-option [value]="2">2</ion-select-option
+          ><ion-select-option [value]="1">1</ion-select-option></ion-select
+        ><ion-textarea label="Review (optional)" [(ngModel)]="reviewComments[existing.id]" /><ion-button
+          size="small"
+          (click)="updateReview(existing)"
+          >Update review</ion-button
+        ><ion-button size="small" color="danger" (click)="deleteReview(existing)">Remove review</ion-button> } @else {
+        <ion-select label="Rating" [(ngModel)]="reviewRatings[booking.id]"
+          ><ion-select-option [value]="5">5</ion-select-option><ion-select-option [value]="4">4</ion-select-option
+          ><ion-select-option [value]="3">3</ion-select-option><ion-select-option [value]="2">2</ion-select-option
+          ><ion-select-option [value]="1">1</ion-select-option></ion-select
+        ><ion-textarea label="Review (optional)" [(ngModel)]="reviewComments[booking.id]" /><ion-button
+          size="small"
+          (click)="review(booking)"
+          >Submit review</ion-button
+        >
+        } }
+      </div></ion-item
+    >
+    } @empty {
+    <p class="ion-padding">No bookings yet.</p>
+    }</ion-list
+  >@if (message()) {
+  <p class="ion-padding" role="status">{{ message() }}</p>
+  }</ion-content
+>

@@ -1,0 +1,18 @@
+<ion-header
+  ><ion-toolbar><ion-title>Select a time</ion-title></ion-toolbar></ion-header
+>
+<ion-content class="ion-padding">
+  <ion-list>
+    @for (slot of slots(); track slot.startUtc) {
+    <ion-item>
+      <span>{{ slot.startUtc | date: 'medium' }}</span>
+      <ion-button slot="end" (click)="book(slot)">Book</ion-button>
+    </ion-item>
+    } @empty {
+    <p>No available slots in the next week.</p>
+    }
+  </ion-list>
+  @if (error()) {
+  <p role="alert">{{ error() }}</p>
+  }
+</ion-content>

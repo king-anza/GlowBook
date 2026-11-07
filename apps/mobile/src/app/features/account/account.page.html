@@ -1,0 +1,20 @@
+<ion-header
+  ><ion-toolbar><ion-title>My profile and privacy</ion-title></ion-toolbar></ion-header
+>
+<ion-content class="ion-padding">
+  @if (account(); as item) {
+  <p>Terms {{ item.termsVersion }} &middot; Privacy notice {{ item.privacyNoticeVersion }}</p>
+  <ion-list>
+    <ion-item><ion-input type="email" label="Email" labelPlacement="stacked" [(ngModel)]="email" /></ion-item>
+    <ion-item><ion-input label="Display name" labelPlacement="stacked" [(ngModel)]="displayName" /></ion-item>
+    <ion-item
+      ><ion-checkbox [(ngModel)]="marketingConsent">I separately consent to direct marketing</ion-checkbox></ion-item
+    >
+  </ion-list>
+  <ion-button expand="block" (click)="save()">Save profile</ion-button>
+  <ion-button expand="block" fill="outline" (click)="exportData()">Download my data</ion-button>
+  <ion-button expand="block" color="danger" (click)="deleteAccount()">Anonymise account</ion-button>
+  } @if (message()) {
+  <p role="status">{{ message() }}</p>
+  }
+</ion-content>

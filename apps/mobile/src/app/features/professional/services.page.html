@@ -1,0 +1,78 @@
+<ion-header
+  ><ion-toolbar><ion-title>Services and staff</ion-title></ion-toolbar></ion-header
+>
+<ion-content class="ion-padding">
+  <h2>Add staff</h2>
+  <form [formGroup]="staffForm" (ngSubmit)="addStaff()">
+    <ion-list
+      ><ion-item><ion-input label="Display name" labelPlacement="stacked" formControlName="displayName" /></ion-item
+      ><ion-item
+        ><ion-textarea label="Biography" labelPlacement="stacked" formControlName="biography" /></ion-item></ion-list
+    ><ion-button type="submit">Add staff</ion-button>
+  </form>
+  <h2>Add service</h2>
+  <form [formGroup]="serviceForm" (ngSubmit)="saveService()">
+    <ion-list
+      ><ion-item
+        ><ion-select label="Category" labelPlacement="stacked" formControlName="categoryId"
+          >@for (category of categories(); track category.id) {
+          <ion-select-option [value]="category.id">{{ category.name }}</ion-select-option> }</ion-select
+        ></ion-item
+      ><ion-item><ion-input label="Service name" labelPlacement="stacked" formControlName="name" /></ion-item
+      ><ion-item
+        ><ion-textarea
+          label="Description"
+          labelPlacement="stacked"
+          formControlName="description" /></ion-item></ion-list
+    ><ion-button type="submit">Create service</ion-button>
+  </form>
+  <h2>Add pricing</h2>
+  <form [formGroup]="offeringForm" (ngSubmit)="addOffering()">
+    <ion-list
+      ><ion-item
+        ><ion-select label="Service" labelPlacement="stacked" formControlName="serviceId"
+          >@for (service of services(); track service.id) {
+          <ion-select-option [value]="service.id">{{ service.name }}</ion-select-option> }</ion-select
+        ></ion-item
+      ><ion-item
+        ><ion-select label="Staff member" labelPlacement="stacked" formControlName="staffMemberId"
+          >@for (member of staff(); track member.id) {
+          <ion-select-option [value]="member.id">{{ member.displayName }}</ion-select-option> }</ion-select
+        ></ion-item
+      ><ion-item
+        ><ion-input type="number" label="Price (ZAR)" labelPlacement="stacked" formControlName="price" /></ion-item
+      ><ion-item
+        ><ion-input
+          type="number"
+          label="Duration (minutes)"
+          labelPlacement="stacked"
+          formControlName="durationMinutes" /></ion-item
+      ><ion-item
+        ><ion-input
+          type="number"
+          label="Buffer (minutes)"
+          labelPlacement="stacked"
+          formControlName="bufferMinutes" /></ion-item></ion-list
+    ><ion-button type="submit">Add pricing</ion-button>
+  </form>
+  @if (message()) {
+  <p role="status">{{ message() }}</p>
+  }
+  <ion-list
+    >@for (service of services(); track service.id) {
+    <ion-item
+      ><div>
+        <strong>{{ service.name }}</strong> &middot; {{ service.categoryName }}
+        <p>
+          @for (offering of service.offerings; track offering.id) { {{ offering.staffName }}: R{{ offering.price }} / {{
+          offering.durationMinutes }} min<br />
+          }
+        </p>
+        <ion-button size="small" (click)="toggleService(service)"
+          >{{ service.isActive ? 'Deactivate' : 'Activate' }}</ion-button
+        >
+      </div></ion-item
+    >
+    }</ion-list
+  >
+</ion-content>

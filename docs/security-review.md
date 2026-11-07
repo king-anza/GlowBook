@@ -1,0 +1,7 @@
+# Security review
+
+The November 2026 source review confirmed role and resource-ownership checks on private booking, professional, review, account and administration endpoints; short-lived JWT validation bound to active account state and Identity security stamps; rotated hashed refresh tokens with serialised reuse detection; Identity password policy; bounded public lists; server-authoritative prices/statuses; normalised idempotency keys; PostgreSQL advisory locking for booking, staff/portfolio limits and initial administrator creation; cleanup-buffer reservation; concurrency tokens; input validation; rate limiting on authentication; and no committed application secrets.
+
+`dotnet list package --vulnerable --include-transitive` reported no vulnerable packages. `npm audit --omit=dev` reported no production vulnerabilities. The full npm audit reported 17 moderate transitive `minimatch` findings in ESLint/TypeScript lint tooling. npm's only proposed complete fix forces a breaking ESLint major-version change, so it was not applied; monitor upstream compatible updates and keep this tooling outside production artifacts.
+
+Remaining release-environment checks are TLS/proxy headers, production CORS allow-list, secret injection/rotation, native secure token storage, transactional email configuration, PostgreSQL least-privilege credentials, backup restoration, mobile device penetration testing, and vendor/legal review. These depend on the selected hosting and providers and must be completed before public launch.

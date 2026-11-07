@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GlowBook.Api/GlowBook.Api.csproj" />
+    <Project Path="src/GlowBook.Application/GlowBook.Application.csproj" />
+    <Project Path="src/GlowBook.Domain/GlowBook.Domain.csproj" />
+    <Project Path="src/GlowBook.Infrastructure/GlowBook.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GlowBook.IntegrationTests/GlowBook.IntegrationTests.csproj" />
+    <Project Path="tests/GlowBook.UnitTests/GlowBook.UnitTests.csproj" />
+  </Folder>
+</Solution>

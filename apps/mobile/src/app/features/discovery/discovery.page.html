@@ -1,0 +1,48 @@
+<ion-header
+  ><ion-toolbar><ion-title>Discover beauty services</ion-title></ion-toolbar></ion-header
+>
+<ion-content class="ion-padding">
+  <ion-input label="Search business name" labelPlacement="stacked" [(ngModel)]="search" (keyup.enter)="load()" />
+  <ion-select label="Category" labelPlacement="stacked" [(ngModel)]="categoryId">
+    <ion-select-option value="">All categories</ion-select-option>
+    @for (category of categories(); track category.id) {
+    <ion-select-option [value]="category.id">{{ category.name }}</ion-select-option> }
+  </ion-select>
+  <ion-select label="Province" labelPlacement="stacked" [(ngModel)]="province">
+    <ion-select-option value="">All provinces</ion-select-option
+    ><ion-select-option value="Eastern Cape">Eastern Cape</ion-select-option
+    ><ion-select-option value="Free State">Free State</ion-select-option
+    ><ion-select-option value="Gauteng">Gauteng</ion-select-option
+    ><ion-select-option value="KwaZulu-Natal">KwaZulu-Natal</ion-select-option
+    ><ion-select-option value="Limpopo">Limpopo</ion-select-option
+    ><ion-select-option value="Mpumalanga">Mpumalanga</ion-select-option
+    ><ion-select-option value="North West">North West</ion-select-option
+    ><ion-select-option value="Northern Cape">Northern Cape</ion-select-option
+    ><ion-select-option value="Western Cape">Western Cape</ion-select-option>
+  </ion-select>
+  <ion-input label="City" labelPlacement="stacked" [(ngModel)]="city" />
+  <ion-input label="Suburb" labelPlacement="stacked" [(ngModel)]="suburb" />
+  <ion-input type="number" label="Minimum price (ZAR)" labelPlacement="stacked" [(ngModel)]="minPrice" />
+  <ion-input type="number" label="Maximum price (ZAR)" labelPlacement="stacked" [(ngModel)]="maxPrice" />
+  <ion-button expand="block" (click)="load()">Search</ion-button>
+  @for (business of businesses(); track business.id) {
+  <ion-card [routerLink]="['/businesses', business.id]"
+    ><ion-card-header><ion-card-title>{{ business.tradingName }}</ion-card-title></ion-card-header
+    ><ion-card-content
+      ><p>{{ business.suburb }}, {{ business.city }}</p>
+      <p>From R{{ business.fromPrice }}</p>
+      <p>{{ business.categories.join(' · ') }}</p></ion-card-content
+    ></ion-card
+  >
+  } @empty {
+  <p>No approved businesses match your search.</p>
+  } @if (totalCount() > 0) {
+  <nav aria-label="Search result pages">
+    <ion-button fill="outline" [disabled]="currentPage() === 1" (click)="previousPage()">Previous</ion-button>
+    <span role="status">Page {{ currentPage() }} &middot; {{ totalCount() }} businesses</span>
+    <ion-button fill="outline" [disabled]="currentPage() * pageSize >= totalCount()" (click)="nextPage()"
+      >Next</ion-button
+    >
+  </nav>
+  }
+</ion-content>

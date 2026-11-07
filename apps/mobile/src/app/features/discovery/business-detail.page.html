@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar><ion-title>{{ business()?.tradingName ?? 'Business' }}</ion-title></ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  @if (business(); as item) {
+  <p>{{ item.description }}</p>
+  <p>{{ item.addressLine1 }}, {{ item.suburb }}, {{ item.city }}, {{ item.province }}</p>
+  @for (image of item.portfolioImages; track image.id) {
+  <img [src]="image.imageUrl" [alt]="image.altText" loading="lazy" />
+  } @for (service of item.services; track service.id) {
+  <ion-card>
+    <ion-card-header><ion-card-title>{{ service.name }}</ion-card-title></ion-card-header>
+    <ion-card-content>
+      <p>{{ service.category }} &middot; {{ service.description }}</p>
+      @for (offering of service.offerings; track offering.id) {
+      <p>
+        {{ offering.staffName }} &middot; R{{ offering.price }} &middot; {{ offering.durationMinutes }} min
+        <a [routerLink]="['/book', offering.staffId, offering.id]">Choose a time</a>
+      </p>
+      }
+    </ion-card-content>
+  </ion-card>
+  } @if (reviews(); as reviewData) {
+  <h2>Reviews</h2>
+  <p>{{ reviewData.averageRating | number: '1.1-1' }} / 5 from {{ reviewData.reviewCount }} reviews</p>
+  @for (review of reviewData.reviews; track review.id) {
+  <ion-card
+    ><ion-card-content
+      ><strong>{{ review.rating }} / 5</strong>
+      <p>{{ review.comment }}</p></ion-card-content
+    ></ion-card
+  >
+  } @if (reviewData.reviewCount > reviewPageSize) {
+  <nav aria-label="Review pages">
+    <ion-button fill="outline" [disabled]="reviewPage() === 1" (click)="previousReviewPage()"
+      >Previous reviews</ion-button
+    >
+    <span>Page {{ reviewPage() }}</span>
+    <ion-button
+      fill="outline"
+      [disabled]="reviewPage() * reviewPageSize >= reviewData.reviewCount"
+      (click)="nextReviewPage()"
+      >Next reviews</ion-button
+    >
+  </nav>
+  } } }
+</ion-content>
