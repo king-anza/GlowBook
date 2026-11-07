@@ -1,20 +1,47 @@
 <ion-header
-  ><ion-toolbar><ion-title>My profile and privacy</ion-title></ion-toolbar></ion-header
+  ><ion-toolbar><ion-title>My account</ion-title></ion-toolbar></ion-header
 >
-<ion-content class="ion-padding">
-  @if (account(); as item) {
-  <p>Terms {{ item.termsVersion }} &middot; Privacy notice {{ item.privacyNoticeVersion }}</p>
-  <ion-list>
-    <ion-item><ion-input type="email" label="Email" labelPlacement="stacked" [(ngModel)]="email" /></ion-item>
-    <ion-item><ion-input label="Display name" labelPlacement="stacked" [(ngModel)]="displayName" /></ion-item>
-    <ion-item
-      ><ion-checkbox [(ngModel)]="marketingConsent">I separately consent to direct marketing</ion-checkbox></ion-item
-    >
-  </ion-list>
-  <ion-button expand="block" (click)="save()">Save profile</ion-button>
-  <ion-button expand="block" fill="outline" (click)="exportData()">Download my data</ion-button>
-  <ion-button expand="block" color="danger" (click)="deleteAccount()">Anonymise account</ion-button>
-  } @if (message()) {
-  <p role="status">{{ message() }}</p>
-  }
+<ion-content>
+  <main class="page-shell page-shell--narrow">
+    <section class="page-heading">
+      <p class="eyebrow">Profile & privacy</p>
+      <h1>Your details, your control.</h1>
+      <p>Keep your contact details current and manage how GlowBook handles your information.</p>
+    </section>
+    @if (account(); as item) {
+    <section class="surface-card">
+      <div class="chip-row">
+        <span class="chip">Terms {{ item.termsVersion }}</span
+        ><span class="chip">Privacy {{ item.privacyNoticeVersion }}</span
+        ><span class="chip">{{ item.accountStatus }}</span>
+      </div>
+      <ion-list lines="none" class="form-grid">
+        <ion-item class="field"
+          ><ion-input type="email" label="Email" labelPlacement="stacked" autocomplete="email" [(ngModel)]="email"
+        /></ion-item>
+        <ion-item class="field"
+          ><ion-input label="Display name" labelPlacement="stacked" autocomplete="name" [(ngModel)]="displayName"
+        /></ion-item>
+        <ion-item class="field"
+          ><ion-checkbox [(ngModel)]="marketingConsent"
+            >I separately consent to direct marketing</ion-checkbox
+          ></ion-item
+        >
+      </ion-list>
+      <ion-button expand="block" (click)="save()">Save profile</ion-button>
+    </section>
+    <section class="surface-card" style="margin-top: 16px">
+      <h2 class="section-title" style="margin-top: 0">Privacy tools</h2>
+      <p class="section-copy">Download a copy of your personal data or permanently anonymise your account.</p>
+      <div class="action-row">
+        <ion-button fill="outline" (click)="exportData()">Download my data</ion-button
+        ><ion-button color="danger" fill="outline" (click)="deleteAccount()">Anonymise account</ion-button>
+      </div>
+    </section>
+    } @else {
+    <div class="empty-state">Sign in to view and manage your profile.</div>
+    } @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+  </main>
 </ion-content>

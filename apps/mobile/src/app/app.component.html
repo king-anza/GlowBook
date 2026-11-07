@@ -1,16 +1,13 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
-  <ion-footer>
-    <ion-toolbar>
-      <nav class="app-navigation" aria-label="Primary navigation">
-        <ion-button fill="clear" size="small" routerLink="/home">Discover</ion-button>
-        <ion-button fill="clear" size="small" routerLink="/auth">Account</ion-button>
-        <ion-button fill="clear" size="small" routerLink="/bookings">Bookings</ion-button>
-        <ion-button fill="clear" size="small" routerLink="/professional/profile">Professional</ion-button>
-        <ion-button fill="clear" size="small" routerLink="/professional/services">Services</ion-button>
-        <ion-button fill="clear" size="small" routerLink="/professional/availability">Hours</ion-button>
-        <ion-button fill="clear" size="small" routerLink="/professional/bookings">Manage</ion-button>
-      </nav>
-    </ion-toolbar>
+  <ion-footer class="app-footer">
+    <nav class="app-navigation" aria-label="Primary navigation">
+      <a routerLink="/home" routerLinkActive="active"><span aria-hidden="true">⌕</span><small>Discover</small></a>
+      <a routerLink="/bookings" routerLinkActive="active"><span aria-hidden="true">◷</span><small>Bookings</small></a>
+      <a routerLink="/auth" routerLinkActive="active"><span aria-hidden="true">○</span><small>Account</small></a>
+      <a routerLink="/professional/profile" routerLinkActive="active"
+        ><span aria-hidden="true">✦</span><small>Studio</small></a
+      >
+    </nav>
   </ion-footer>
 </ion-app>

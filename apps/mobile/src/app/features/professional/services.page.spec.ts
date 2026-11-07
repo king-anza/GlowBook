@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
 
@@ -10,7 +11,7 @@ describe('ServicesPage', () => {
   it('submits server-authoritative offering fields without putting the service id in the body', async () => {
     await TestBed.configureTestingModule({
       imports: [ServicesPage],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
     const http = TestBed.inject(HttpTestingController);
     const page = TestBed.createComponent(ServicesPage).componentInstance;

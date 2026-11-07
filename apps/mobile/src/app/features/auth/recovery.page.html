@@ -1,22 +1,54 @@
 <ion-header
-  ><ion-toolbar><ion-title>Account recovery</ion-title></ion-toolbar></ion-header
+  ><ion-toolbar><ion-title>Account help</ion-title></ion-toolbar></ion-header
 >
-<ion-content class="ion-padding"
-  ><ion-list
-    ><ion-item><ion-input type="email" label="Email" labelPlacement="stacked" [(ngModel)]="email" /></ion-item
-    ><ion-item
-      ><ion-input label="User ID from verification email" labelPlacement="stacked" [(ngModel)]="userId" /></ion-item
-    ><ion-item><ion-input label="Verification or reset token" labelPlacement="stacked" [(ngModel)]="token" /></ion-item
-    ><ion-item
-      ><ion-input
-        type="password"
-        label="New password"
-        labelPlacement="stacked"
-        [(ngModel)]="newPassword" /></ion-item></ion-list
-  ><ion-button expand="block" (click)="requestVerification()">Resend verification email</ion-button
-  ><ion-button expand="block" (click)="requestReset()">Request password reset</ion-button
-  ><ion-button expand="block" (click)="verify()">Verify email</ion-button
-  ><ion-button expand="block" (click)="reset()">Reset password</ion-button>@if (message()) {
-  <p role="status">{{ message() }}</p>
-  }</ion-content
->
+<ion-content>
+  <main class="page-shell page-shell--narrow">
+    <section class="page-heading">
+      <p class="eyebrow">Secure account recovery</p>
+      <h1>Let’s get you back in.</h1>
+      <p>Request an email first. Only use the token fields when you have received your secure link.</p>
+    </section>
+    <section class="surface-card">
+      <h2 class="section-title" style="margin-top: 0">Request an email</h2>
+      <ion-list lines="none" class="form-grid"
+        ><ion-item class="field"
+          ><ion-input
+            type="email"
+            label="Email"
+            labelPlacement="stacked"
+            autocomplete="email"
+            [(ngModel)]="email" /></ion-item
+      ></ion-list>
+      <div class="action-row">
+        <ion-button (click)="requestVerification()">Resend verification email</ion-button
+        ><ion-button fill="outline" (click)="requestReset()">Request password reset</ion-button>
+      </div>
+    </section>
+    <section class="surface-card" style="margin-top: 16px">
+      <h2 class="section-title" style="margin-top: 0">Use your secure token</h2>
+      <ion-list lines="none" class="form-grid">
+        <ion-item class="field"
+          ><ion-input label="User ID from verification email" labelPlacement="stacked" [(ngModel)]="userId"
+        /></ion-item>
+        <ion-item class="field"
+          ><ion-input label="Verification or reset token" labelPlacement="stacked" [(ngModel)]="token"
+        /></ion-item>
+        <ion-item class="field"
+          ><ion-input
+            type="password"
+            label="New password"
+            labelPlacement="stacked"
+            autocomplete="new-password"
+            [(ngModel)]="newPassword"
+        /></ion-item>
+      </ion-list>
+      <div class="action-row">
+        <ion-button (click)="verify()">Verify email</ion-button
+        ><ion-button fill="outline" (click)="reset()">Reset password</ion-button>
+      </div>
+    </section>
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+  </main>
+</ion-content>

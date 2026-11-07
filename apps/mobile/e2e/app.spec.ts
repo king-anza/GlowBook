@@ -6,7 +6,7 @@ test('shows the discovery page', async ({ page }) => {
     route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
   );
   await page.goto('/');
-  await expect(page.getByText('Discover beauty services')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Find your next glow.' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
 });
 

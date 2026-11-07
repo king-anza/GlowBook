@@ -1,17 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonInput,
-  IonItem,
-  IonList,
-  IonTextarea,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular';
+import { RouterLink } from '@angular/router';
+import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonTextarea, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 
@@ -46,11 +37,11 @@ interface PortfolioImage {
   styleUrls: ['./profile.page.scss'],
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonContent,
-    IonList,
     IonItem,
     IonInput,
     IonTextarea,

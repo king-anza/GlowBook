@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { IonButton, IonContent, IonHeader, IonItem, IonList, IonTitle, IonToolbar } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
+import { IonButton, IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 
@@ -17,7 +18,7 @@ interface Booking {
 @Component({
   selector: 'app-professional-bookings',
   templateUrl: './professional-bookings.page.html',
-  imports: [DatePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonButton],
+  imports: [DatePipe, RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonButton],
 })
 export class ProfessionalBookingsPage {
   private readonly http = inject(HttpClient);

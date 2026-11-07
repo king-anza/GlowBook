@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonButton, IonContent, IonHeader, IonItem, IonList, IonTitle, IonToolbar } from '@ionic/angular';
+import { IonButton, IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 
@@ -14,7 +14,7 @@ interface Slot {
 @Component({
   selector: 'app-book',
   templateUrl: './book.page.html',
-  imports: [DatePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonButton],
+  imports: [DatePipe, IonHeader, IonToolbar, IonTitle, IonContent, IonButton],
 })
 export class BookPage {
   private readonly http = inject(HttpClient);

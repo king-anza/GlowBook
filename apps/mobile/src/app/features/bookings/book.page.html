@@ -1,18 +1,33 @@
 <ion-header
   ><ion-toolbar><ion-title>Select a time</ion-title></ion-toolbar></ion-header
 >
-<ion-content class="ion-padding">
-  <ion-list>
-    @for (slot of slots(); track slot.startUtc) {
-    <ion-item>
-      <span>{{ slot.startUtc | date: 'medium' }}</span>
-      <ion-button slot="end" (click)="book(slot)">Book</ion-button>
-    </ion-item>
-    } @empty {
-    <p>No available slots in the next week.</p>
+<ion-content>
+  <main class="page-shell page-shell--narrow">
+    <section class="page-heading">
+      <p class="eyebrow">Live availability</p>
+      <h1>Choose your moment.</h1>
+      <p>Times are shown in your local time zone and held only after your booking is created.</p>
+    </section>
+    <div class="card-grid">
+      @for (slot of slots(); track slot.startUtc) {
+      <div class="surface-card booking-card">
+        <div class="booking-card__top">
+          <div>
+            <p class="eyebrow">Available</p>
+            <strong>{{ slot.startUtc | date: 'EEEE, d MMMM' }}</strong>
+            <p>{{ slot.startUtc | date: 'shortTime' }}</p>
+          </div>
+          <ion-button (click)="book(slot)">Book</ion-button>
+        </div>
+      </div>
+      } @empty {
+      <div class="empty-state">
+        No available slots in the next week. Check back soon or explore another professional.
+      </div>
+      }
+    </div>
+    @if (error()) {
+    <p class="notice notice--error" role="alert">{{ error() }}</p>
     }
-  </ion-list>
-  @if (error()) {
-  <p role="alert">{{ error() }}</p>
-  }
+  </main>
 </ion-content>

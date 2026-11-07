@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { IonApp, IonButton, IonFooter, IonRouterOutlet, IonToolbar } from '@ionic/angular';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { IonApp, IonFooter, IonRouterOutlet } from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  imports: [RouterLink, IonApp, IonRouterOutlet, IonFooter, IonToolbar, IonButton],
+  imports: [RouterLink, RouterLinkActive, IonApp, IonRouterOutlet, IonFooter],
 })
 export class AppComponent {}

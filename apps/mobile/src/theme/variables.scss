@@ -1,2 +1,51 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+:root {
+  --ion-font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  --ion-color-primary: #8f3f62;
+  --ion-color-primary-rgb: 143, 63, 98;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-shade: #7e3756;
+  --ion-color-primary-tint: #9a5272;
+  --ion-color-secondary: #d17a86;
+  --ion-color-secondary-rgb: 209, 122, 134;
+  --ion-color-secondary-contrast: #2f1721;
+  --ion-color-secondary-shade: #b86b76;
+  --ion-color-secondary-tint: #d68792;
+  --ion-color-tertiary: #6f6575;
+  --ion-color-tertiary-rgb: 111, 101, 117;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-success: #39725f;
+  --ion-color-warning: #a66b20;
+  --ion-color-danger: #b23a48;
+  --ion-color-medium: #70676d;
+  --ion-color-light: #fff8f5;
+  --ion-background-color: #f8f4f2;
+  --ion-background-color-rgb: 248, 244, 242;
+  --ion-text-color: #2e252a;
+  --ion-text-color-rgb: 46, 37, 42;
+  --ion-item-background: #ffffff;
+  --glow-ink: #2e252a;
+  --glow-muted: #71666c;
+  --glow-surface: #ffffff;
+  --glow-surface-soft: #fff8f5;
+  --glow-line: #eadfdd;
+  --glow-plum: #8f3f62;
+  --glow-rose: #d17a86;
+  --glow-shadow: 0 14px 40px rgba(78, 43, 57, 0.1);
+  --glow-radius: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-background-color: #1c181a;
+    --ion-background-color-rgb: 28, 24, 26;
+    --ion-text-color: #f7eef1;
+    --ion-text-color-rgb: 247, 238, 241;
+    --ion-item-background: #282226;
+    --glow-ink: #f7eef1;
+    --glow-muted: #c8b9bf;
+    --glow-surface: #282226;
+    --glow-surface-soft: #33292e;
+    --glow-line: #46383f;
+    --glow-shadow: 0 16px 42px rgba(0, 0, 0, 0.26);
+  }
+}
