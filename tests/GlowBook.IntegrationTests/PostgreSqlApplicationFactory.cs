@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace GlowBook.IntegrationTests;
 
@@ -17,5 +18,10 @@ public sealed class PostgreSqlApplicationFactory : WebApplicationFactory<Program
         builder.UseSetting("Jwt:Audience", "GlowBook.Tests");
         builder.UseSetting("Jwt:SigningKey", "test-only-signing-key-at-least-thirty-two-bytes");
         builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:GlowBook"] = connection, ["Jwt:Issuer"] = "GlowBook.Tests", ["Jwt:Audience"] = "GlowBook.Tests", ["Jwt:SigningKey"] = "test-only-signing-key-at-least-thirty-two-bytes" }));
+        builder.ConfigureLogging(logging =>
+        {
+            logging.AddFilter("GlowBook.Infrastructure.Bookings.BookingService", LogLevel.Information);
+            logging.AddConsole();
+        });
     }
 }
