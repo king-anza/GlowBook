@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonTextarea, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { ConfirmationService } from '../../core/ui/confirmation.service';
 
 interface BusinessProfile {
   tradingName: string;
@@ -51,6 +52,7 @@ interface PortfolioImage {
 export class ProfilePage {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
+  private readonly confirmation = inject(ConfirmationService);
   readonly status = signal('Draft');
   readonly concurrencyToken = signal<string | null>(null);
   readonly message = signal<string | null>(null);
@@ -162,10 +164,21 @@ export class ProfilePage {
         error: () => this.message.set('Unable to add the image. Use a unique position from 0 to 9.'),
       });
   }
-  deletePortfolioImage(image: PortfolioImage): void {
-    this.http.delete(`${environment.apiUrl}/api/v1/professional/portfolio-images/${image.id}`).subscribe(() => {
-      this.message.set('Portfolio image removed.');
-      this.loadPortfolio();
+  async deletePortfolioImage(image: PortfolioImage): Promise<void> {
+    if (
+      !(await this.confirmation.confirm(
+        'Remove this portfolio image?',
+        'Clients will no longer see this image on your studio profile.',
+        'Remove image',
+      ))
+    )
+      return;
+    this.http.delete(`${environment.apiUrl}/api/v1/professional/portfolio-images/${image.id}`).subscribe({
+      next: () => {
+        this.message.set('Portfolio image removed.');
+        this.loadPortfolio();
+      },
+      error: () => this.message.set('The portfolio image could not be removed.'),
     });
   }
   private loadPortfolio(): void {

@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { ConfirmationService } from '../../core/ui/confirmation.service';
 
 interface Booking {
   id: string;
@@ -50,21 +51,43 @@ interface Review {
 })
 export class BookingsPage {
   private readonly http = inject(HttpClient);
+  private readonly confirmation = inject(ConfirmationService);
   readonly bookings = signal<Booking[]>([]);
   readonly reviews = signal<Review[]>([]);
   readonly message = signal<string | null>(null);
+  readonly busyId = signal<string | null>(null);
   readonly reviewRatings: Record<string, number> = {};
   readonly reviewComments: Record<string, string> = {};
   constructor() {
     this.load();
   }
-  cancel(booking: Booking): void {
+  async cancel(booking: Booking): Promise<void> {
+    if (
+      !(await this.confirmation.confirm(
+        'Cancel this booking?',
+        'Your appointment will be released and may be booked by someone else.',
+        'Cancel booking',
+      ))
+    )
+      return;
+    this.busyId.set(booking.id);
+    this.message.set(null);
     this.http
       .post(`${environment.apiUrl}/api/v1/bookings/${booking.id}/cancel`, {
         reason: null,
         concurrencyToken: booking.concurrencyToken,
       })
-      .subscribe(() => this.load());
+      .subscribe({
+        next: () => {
+          this.message.set('Booking cancelled.');
+          this.busyId.set(null);
+          this.load();
+        },
+        error: () => {
+          this.message.set('The booking changed. Refresh and try again.');
+          this.busyId.set(null);
+        },
+      });
   }
   review(booking: Booking): void {
     this.http
@@ -98,10 +121,21 @@ export class BookingsPage {
         error: () => this.message.set('The review changed. Refresh and try again.'),
       });
   }
-  deleteReview(review: Review): void {
-    this.http.delete(`${environment.apiUrl}/api/v1/reviews/${review.id}`).subscribe(() => {
-      this.message.set('Review removed.');
-      this.loadReviews();
+  async deleteReview(review: Review): Promise<void> {
+    if (
+      !(await this.confirmation.confirm(
+        'Remove your review?',
+        'This review will no longer appear on the business profile.',
+        'Remove review',
+      ))
+    )
+      return;
+    this.http.delete(`${environment.apiUrl}/api/v1/reviews/${review.id}`).subscribe({
+      next: () => {
+        this.message.set('Review removed.');
+        this.loadReviews();
+      },
+      error: () => this.message.set('The review could not be removed.'),
     });
   }
   private load(): void {

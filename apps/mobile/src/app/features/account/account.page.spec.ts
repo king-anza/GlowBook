@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
+import { ConfirmationService } from '../../core/ui/confirmation.service';
 
 import { AccountPage } from './account.page';
 
@@ -11,7 +12,12 @@ describe('AccountPage', () => {
   it('loads and updates correction and marketing-consent fields', async () => {
     await TestBed.configureTestingModule({
       imports: [AccountPage],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        { provide: ConfirmationService, useValue: { confirm: vi.fn().mockResolvedValue(true) } },
+      ],
     }).compileComponents();
     const http = TestBed.inject(HttpTestingController);
     const router = TestBed.inject(Router);

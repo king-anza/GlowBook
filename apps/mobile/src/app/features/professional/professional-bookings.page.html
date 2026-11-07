@@ -28,12 +28,35 @@
         </p>
         <div class="action-row">
           @if (booking.status === 'Pending') {
-          <ion-button size="small" (click)="act(booking, 'confirm')">Confirm</ion-button
-          ><ion-button size="small" color="danger" fill="outline" (click)="act(booking, 'reject')">Reject</ion-button> }
-          @if (booking.status === 'Confirmed') {
-          <ion-button size="small" (click)="act(booking, 'complete')">Complete</ion-button
-          ><ion-button size="small" color="medium" fill="outline" (click)="act(booking, 'no-show')">No-show</ion-button
-          ><ion-button size="small" color="danger" fill="outline" (click)="act(booking, 'cancel')">Cancel</ion-button> }
+          <ion-button size="small" [disabled]="busyId() === booking.id" (click)="act(booking, 'confirm')"
+            >Confirm</ion-button
+          ><ion-button
+            size="small"
+            color="danger"
+            fill="outline"
+            [disabled]="busyId() === booking.id"
+            (click)="act(booking, 'reject')"
+            >Reject</ion-button
+          >
+          } @if (booking.status === 'Confirmed') {
+          <ion-button size="small" [disabled]="busyId() === booking.id" (click)="act(booking, 'complete')"
+            >Complete</ion-button
+          ><ion-button
+            size="small"
+            color="medium"
+            fill="outline"
+            [disabled]="busyId() === booking.id"
+            (click)="act(booking, 'no-show')"
+            >No-show</ion-button
+          ><ion-button
+            size="small"
+            color="danger"
+            fill="outline"
+            [disabled]="busyId() === booking.id"
+            (click)="act(booking, 'cancel')"
+            >Cancel</ion-button
+          >
+          }
         </div>
       </article>
       } @empty {

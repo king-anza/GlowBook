@@ -16,6 +16,7 @@ import {
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
+import { ConfirmationService } from '../../core/ui/confirmation.service';
 
 interface AccountData {
   id: string;
@@ -48,8 +49,10 @@ export class AccountPage {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly confirmation = inject(ConfirmationService);
   readonly account = signal<AccountData | null>(null);
   readonly message = signal<string | null>(null);
+  readonly busy = signal(false);
   email = '';
   displayName = '';
   marketingConsent = false;
@@ -57,6 +60,8 @@ export class AccountPage {
     this.load();
   }
   save(): void {
+    this.busy.set(true);
+    this.message.set(null);
     const previousEmail = this.account()?.email;
     this.http
       .patch<AccountData>(`${environment.apiUrl}/api/v1/me`, {
@@ -73,8 +78,12 @@ export class AccountPage {
           } else {
             this.message.set('Profile updated.');
           }
+          this.busy.set(false);
         },
-        error: () => this.message.set('Unable to update the profile.'),
+        error: () => {
+          this.message.set('Unable to update the profile.');
+          this.busy.set(false);
+        },
       });
   }
   exportData(): void {
@@ -87,11 +96,25 @@ export class AccountPage {
       URL.revokeObjectURL(link.href);
     });
   }
-  deleteAccount(): void {
-    if (!globalThis.confirm('Anonymise your GlowBook account? This cannot be undone.')) return;
-    this.http.delete(`${environment.apiUrl}/api/v1/me`).subscribe(() => {
-      this.auth.clearSession();
-      void this.router.navigateByUrl('/auth');
+  async deleteAccount(): Promise<void> {
+    if (
+      !(await this.confirmation.confirm(
+        'Anonymise your account?',
+        'Your sign-in details and personal profile will be permanently removed. This cannot be undone.',
+        'Anonymise account',
+      ))
+    )
+      return;
+    this.busy.set(true);
+    this.http.delete(`${environment.apiUrl}/api/v1/me`).subscribe({
+      next: () => {
+        this.auth.clearSession();
+        void this.router.navigateByUrl('/auth');
+      },
+      error: () => {
+        this.message.set('Your account could not be anonymised. Please try again.');
+        this.busy.set(false);
+      },
     });
   }
   private load(): void {

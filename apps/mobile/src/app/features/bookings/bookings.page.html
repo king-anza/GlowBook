@@ -22,8 +22,15 @@
           <strong>{{ booking.startUtc | date: 'EEEE, d MMMM' }}</strong> at {{ booking.startUtc | date: 'shortTime' }}
         </p>
         @if (booking.status === 'Pending' || booking.status === 'Confirmed') {
-        <ion-button size="small" color="danger" fill="outline" (click)="cancel(booking)">Cancel booking</ion-button> }
-        @if (booking.status === 'Completed') {
+        <ion-button
+          size="small"
+          color="danger"
+          fill="outline"
+          [disabled]="busyId() === booking.id"
+          (click)="cancel(booking)"
+          >Cancel booking</ion-button
+        >
+        } @if (booking.status === 'Completed') {
         <div class="review-panel">
           <p class="eyebrow">Share your experience</p>
           @if (reviewFor(booking.id); as existing) {

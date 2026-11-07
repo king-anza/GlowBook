@@ -3,14 +3,20 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
+import { ConfirmationService } from '../../core/ui/confirmation.service';
 
 import { BookingsPage } from './bookings.page';
 
 describe('BookingsPage', () => {
   it('cancels with the current concurrency token and reloads private data', async () => {
+    const confirmation = { confirm: vi.fn().mockResolvedValue(true) };
     await TestBed.configureTestingModule({
       imports: [BookingsPage],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: ConfirmationService, useValue: confirmation },
+      ],
     }).compileComponents();
     const http = TestBed.inject(HttpTestingController);
     const page = TestBed.createComponent(BookingsPage).componentInstance;
@@ -26,7 +32,9 @@ describe('BookingsPage', () => {
     http.expectOne(`${environment.apiUrl}/api/v1/bookings`).flush([booking]);
     http.expectOne(`${environment.apiUrl}/api/v1/reviews`).flush([]);
 
-    page.cancel(booking);
+    await page.cancel(booking);
+
+    expect(confirmation.confirm).toHaveBeenCalledWith('Cancel this booking?', expect.any(String), 'Cancel booking');
 
     const cancellation = http.expectOne(`${environment.apiUrl}/api/v1/bookings/booking-1/cancel`);
     expect(cancellation.request.body).toEqual({ reason: null, concurrencyToken: 'version-1' });

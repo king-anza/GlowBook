@@ -284,7 +284,8 @@ test('confirms, completes, cancels, and reviews bookings', async ({ page }) => {
   await page.goto('/bookings');
   const customerPage = page.locator('app-bookings');
   await customerPage.getByRole('button', { name: 'Cancel booking' }).click();
-  await expect(customerPage.getByText('Cancelled')).toBeVisible();
+  await page.locator('ion-alert').getByRole('button', { name: 'Cancel booking' }).click();
+  await expect(customerPage.getByText('Cancelled', { exact: true })).toBeVisible();
   await customerPage.getByRole('button', { name: 'Submit review' }).click();
   await expect(customerPage.getByText('Thank you for your review.')).toBeVisible();
 });
