@@ -1,5 +1,6 @@
 using GlowBook.Application.Bookings;
 using GlowBook.Domain.Availability;
+using GlowBook.Domain.Bookings;
 using GlowBook.Domain.Catalogue;
 using GlowBook.Domain.Professionals;
 using GlowBook.Infrastructure.Identity;
@@ -36,6 +37,38 @@ public sealed class BookingConcurrencyTests
         Assert.Equal(1, await db.Bookings.CountAsync());
     }
 
+    [Fact]
+    public async Task Concurrent_transitions_with_the_same_version_commit_once()
+    {
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GLOWBOOK_TEST_CONNECTION"))) return;
+        await using var factory = new PostgreSqlApplicationFactory();
+        var seed = await SeedAsync(factory.Services);
+
+        BookingDto booking;
+        await using (var createScope = factory.Services.CreateAsyncScope())
+        {
+            var service = createScope.ServiceProvider.GetRequiredService<IBookingService>();
+            booking = Assert.IsType<BookingDto>(await service.CreateAsync(seed.CustomerOneId, new CreateBookingRequest(seed.OfferingId, new DateTimeOffset(seed.StartUtc, TimeSpan.Zero), "transition-race", null), CancellationToken.None));
+        }
+
+        async Task<BookingTransitionResult> Confirm()
+        {
+            await using var scope = factory.Services.CreateAsyncScope();
+            var service = scope.ServiceProvider.GetRequiredService<IBookingService>();
+            return await service.TransitionAsync(seed.OwnerId, true, booking.Id, BookingStatus.Confirmed, new BookingActionRequest(null, booking.ConcurrencyToken), CancellationToken.None);
+        }
+
+        var results = await Task.WhenAll(Confirm(), Confirm());
+        Assert.Single(results, result => result == BookingTransitionResult.Success);
+        Assert.Single(results, result => result == BookingTransitionResult.Stale);
+
+        await using var verifyScope = factory.Services.CreateAsyncScope();
+        var db = verifyScope.ServiceProvider.GetRequiredService<GlowBookDbContext>();
+        var persisted = await db.Bookings.SingleAsync(x => x.Id == booking.Id);
+        Assert.Equal(BookingStatus.Confirmed, persisted.Status);
+        Assert.Equal(2, await db.BookingStatusHistory.CountAsync(x => x.BookingId == booking.Id));
+    }
+
     private static async Task<SeedResult> SeedAsync(IServiceProvider services)
     {
         await using var scope = services.CreateAsyncScope();
@@ -57,10 +90,10 @@ public sealed class BookingConcurrencyTests
         var startUtc = TimeZoneInfo.ConvertTimeToUtc(localStart, TimeZoneInfo.FindSystemTimeZoneById("Africa/Johannesburg"));
         db.AddRange(business, location, staff, service, offering, new WeeklyAvailability { Id = Guid.NewGuid(), StaffMember = staff, DayOfWeek = DayOfWeek.Monday, StartTime = new TimeOnly(9, 0), EndTime = new TimeOnly(10, 0) });
         await db.SaveChangesAsync();
-        return new(offering.Id, one.Id, two.Id, startUtc);
+        return new(offering.Id, owner.Id, one.Id, two.Id, startUtc);
     }
 
     private static ApplicationUser User(string email) => new() { Id = Guid.NewGuid(), Email = email, NormalizedEmail = email.ToUpperInvariant(), UserName = email, NormalizedUserName = email.ToUpperInvariant(), DisplayName = email, AccountStatus = "Active", EmailConfirmed = true, TermsVersion = "test", TermsAcceptedAtUtc = DateTime.UtcNow, PrivacyNoticeVersion = "test", PrivacyNoticeAcceptedAtUtc = DateTime.UtcNow, CreatedAtUtc = DateTime.UtcNow, SecurityStamp = Guid.NewGuid().ToString() };
     private static DateOnly NextWeekday(DateOnly date, DayOfWeek day) { while (date.DayOfWeek != day) date = date.AddDays(1); return date; }
-    private sealed record SeedResult(Guid OfferingId, Guid CustomerOneId, Guid CustomerTwoId, DateTime StartUtc);
+    private sealed record SeedResult(Guid OfferingId, Guid OwnerId, Guid CustomerOneId, Guid CustomerTwoId, DateTime StartUtc);
 }

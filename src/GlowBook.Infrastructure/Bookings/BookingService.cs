@@ -46,11 +46,19 @@ internal sealed class BookingService(GlowBookDbContext db, IAvailabilityService 
         if (booking.ConcurrencyToken != request.ConcurrencyToken) { logger.LogInformation("Booking transition rejected because its version is stale."); return BookingTransitionResult.Stale; }
         if (professional ? booking.Business.OwnerUserId != actorId && booking.StaffMember.LinkedUserId != actorId : booking.CustomerUserId != actorId) { logger.LogWarning("Booking transition rejected because the actor does not own the resource."); return BookingTransitionResult.Rejected; }
         var allowed = professional ? AllowedProfessional(booking.Status, target) : target == BookingStatus.Cancelled && booking.Status is BookingStatus.Pending or BookingStatus.Confirmed;
-        if (!allowed) { logger.LogInformation("Booking transition rejected because the requested status change is not allowed."); return BookingTransitionResult.InvalidTransition; } var previous = booking.Status; booking.Status = target; booking.ConcurrencyToken = Guid.NewGuid(); if (target == BookingStatus.Confirmed) booking.ConfirmedAtUtc = DateTime.UtcNow; if (target == BookingStatus.Completed) booking.CompletedAtUtc = DateTime.UtcNow;
-        booking.StatusHistory.Add(new BookingStatusHistory { Id = Guid.NewGuid(), PreviousStatus = previous, NewStatus = target, ActorUserId = actorId, Reason = request.Reason?.Trim(), ChangedAtUtc = DateTime.UtcNow });
+        if (!allowed) { logger.LogInformation("Booking transition rejected because the requested status change is not allowed."); return BookingTransitionResult.InvalidTransition; }
+        var previous = booking.Status; var changedAt = DateTime.UtcNow; var nextToken = Guid.NewGuid();
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+        var updated = await db.Bookings.Where(x => x.Id == id && x.ConcurrencyToken == request.ConcurrencyToken && x.Status == previous).ExecuteUpdateAsync(setters => setters
+            .SetProperty(x => x.Status, target)
+            .SetProperty(x => x.ConcurrencyToken, nextToken)
+            .SetProperty(x => x.ConfirmedAtUtc, x => target == BookingStatus.Confirmed ? changedAt : x.ConfirmedAtUtc)
+            .SetProperty(x => x.CompletedAtUtc, x => target == BookingStatus.Completed ? changedAt : x.CompletedAtUtc), ct);
+        if (updated != 1) { await transaction.RollbackAsync(ct); return BookingTransitionResult.Stale; }
+        db.BookingStatusHistory.Add(new BookingStatusHistory { Id = Guid.NewGuid(), BookingId = booking.Id, PreviousStatus = previous, NewStatus = target, ActorUserId = actorId, Reason = request.Reason?.Trim(), ChangedAtUtc = changedAt });
         db.Notifications.Add(Notification(professional ? booking.CustomerUserId : booking.Business.OwnerUserId, $"Booking{target}", booking.Id));
         db.AuditLogs.Add(Audit(actorId, $"Booking{target}", booking.Id, request.Reason?.Trim()));
-        await db.SaveChangesAsync(ct); return BookingTransitionResult.Success;
+        await db.SaveChangesAsync(ct); await transaction.CommitAsync(ct); return BookingTransitionResult.Success;
     }
     private static bool AllowedProfessional(BookingStatus current, BookingStatus target) => (current, target) switch { (BookingStatus.Pending, BookingStatus.Confirmed or BookingStatus.Rejected or BookingStatus.Cancelled) => true, (BookingStatus.Confirmed, BookingStatus.Completed or BookingStatus.NoShow or BookingStatus.Cancelled) => true, _ => false };
     private IQueryable<Booking> Query() => db.Bookings.Include(x => x.Business).Include(x => x.StaffMember).Include(x => x.StatusHistory);
