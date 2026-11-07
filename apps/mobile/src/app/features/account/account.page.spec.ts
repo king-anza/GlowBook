@@ -33,6 +33,7 @@ describe('AccountPage', () => {
       termsVersion: '1',
       privacyNoticeVersion: '1',
     };
+    http.expectOne(`${environment.apiUrl}/api/v1/me`).flush({ roles: ['Customer'] });
     http.expectOne(`${environment.apiUrl}/api/v1/me/data`).flush(account);
     page.email = 'new@example.test';
     page.displayName = 'New Name';

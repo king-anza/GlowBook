@@ -47,6 +47,10 @@ export const routes: Routes = [
       import('./features/professional/professional-bookings.page').then((m) => m.ProfessionalBookingsPage),
   },
   {
+    path: 'admin',
+    loadComponent: () => import('./features/admin/admin.page').then((m) => m.AdminPage),
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',

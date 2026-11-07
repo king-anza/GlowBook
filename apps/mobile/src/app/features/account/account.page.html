@@ -40,7 +40,16 @@
         >
       </div>
     </section>
-    } @else {
+    @if (isAdmin()) {
+    <section class="surface-card admin-callout">
+      <div>
+        <p class="eyebrow">Administrator</p>
+        <h2>Operations centre</h2>
+        <p class="section-copy">Review professionals and inspect support activity.</p>
+      </div>
+      <ion-button routerLink="/admin">Open admin centre</ion-button>
+    </section>
+    } } @else {
     <div class="empty-state">Sign in to view and manage your profile.</div>
     } @if (message()) {
     <p class="notice notice--success" role="status">{{ message() }}</p>

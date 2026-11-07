@@ -1,0 +1,124 @@
+<ion-header
+  ><ion-toolbar><ion-title>Admin centre</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell">
+    <section class="page-heading">
+      <p class="eyebrow">GlowBook operations</p>
+      <h1>Keep the marketplace trusted.</h1>
+      <p>Review professional applications and inspect support activity from one secure workspace.</p>
+    </section>
+
+    <section class="admin-stats" aria-label="Operations summary">
+      <article class="admin-stat">
+        <strong>{{ pendingBusinesses().length }}</strong><span>Awaiting review</span>
+      </article>
+      <article class="admin-stat"><strong>{{ users().length }}</strong><span>Users on this page</span></article>
+      <article class="admin-stat"><strong>{{ bookings().length }}</strong><span>Bookings visible</span></article>
+      <article class="admin-stat"><strong>{{ audits().length }}</strong><span>Audit events</span></article>
+    </section>
+
+    <h2 class="section-title">Professional approvals</h2>
+    <p class="section-copy">Only approved businesses appear in customer discovery.</p>
+    <section class="card-grid">
+      @for (business of pendingBusinesses(); track business.id) {
+      <article class="surface-card">
+        <div class="admin-row__top">
+          <div>
+            <h3>{{ business.tradingName }}</h3>
+            <p>{{ business.location.suburb }}, {{ business.location.city }} · {{ business.location.province }}</p>
+          </div>
+          <span class="status-badge" [attr.data-status]="business.status">{{ business.status }}</span>
+        </div>
+        <p class="section-copy">{{ business.description || 'No business description supplied.' }}</p>
+        <div class="chip-row"><span class="chip">{{ business.staff.length }} staff</span></div>
+        <ion-item class="field">
+          <ion-input
+            label="Reason required if rejecting"
+            labelPlacement="stacked"
+            maxlength="1000"
+            [(ngModel)]="rejectionReasons[business.id]"
+          />
+        </ion-item>
+        <div class="action-row">
+          <ion-button size="small" [disabled]="busyId() === business.id" (click)="approve(business)"
+            >Approve</ion-button
+          >
+          <ion-button
+            size="small"
+            color="danger"
+            fill="outline"
+            [disabled]="busyId() === business.id"
+            (click)="reject(business)"
+            >Reject</ion-button
+          >
+        </div>
+      </article>
+      } @empty {
+      <div class="empty-state">No professional applications are awaiting review.</div>
+      }
+    </section>
+
+    <h2 class="section-title">Support users</h2>
+    <section class="surface-card admin-list">
+      @for (user of users(); track user.id) {
+      <article class="admin-row">
+        <div class="admin-row__top">
+          <h3>{{ user.displayName || 'Unnamed user' }}</h3>
+          <span class="status-badge" [attr.data-status]="user.accountStatus">{{ user.accountStatus }}</span>
+        </div>
+        <p>{{ user.email }}</p>
+        <p>Joined {{ user.createdAtUtc | date: 'mediumDate' }}</p>
+      </article>
+      } @empty {
+      <div class="empty-state">No users found on this page.</div>
+      }
+    </section>
+    <div class="pagination">
+      <ion-button fill="outline" [disabled]="userPage() === 1" (click)="changeUserPage(-1)">Previous</ion-button>
+      <span>Page {{ userPage() }}</span>
+      <ion-button fill="outline" [disabled]="users().length < pageSize" (click)="changeUserPage(1)">Next</ion-button>
+    </div>
+
+    <h2 class="section-title">Booking oversight</h2>
+    <section class="card-grid">
+      @for (booking of bookings(); track booking.id) {
+      <article class="surface-card booking-card">
+        <div class="booking-card__top">
+          <div>
+            <h2>{{ booking.serviceName }}</h2>
+            <p>{{ booking.businessName }} · {{ booking.staffName }}</p>
+          </div>
+          <span class="status-badge" [attr.data-status]="booking.status">{{ booking.status }}</span>
+        </div>
+        <p>{{ booking.startUtc | date: 'medium' }}</p>
+      </article>
+      } @empty {
+      <div class="empty-state">No bookings are available.</div>
+      }
+    </section>
+
+    <h2 class="section-title">Security audit activity</h2>
+    <section class="surface-card admin-list">
+      @for (audit of audits(); track audit.id) {
+      <article class="admin-row">
+        <div class="admin-row__top">
+          <span class="audit-action">{{ audit.action }}</span><span class="chip">{{ audit.subjectType }}</span>
+        </div>
+        <p>{{ audit.occurredAtUtc | date: 'medium' }}</p>
+        <p>{{ audit.details || audit.subjectId }}</p>
+      </article>
+      } @empty {
+      <div class="empty-state">No audit events found on this page.</div>
+      }
+    </section>
+    <div class="pagination">
+      <ion-button fill="outline" [disabled]="auditPage() === 1" (click)="changeAuditPage(-1)">Previous</ion-button>
+      <span>Page {{ auditPage() }}</span>
+      <ion-button fill="outline" [disabled]="audits().length < pageSize" (click)="changeAuditPage(1)">Next</ion-button>
+    </div>
+    @if (message()) {
+    <p class="notice" role="status">{{ message() }}</p>
+    }
+  </main>
+</ion-content>

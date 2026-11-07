@@ -289,3 +289,68 @@ test('confirms, completes, cancels, and reviews bookings', async ({ page }) => {
   await customerPage.getByRole('button', { name: 'Submit review' }).click();
   await expect(customerPage.getByText('Thank you for your review.')).toBeVisible();
 });
+
+test('administrator reviews a pending professional from the operations centre', async ({ page }) => {
+  const payload = Buffer.from(JSON.stringify({ role: 'Admin' })).toString('base64url');
+  const accessToken = `header.${payload}.signature`;
+  await page.route('**/api/v1/auth/login', (route) =>
+    route.fulfill({
+      json: { accessToken, refreshToken: 'admin-refresh', accessTokenExpiresAtUtc: '2026-11-09T08:00:00Z' },
+    }),
+  );
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+  await page.route('**/api/v1/admin/businesses/pending', (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: 'business-1',
+          tradingName: 'Lerato Beauty Studio',
+          description: 'Natural hair and beauty care.',
+          status: 'PendingReview',
+          location: { suburb: 'Rosebank', city: 'Johannesburg', province: 'Gauteng' },
+          staff: [{ id: 'staff-1' }],
+        },
+      ],
+    }),
+  );
+  await page.route('**/api/v1/admin/users?**', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/admin/bookings', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/admin/audit-logs?**', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/admin/businesses/business-1/approve', (route) => route.fulfill({ status: 204 }));
+  await page.route('**/api/v1/me/data', (route) =>
+    route.fulfill({
+      json: {
+        id: 'admin-1',
+        email: 'admin@example.test',
+        displayName: 'GlowBook Admin',
+        marketingConsent: false,
+        accountStatus: 'Active',
+        createdAtUtc: '2026-11-07T00:00:00Z',
+        termsVersion: '1',
+        privacyNoticeVersion: '1',
+      },
+    }),
+  );
+  await page.route('**/api/v1/me', (route) =>
+    route.fulfill({
+      json: { id: 'admin-1', email: 'admin@example.test', displayName: 'GlowBook Admin', roles: ['Admin'] },
+    }),
+  );
+
+  await page.goto('/auth');
+  await page.getByLabel('Email').fill('admin@example.test');
+  await page.getByLabel('Password').fill('ValidPass!1');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('link', { name: 'Account' }).click();
+  await page.getByText('Manage my profile and privacy').click();
+  await page.getByRole('link', { name: 'Open admin centre' }).click();
+  await expect(page.getByRole('heading', { name: 'Keep the marketplace trusted.' })).toBeVisible();
+  await expect(page.getByText('Lerato Beauty Studio')).toBeVisible();
+  await page.getByRole('button', { name: 'Approve' }).click();
+  await page.locator('ion-alert').getByRole('button', { name: 'Approve business' }).click();
+  await expect(page.getByText('Lerato Beauty Studio was approved.')).toBeVisible();
+  await expect(page.getByText('No professional applications are awaiting review.')).toBeVisible();
+});

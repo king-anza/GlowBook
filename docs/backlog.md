@@ -53,3 +53,11 @@ This checklist tracks implementation against `docs/requirements.md`. A checked i
 - [x] GitHub Actions PostgreSQL service for database-backed tests; local PostgreSQL remains optional
 - [x] Keep tokens memory-only; review a native secure-storage adapter before enabling persistence
 - [x] Hosting selection explicitly deferred until a deployment request; no infrastructure created
+
+## Release-gap enhancements
+
+- [x] Role-aware mobile administrator centre for professional approvals, support users, bookings and audit activity
+- [ ] Native secure session persistence after adapter review
+- [ ] Production API hosting and mobile runtime configuration after hosting approval
+- [ ] Play Store signing, listing, policy declarations and release bundle
+- [ ] Physical-device accessibility and complete live-environment acceptance testing

@@ -8,6 +8,7 @@
 - Administrator: pending business review, approve/reject/suspend, review and portfolio moderation, support user/booking lists and audit logs.
 
 Administrator access is never publicly assignable. The first administrator is created through the temporary operator-controlled bootstrap documented in `operations-runbook.md`.
+The role-aware mobile Admin Centre exposes pending-business approval, support-user, booking-oversight and audit-log workflows. Review and portfolio moderation remain API operations until a complete moderation queue is added.
 
 All application routes are under `/api/v1`; health remains at `/health`. Authenticated writes derive actor/owner IDs from the JWT. Validation uses data annotations and consistent Problem Details. List sizes are bounded. Booking conflicts and stale state return conflict responses.
 

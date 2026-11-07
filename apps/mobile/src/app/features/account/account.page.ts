@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCheckbox,
@@ -29,6 +29,10 @@ interface AccountData {
   privacyNoticeVersion: string;
 }
 
+interface CurrentUser {
+  roles: string[];
+}
+
 @Component({
   selector: 'app-account',
   templateUrl: './account.page.html',
@@ -43,16 +47,18 @@ interface AccountData {
     IonInput,
     IonCheckbox,
     IonButton,
+    RouterLink,
   ],
 })
 export class AccountPage {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
   private readonly confirmation = inject(ConfirmationService);
   readonly account = signal<AccountData | null>(null);
   readonly message = signal<string | null>(null);
   readonly busy = signal(false);
+  readonly isAdmin = signal(false);
   email = '';
   displayName = '';
   marketingConsent = false;
@@ -118,6 +124,10 @@ export class AccountPage {
     });
   }
   private load(): void {
+    this.http.get<CurrentUser>(`${environment.apiUrl}/api/v1/me`).subscribe({
+      next: (user) => this.isAdmin.set(user.roles.some((role) => role.toLowerCase() === 'admin')),
+      error: () => this.isAdmin.set(false),
+    });
     this.http.get<AccountData>(`${environment.apiUrl}/api/v1/me/data`).subscribe({
       next: (data) => {
         this.account.set(data);
