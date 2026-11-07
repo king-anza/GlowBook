@@ -21,6 +21,7 @@ GlowBook is a modular-monolith mobile platform for discovering and booking beaut
 - Playwright Chromium for mobile E2E (`npx playwright install chromium`)
 
 Java/Android SDK and Xcode are required only for their respective native builds.
+You can also download a CI-built Android test APK without installing Android Studio; see [the Android guide](docs/android.md).
 
 ## Backend
 
@@ -55,6 +56,10 @@ npm.cmd start
 The development UI is served at `http://localhost:4200` and targets the local HTTPS API. `npm.cmd run test:e2e` uses mocked HTTP responses and therefore does not require PostgreSQL. PostgreSQL integration tests run when `GLOWBOOK_TEST_CONNECTION` is set; CI supplies a PostgreSQL 17 service automatically.
 
 Tokens currently remain in process memory and are never written to web storage. Native session persistence must use a reviewed secure-storage adapter before it is enabled.
+
+## Android testing
+
+Every successful pull-request CI run publishes a `glowbook-android-debug` artifact containing an installable test APK. Follow [the Android testing and release guide](docs/android.md) to install it on a phone or build it locally. This debug APK is not a Play Store release, and live account and booking features still require a reachable hosted API.
 
 ## Delivery rules
 
