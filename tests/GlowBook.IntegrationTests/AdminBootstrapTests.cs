@@ -41,7 +41,14 @@ public sealed class AdminBootstrapTests
 
     private sealed class BootstrapFactory(string connection) : WebApplicationFactory<Program>
     {
-        protected override void ConfigureWebHost(IWebHostBuilder builder) =>
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            builder.UseSetting("ConnectionStrings:GlowBook", connection);
+            builder.UseSetting("Jwt:Issuer", "GlowBook.Tests");
+            builder.UseSetting("Jwt:Audience", "GlowBook.Tests");
+            builder.UseSetting("Jwt:SigningKey", "test-only-signing-key-at-least-thirty-two-bytes");
+            builder.UseSetting("AdminBootstrap:Email", "bootstrap-admin@example.test");
+            builder.UseSetting("AdminBootstrap:Password", "AdminPass!123");
             builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
@@ -52,5 +59,6 @@ public sealed class AdminBootstrapTests
                     ["AdminBootstrap:Email"] = "bootstrap-admin@example.test",
                     ["AdminBootstrap:Password"] = "AdminPass!123"
                 }));
+        }
     }
 }
