@@ -47,6 +47,9 @@ jobs:
       - name: Test
         run: dotnet test --configuration Release --no-build --logger trx
 
+      - name: Build API container
+        run: docker build --tag glowbook-api:ci .
+
   mobile:
     name: Mobile
     runs-on: ubuntu-latest

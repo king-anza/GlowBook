@@ -1,4 +1,19 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+
+test('has no serious accessibility violations on public entry screens', async ({ page }) => {
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+  await page.goto('/home');
+  const discovery = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(discovery.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
+
+  await page.goto('/auth');
+  const authentication = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(authentication.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
+});
 
 test('shows the discovery page', async ({ page }) => {
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
@@ -319,6 +334,8 @@ test('administrator reviews a pending professional from the operations centre', 
   await page.route('**/api/v1/admin/users?**', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/bookings', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/audit-logs?**', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/admin/reviews', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/admin/portfolio-images', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/businesses/business-1/approve', (route) => route.fulfill({ status: 204 }));
   await page.route('**/api/v1/me/data', (route) =>
     route.fulfill({

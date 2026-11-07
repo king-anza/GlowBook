@@ -11,6 +11,7 @@ public sealed record BusinessDto(Guid Id, string TradingName, string Description
 public sealed record StaffDto(Guid Id, string DisplayName, string Biography, bool IsActive, bool AcceptingBookings);
 public sealed record PortfolioImageRequest([property: Required, Url, RegularExpression("^https://.*", ErrorMessage = "Image URL must use HTTPS.")] string ImageUrl, [property: Required, MaxLength(200)] string AltText, [property: Range(0, 9)] int DisplayOrder);
 public sealed record PortfolioImageDto(Guid Id, string ImageUrl, string AltText, int DisplayOrder, PortfolioImageStatus Status);
+public sealed record AdminPortfolioImageDto(Guid Id, string BusinessName, string ImageUrl, string AltText, PortfolioImageStatus Status, DateTime CreatedAtUtc);
 
 public interface IProfessionalService
 {
@@ -24,4 +25,5 @@ public interface IProfessionalService
     Task<IReadOnlyCollection<PortfolioImageDto>> PortfolioImagesAsync(Guid ownerId, CancellationToken ct);
     Task<bool> DeletePortfolioImageAsync(Guid ownerId, Guid imageId, CancellationToken ct);
     Task<bool> ModeratePortfolioImageAsync(Guid actorId, Guid imageId, bool hidden, CancellationToken ct);
+    Task<IReadOnlyCollection<AdminPortfolioImageDto>> PortfolioModerationAsync(CancellationToken ct);
 }

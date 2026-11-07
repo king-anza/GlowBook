@@ -42,6 +42,24 @@ interface AuditLog {
   occurredAtUtc: string;
 }
 
+interface ModerationReview {
+  id: string;
+  businessName: string;
+  rating: number;
+  comment: string | null;
+  status: string;
+  createdAtUtc: string;
+}
+
+interface ModerationImage {
+  id: string;
+  businessName: string;
+  imageUrl: string;
+  altText: string;
+  status: string;
+  createdAtUtc: string;
+}
+
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.page.html',
@@ -54,6 +72,8 @@ export class AdminPage {
   readonly users = signal<AdminUser[]>([]);
   readonly bookings = signal<Booking[]>([]);
   readonly audits = signal<AuditLog[]>([]);
+  readonly reviews = signal<ModerationReview[]>([]);
+  readonly portfolioImages = signal<ModerationImage[]>([]);
   readonly busyId = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly loading = signal(true);
@@ -72,6 +92,7 @@ export class AdminPage {
     this.loadUsers(this.userPage());
     this.loadBookings();
     this.loadAudits(this.auditPage());
+    this.loadModeration();
   }
 
   async approve(business: Business): Promise<void> {
@@ -113,6 +134,32 @@ export class AdminPage {
     const page = Math.max(1, this.auditPage() + offset);
     this.auditPage.set(page);
     this.loadAudits(page);
+  }
+
+  async moderateReview(review: ModerationReview): Promise<void> {
+    const action = review.status === 'Hidden' ? 'restore' : 'hide';
+    if (
+      !(await this.confirmation.confirm(
+        `${action === 'hide' ? 'Hide' : 'Restore'} this review?`,
+        'This changes its visibility on the public business profile.',
+        action === 'hide' ? 'Hide review' : 'Restore review',
+      ))
+    )
+      return;
+    this.moderate(`/api/v1/admin/reviews/${review.id}/${action}`, () => this.loadModeration());
+  }
+
+  async moderateImage(image: ModerationImage): Promise<void> {
+    const action = image.status === 'Hidden' ? 'restore' : 'hide';
+    if (
+      !(await this.confirmation.confirm(
+        `${action === 'hide' ? 'Hide' : 'Restore'} this image?`,
+        'This changes its visibility in the public portfolio.',
+        action === 'hide' ? 'Hide image' : 'Restore image',
+      ))
+    )
+      return;
+    this.moderate(`/api/v1/admin/portfolio-images/${image.id}/${action}`, () => this.loadModeration());
   }
 
   private reviewBusiness(business: Business, action: 'approve' | 'reject', body: object): void {
@@ -167,6 +214,27 @@ export class AdminPage {
           this.loading.set(false);
         },
       });
+  }
+
+  private loadModeration(): void {
+    this.http.get<ModerationReview[]>(`${environment.apiUrl}/api/v1/admin/reviews`).subscribe({
+      next: (items) => this.reviews.set(items),
+      error: () => this.message.set('Review moderation could not be loaded.'),
+    });
+    this.http.get<ModerationImage[]>(`${environment.apiUrl}/api/v1/admin/portfolio-images`).subscribe({
+      next: (items) => this.portfolioImages.set(items),
+      error: () => this.message.set('Portfolio moderation could not be loaded.'),
+    });
+  }
+
+  private moderate(path: string, complete: () => void): void {
+    this.http.post(`${environment.apiUrl}${path}`, {}).subscribe({
+      next: () => {
+        this.message.set('Moderation status updated.');
+        complete();
+      },
+      error: () => this.message.set('The moderation status could not be updated.'),
+    });
   }
 
   private pagination(page: number): HttpParams {

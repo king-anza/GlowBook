@@ -64,6 +64,10 @@ public sealed class ReviewService(GlowBookDbContext db) : IReviewService
         await db.SaveChangesAsync(ct); return true;
     }
 
+    public async Task<IReadOnlyCollection<AdminReviewDto>> ForModerationAsync(CancellationToken ct) =>
+        await db.Reviews.AsNoTracking().OrderByDescending(x => x.CreatedAtUtc).Take(100)
+            .Select(x => new AdminReviewDto(x.Id, x.Business.TradingName, x.Rating, x.Comment, x.ModerationStatus.ToString(), x.CreatedAtUtc)).ToListAsync(ct);
+
     private static string? Normalise(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     private static ReviewDto Map(Review review) => new(review.Id, review.BookingId, review.BusinessId, review.Rating, review.Comment, review.CreatedAtUtc, review.UpdatedAtUtc, review.ConcurrencyToken);
     private static AuditLog Audit(Guid actorId, string action, Guid reviewId) => new() { Id = Guid.NewGuid(), ActorUserId = actorId, Action = action, SubjectType = "Review", SubjectId = reviewId, OccurredAtUtc = DateTime.UtcNow };

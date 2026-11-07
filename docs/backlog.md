@@ -57,7 +57,8 @@ This checklist tracks implementation against `docs/requirements.md`. A checked i
 ## Release-gap enhancements
 
 - [x] Role-aware mobile administrator centre for professional approvals, support users, bookings and audit activity
-- [ ] Native secure session persistence after adapter review
-- [ ] Production API hosting and mobile runtime configuration after hosting approval
-- [ ] Play Store signing, listing, policy declarations and release bundle
+- [x] Reachable administrator review and portfolio moderation queues
+- [x] Native secure session persistence using Android Keystore/iOS Keychain, with access tokens kept memory-only
+- [ ] Owner-created production API/database hosting; container and validated HTTPS mobile release configuration are implemented
+- [ ] Owner Play Console/signing secrets and store declarations; manual signed `.aab` workflow is implemented
 - [ ] Physical-device accessibility and complete live-environment acceptance testing

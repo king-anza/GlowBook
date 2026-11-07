@@ -9,6 +9,7 @@ public sealed record ReviewRequest(
 
 public sealed record ReviewDto(Guid Id, Guid BookingId, Guid BusinessId, int Rating, string? Comment, DateTime CreatedAtUtc, DateTime UpdatedAtUtc, Guid ConcurrencyToken);
 public sealed record BusinessReviewsDto(double AverageRating, int ReviewCount, IReadOnlyCollection<ReviewDto> Reviews);
+public sealed record AdminReviewDto(Guid Id, string BusinessName, int Rating, string? Comment, string Status, DateTime CreatedAtUtc);
 
 public interface IReviewService
 {
@@ -18,4 +19,5 @@ public interface IReviewService
     Task<IReadOnlyCollection<ReviewDto>> ForCustomerAsync(Guid customerId, CancellationToken ct);
     Task<BusinessReviewsDto> ForBusinessAsync(Guid businessId, int page, int pageSize, CancellationToken ct);
     Task<bool> SetHiddenAsync(Guid actorId, Guid reviewId, bool hidden, CancellationToken ct);
+    Task<IReadOnlyCollection<AdminReviewDto>> ForModerationAsync(CancellationToken ct);
 }

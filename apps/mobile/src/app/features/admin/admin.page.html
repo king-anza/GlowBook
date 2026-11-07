@@ -98,6 +98,43 @@
       }
     </section>
 
+    <h2 class="section-title">Review moderation</h2>
+    <section class="card-grid">
+      @for (review of reviews(); track review.id) {
+      <article class="surface-card">
+        <div class="admin-row__top">
+          <h3>{{ review.businessName }}</h3>
+          <span class="status-badge" [attr.data-status]="review.status">{{ review.status }}</span>
+        </div>
+        <p class="price">{{ review.rating }} / 5</p>
+        <p class="section-copy">{{ review.comment || 'No written comment.' }}</p>
+        <ion-button size="small" fill="outline" (click)="moderateReview(review)"
+          >{{ review.status === 'Hidden' ? 'Restore review' : 'Hide review' }}</ion-button
+        >
+      </article>
+      } @empty {
+      <div class="empty-state">No reviews require moderation.</div>
+      }
+    </section>
+
+    <h2 class="section-title">Portfolio moderation</h2>
+    <section class="portfolio-grid">
+      @for (image of portfolioImages(); track image.id) {
+      <article class="portfolio-item">
+        <img [src]="image.imageUrl" [alt]="image.altText" />
+        <div class="portfolio-item__body">
+          <strong>{{ image.businessName }}</strong>
+          <p class="section-copy">{{ image.altText }}</p>
+          <ion-button size="small" fill="outline" (click)="moderateImage(image)"
+            >{{ image.status === 'Hidden' ? 'Restore image' : 'Hide image' }}</ion-button
+          >
+        </div>
+      </article>
+      } @empty {
+      <div class="empty-state">No portfolio images require moderation.</div>
+      }
+    </section>
+
     <h2 class="section-title">Security audit activity</h2>
     <section class="surface-card admin-list">
       @for (audit of audits(); track audit.id) {

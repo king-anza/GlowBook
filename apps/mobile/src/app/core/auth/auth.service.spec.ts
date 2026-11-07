@@ -5,13 +5,26 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 
 import { AuthService, type AuthTokens } from './auth.service';
+import { SessionVaultService } from './session-vault.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let http: HttpTestingController;
+  let vault: {
+    loadRefreshToken: ReturnType<typeof vi.fn>;
+    saveRefreshToken: ReturnType<typeof vi.fn>;
+    clear: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+    vault = {
+      loadRefreshToken: vi.fn().mockResolvedValue(null),
+      saveRefreshToken: vi.fn().mockResolvedValue(undefined),
+      clear: vi.fn().mockResolvedValue(undefined),
+    };
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), { provide: SessionVaultService, useValue: vault }],
+    });
     service = TestBed.inject(AuthService);
     http = TestBed.inject(HttpTestingController);
   });
@@ -43,6 +56,7 @@ describe('AuthService', () => {
     expect(request.request.body).toEqual({ refreshToken: 'refresh-one' });
     request.flush(rotated);
     expect(service.accessToken()).toBe('new');
+    expect(vault.saveRefreshToken).toHaveBeenCalledWith('refresh-two');
   });
 
   it('revokes the refresh token on logout and clears memory', () => {
@@ -56,5 +70,23 @@ describe('AuthService', () => {
     expect(request.request.body).toEqual({ refreshToken: 'refresh' });
     request.flush(null);
     expect(service.isAuthenticated()).toBe(false);
+    expect(vault.clear).toHaveBeenCalled();
+  });
+
+  it('restores a native session by rotating the securely stored refresh token', async () => {
+    vault.loadRefreshToken.mockResolvedValue('stored-refresh');
+    const restored = service.restoreSession();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const request = http.expectOne(`${environment.apiUrl}/api/v1/auth/refresh`);
+    expect(request.request.body).toEqual({ refreshToken: 'stored-refresh' });
+    request.flush({
+      accessToken: 'restored-access',
+      refreshToken: 'rotated-refresh',
+      accessTokenExpiresAtUtc: '2026-11-07T10:15:00Z',
+    });
+    await restored;
+
+    expect(service.accessToken()).toBe('restored-access');
+    expect(vault.saveRefreshToken).toHaveBeenCalledWith('rotated-refresh');
   });
 });

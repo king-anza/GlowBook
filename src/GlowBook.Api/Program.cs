@@ -200,11 +200,13 @@ admin.MapPost("/businesses/{id:guid}/suspend", async (Guid id, BusinessReviewReq
 admin.MapPost("/businesses/{id:guid}/reactivate", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Approved, null, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/reviews/{id:guid}/hide", async (Guid id, ClaimsPrincipal user, IReviewService service, CancellationToken ct) => await service.SetHiddenAsync(UserId(user), id, true, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/reviews/{id:guid}/restore", async (Guid id, ClaimsPrincipal user, IReviewService service, CancellationToken ct) => await service.SetHiddenAsync(UserId(user), id, false, ct) ? Results.NoContent() : Results.NotFound());
+admin.MapGet("/reviews", (IReviewService service, CancellationToken ct) => service.ForModerationAsync(ct));
 admin.MapGet("/users", (int page, int pageSize, IOperationsService service, CancellationToken ct) => service.UsersAsync(page == 0 ? 1 : page, pageSize == 0 ? 50 : pageSize, ct));
 admin.MapGet("/audit-logs", (int page, int pageSize, IOperationsService service, CancellationToken ct) => service.AuditAsync(page == 0 ? 1 : page, pageSize == 0 ? 50 : pageSize, ct));
 admin.MapGet("/bookings", (IBookingService service, CancellationToken ct) => service.AdminBookingsAsync(ct));
 admin.MapPost("/portfolio-images/{id:guid}/hide", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ModeratePortfolioImageAsync(UserId(user), id, true, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/portfolio-images/{id:guid}/restore", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ModeratePortfolioImageAsync(UserId(user), id, false, ct) ? Results.NoContent() : Results.NotFound());
+admin.MapGet("/portfolio-images", (IProfessionalService service, CancellationToken ct) => service.PortfolioModerationAsync(ct));
 
 static async Task<IResult> Register(RegisterRequest request, string role, IIdentityService identity, CancellationToken cancellationToken)
 {

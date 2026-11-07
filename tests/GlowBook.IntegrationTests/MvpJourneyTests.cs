@@ -49,6 +49,7 @@ public sealed class MvpJourneyTests
             location = new { addressLine1 = "1 Main Road", addressLine2 = (string?)null, suburb = "Sandton", city = "Johannesburg", province = "Gauteng", postalCode = "2196" }, concurrencyToken = (Guid?)null
         });
         var staffId = Assert.Single(business.Staff).Id;
+        var portfolioImage = await PostAsync<PortfolioImageDto>(client, "/api/v1/professional/portfolio-images", new { imageUrl = "https://example.test/portfolio.jpg", altText = "Finished silk press hairstyle", displayOrder = 0 });
         var categoryId = Guid.Parse("44444444-4444-4444-4444-000000000001");
         var service = await PostAsync<ServiceDto>(client, "/api/v1/professional/services", new { categoryId, name = "Silk press", description = "Wash and style", concurrencyToken = (Guid?)null });
         var offering = await PostAsync<OfferingDto>(client, $"/api/v1/professional/services/{service.Id}/offerings", new { staffMemberId = staffId, price = 250m, durationMinutes = 30, bufferMinutes = 0, concurrencyToken = (Guid?)null });
@@ -85,6 +86,17 @@ public sealed class MvpJourneyTests
         var review = await PostAsync<ReviewDto>(client, $"/api/v1/bookings/{first.Id}/review", new { rating = 5, comment = "Excellent service", concurrencyToken = (Guid?)null });
         Assert.Equal(5, review.Rating);
 
+        Authorize(client, adminToken);
+        var moderationReviews = await client.GetFromJsonAsync<List<AdminReviewDto>>("/api/v1/admin/reviews");
+        Assert.Contains(moderationReviews!, x => x.Id == review.Id && x.Status == "Active");
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/admin/reviews/{review.Id}/hide", new { }));
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/admin/reviews/{review.Id}/restore", new { }));
+        var moderationImages = await client.GetFromJsonAsync<List<AdminPortfolioImageDto>>("/api/v1/admin/portfolio-images");
+        Assert.Contains(moderationImages!, x => x.Id == portfolioImage.Id && x.Status == GlowBook.Domain.Professionals.PortfolioImageStatus.Active);
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/admin/portfolio-images/{portfolioImage.Id}/hide", new { }));
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/admin/portfolio-images/{portfolioImage.Id}/restore", new { }));
+
+        Authorize(client, customerToken);
         var second = await PostAsync<BookingDto>(client, "/api/v1/bookings", new { offeringId = offering.Id, startUtc = slots[1].StartUtc, idempotencyKey = "journey-cancel", notes = (string?)null });
         Authorize(client, intruderToken);
         var forbiddenCustomerAction = await client.PostAsJsonAsync($"/api/v1/bookings/{second.Id}/cancel", new { reason = "Not mine", concurrencyToken = second.ConcurrencyToken });
