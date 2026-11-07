@@ -73,7 +73,10 @@ public sealed class MvpJourneyTests
         Authorize(client, customerToken);
         var first = await PostAsync<BookingDto>(client, "/api/v1/bookings", new { offeringId = offering.Id, startUtc = slots[0].StartUtc, idempotencyKey = "journey-complete", notes = "Please avoid scented products." });
         Authorize(client, professionalToken);
-        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/bookings/{first.Id}/confirm", new { reason = (string?)null, concurrencyToken = first.ConcurrencyToken }));
+        var initialProfessionalBookings = await client.GetFromJsonAsync<List<BookingDto>>("/api/v1/professional/bookings");
+        var pending = Assert.Single(initialProfessionalBookings!, x => x.Id == first.Id);
+        Assert.Equal(first.ConcurrencyToken, pending.ConcurrencyToken);
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/bookings/{first.Id}/confirm", new { reason = (string?)null, concurrencyToken = pending.ConcurrencyToken }));
         var professionalBookings = await client.GetFromJsonAsync<List<BookingDto>>("/api/v1/professional/bookings");
         var confirmed = Assert.Single(professionalBookings!, x => x.Id == first.Id);
         await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/bookings/{first.Id}/complete", new { reason = (string?)null, concurrencyToken = confirmed.ConcurrencyToken }));

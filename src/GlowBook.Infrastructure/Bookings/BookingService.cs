@@ -6,10 +6,11 @@ using GlowBook.Domain.Professionals;
 using GlowBook.Domain.Operations;
 using GlowBook.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace GlowBook.Infrastructure.Bookings;
 
-internal sealed class BookingService(GlowBookDbContext db, IAvailabilityService availability) : IBookingService
+internal sealed class BookingService(GlowBookDbContext db, IAvailabilityService availability, ILogger<BookingService> logger) : IBookingService
 {
     private static readonly BookingStatus[] Occupying = [BookingStatus.Pending, BookingStatus.Confirmed];
     public async Task<BookingDto?> CreateAsync(Guid customerId, CreateBookingRequest request, CancellationToken ct)
@@ -40,10 +41,12 @@ internal sealed class BookingService(GlowBookDbContext db, IAvailabilityService 
     public async Task<IReadOnlyCollection<BookingDto>> AdminBookingsAsync(CancellationToken ct) => (await Query().OrderByDescending(x => x.StartUtc).Take(500).ToArrayAsync(ct)).Select(Map).ToArray();
     public async Task<bool> TransitionAsync(Guid actorId, bool professional, Guid id, BookingStatus target, BookingActionRequest request, CancellationToken ct)
     {
-        var booking = await Query().SingleOrDefaultAsync(x => x.Id == id, ct); if (booking is null || booking.ConcurrencyToken != request.ConcurrencyToken) return false;
-        if (professional ? booking.Business.OwnerUserId != actorId && booking.StaffMember.LinkedUserId != actorId : booking.CustomerUserId != actorId) return false;
+        var booking = await Query().SingleOrDefaultAsync(x => x.Id == id, ct);
+        if (booking is null) { logger.LogWarning("Booking transition rejected because the booking was not found."); return false; }
+        if (booking.ConcurrencyToken != request.ConcurrencyToken) { logger.LogInformation("Booking transition rejected because its version is stale."); return false; }
+        if (professional ? booking.Business.OwnerUserId != actorId && booking.StaffMember.LinkedUserId != actorId : booking.CustomerUserId != actorId) { logger.LogWarning("Booking transition rejected because the actor does not own the resource."); return false; }
         var allowed = professional ? AllowedProfessional(booking.Status, target) : target == BookingStatus.Cancelled && booking.Status is BookingStatus.Pending or BookingStatus.Confirmed;
-        if (!allowed) return false; var previous = booking.Status; booking.Status = target; booking.ConcurrencyToken = Guid.NewGuid(); if (target == BookingStatus.Confirmed) booking.ConfirmedAtUtc = DateTime.UtcNow; if (target == BookingStatus.Completed) booking.CompletedAtUtc = DateTime.UtcNow;
+        if (!allowed) { logger.LogInformation("Booking transition rejected because the requested status change is not allowed."); return false; } var previous = booking.Status; booking.Status = target; booking.ConcurrencyToken = Guid.NewGuid(); if (target == BookingStatus.Confirmed) booking.ConfirmedAtUtc = DateTime.UtcNow; if (target == BookingStatus.Completed) booking.CompletedAtUtc = DateTime.UtcNow;
         booking.StatusHistory.Add(new BookingStatusHistory { Id = Guid.NewGuid(), PreviousStatus = previous, NewStatus = target, ActorUserId = actorId, Reason = request.Reason?.Trim(), ChangedAtUtc = DateTime.UtcNow });
         db.Notifications.Add(Notification(professional ? booking.CustomerUserId : booking.Business.OwnerUserId, $"Booking{target}", booking.Id));
         db.AuditLogs.Add(Audit(actorId, $"Booking{target}", booking.Id, request.Reason?.Trim()));
