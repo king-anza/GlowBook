@@ -183,14 +183,14 @@ app.MapGet("/api/v1/businesses/{id:guid}", async (Guid id, IDiscoveryService ser
 var customer = app.MapGroup("/api/v1/bookings").RequireAuthorization(policy => policy.RequireRole("Customer"));
 customer.MapPost("/", async (CreateBookingRequest request, ClaimsPrincipal user, IBookingService service, CancellationToken ct) => await service.CreateAsync(UserId(user), request, ct) is { } booking ? Results.Ok(booking) : Results.Conflict()).AddEndpointFilter<ValidationFilter<CreateBookingRequest>>();
 customer.MapGet("/", (ClaimsPrincipal user, IBookingService service, CancellationToken ct) => service.CustomerBookingsAsync(UserId(user), ct));
-customer.MapPost("/{id:guid}/cancel", async (Guid id, BookingActionRequest request, ClaimsPrincipal user, IBookingService service, CancellationToken ct) => await service.TransitionAsync(UserId(user), false, id, BookingStatus.Cancelled, request, ct) ? Results.NoContent() : Results.Conflict());
+customer.MapPost("/{id:guid}/cancel", async (Guid id, BookingActionRequest request, ClaimsPrincipal user, IBookingService service, CancellationToken ct) => BookingTransitionResponse(await service.TransitionAsync(UserId(user), false, id, BookingStatus.Cancelled, request, ct)));
 customer.MapPost("/{id:guid}/review", async (Guid id, CustomerReviewRequest request, ClaimsPrincipal user, IReviewService service, CancellationToken ct) => await service.CreateAsync(UserId(user), id, request, ct) is { } review ? Results.Ok(review) : Results.Conflict()).AddEndpointFilter<ValidationFilter<CustomerReviewRequest>>();
 app.MapPatch("/api/v1/reviews/{id:guid}", async (Guid id, CustomerReviewRequest request, ClaimsPrincipal user, IReviewService service, CancellationToken ct) => await service.UpdateAsync(UserId(user), id, request, ct) is { } review ? Results.Ok(review) : Results.Conflict()).RequireAuthorization(policy => policy.RequireRole("Customer")).AddEndpointFilter<ValidationFilter<CustomerReviewRequest>>();
 app.MapDelete("/api/v1/reviews/{id:guid}", async (Guid id, ClaimsPrincipal user, IReviewService service, CancellationToken ct) => await service.DeleteAsync(UserId(user), id, ct) ? Results.NoContent() : Results.NotFound()).RequireAuthorization(policy => policy.RequireRole("Customer"));
 app.MapGet("/api/v1/reviews", (ClaimsPrincipal user, IReviewService service, CancellationToken ct) => service.ForCustomerAsync(UserId(user), ct)).RequireAuthorization(policy => policy.RequireRole("Customer"));
 app.MapGet("/api/v1/businesses/{id:guid}/reviews", (Guid id, int page, int pageSize, IReviewService service, CancellationToken ct) => service.ForBusinessAsync(id, page == 0 ? 1 : page, pageSize == 0 ? 20 : pageSize, ct));
 professional.MapGet("/bookings", (ClaimsPrincipal user, IBookingService service, CancellationToken ct) => service.ProfessionalBookingsAsync(UserId(user), ct));
-professional.MapPost("/bookings/{id:guid}/{action}", async (Guid id, string action, BookingActionRequest request, ClaimsPrincipal user, IBookingService service, CancellationToken ct) => ParseBookingAction(action) is { } target && await service.TransitionAsync(UserId(user), true, id, target, request, ct) ? Results.NoContent() : Results.Conflict());
+professional.MapPost("/bookings/{id:guid}/{action}", async (Guid id, string action, BookingActionRequest request, ClaimsPrincipal user, IBookingService service, CancellationToken ct) => ParseBookingAction(action) is { } target ? BookingTransitionResponse(await service.TransitionAsync(UserId(user), true, id, target, request, ct)) : BookingTransitionResponse(BookingTransitionResult.InvalidTransition));
 
 var admin = app.MapGroup("/api/v1/admin").RequireAuthorization(policy => policy.RequireRole("Admin"));
 admin.MapGet("/businesses/pending", (IProfessionalService service, CancellationToken ct) => service.PendingAsync(ct));
@@ -218,6 +218,9 @@ static IResult ToHttpResult(AuthResult result) => result.Succeeded
 
 static Guid UserId(ClaimsPrincipal user) => Guid.Parse(user.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? throw new InvalidOperationException("Authenticated user has no subject claim."));
 static BookingStatus? ParseBookingAction(string action) => action.ToLowerInvariant() switch { "confirm" => BookingStatus.Confirmed, "reject" => BookingStatus.Rejected, "cancel" => BookingStatus.Cancelled, "complete" => BookingStatus.Completed, "no-show" => BookingStatus.NoShow, _ => null };
+static IResult BookingTransitionResponse(BookingTransitionResult result) => result == BookingTransitionResult.Success
+    ? Results.NoContent()
+    : Results.Problem(statusCode: StatusCodes.Status409Conflict, title: "Booking transition failed", extensions: new Dictionary<string, object?> { ["code"] = result switch { BookingTransitionResult.Stale => "booking_version_conflict", BookingTransitionResult.InvalidTransition => "booking_transition_invalid", _ => "booking_transition_rejected" } });
 
 app.Run();
 
