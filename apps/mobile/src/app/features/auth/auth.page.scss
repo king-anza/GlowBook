@@ -1,0 +1,12 @@
+.error {
+  color: var(--ion-color-danger);
+}
+
+form {
+  margin-top: 1rem;
+}
+
+ion-segment-button {
+  --color: var(--glow-muted);
+  --color-checked: var(--glow-plum);
+}

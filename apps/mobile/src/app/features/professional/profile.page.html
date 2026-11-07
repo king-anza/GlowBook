@@ -1,0 +1,105 @@
+<ion-header
+  ><ion-toolbar><ion-title>Studio workspace</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell">
+    <nav class="professional-nav" aria-label="Professional workspace">
+      <a class="active" routerLink="/professional/profile">Profile</a
+      ><a routerLink="/professional/services">Services & staff</a
+      ><a routerLink="/professional/availability">Availability</a><a routerLink="/professional/bookings">Bookings</a>
+    </nav>
+    <section class="page-heading">
+      <p class="eyebrow">Build your presence</p>
+      <h1>Your studio, beautifully presented.</h1>
+      <p>Complete your profile so clients know what makes your business special.</p>
+      <span class="status-badge" [attr.data-status]="status()">{{ status() }}</span>
+    </section>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <section class="surface-card">
+        <h2 class="section-title" style="margin-top: 0">About your business</h2>
+        <div class="form-grid form-grid--two">
+          <ion-item class="field"
+            ><ion-input label="Trading name" labelPlacement="stacked" formControlName="tradingName"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input type="email" label="Public email" labelPlacement="stacked" formControlName="publicEmail"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input label="Public phone" labelPlacement="stacked" formControlName="publicPhone"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-textarea label="Description" labelPlacement="stacked" autoGrow="true" formControlName="description"
+          /></ion-item>
+        </div>
+        <ion-item class="field" style="margin-top: 12px"
+          ><ion-textarea
+            label="Cancellation policy"
+            labelPlacement="stacked"
+            autoGrow="true"
+            formControlName="cancellationPolicy"
+        /></ion-item>
+      </section>
+      <section class="surface-card" style="margin-top: 16px">
+        <h2 class="section-title" style="margin-top: 0">Primary location</h2>
+        <p class="section-copy">This address helps clients find you and determines local appointment times.</p>
+        <div class="form-grid form-grid--two">
+          <ion-item class="field"
+            ><ion-input label="Address" labelPlacement="stacked" formControlName="addressLine1"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input label="Address line 2" labelPlacement="stacked" formControlName="addressLine2"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input label="Suburb" labelPlacement="stacked" formControlName="suburb"
+          /></ion-item>
+          <ion-item class="field"><ion-input label="City" labelPlacement="stacked" formControlName="city" /></ion-item>
+          <ion-item class="field"
+            ><ion-input label="Province" labelPlacement="stacked" formControlName="province"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input label="Postal code" labelPlacement="stacked" inputmode="numeric" formControlName="postalCode"
+          /></ion-item>
+        </div>
+      </section>
+      <div class="action-row">
+        <ion-button type="submit">Save draft</ion-button
+        ><ion-button fill="outline" type="button" (click)="submitForReview()">Submit for review</ion-button>
+      </div>
+    </form>
+
+    <h2 class="section-title">Portfolio</h2>
+    <p class="section-copy">
+      Show clients the quality and atmosphere they can expect. Add up to ten HTTPS image links.
+    </p>
+    <form class="surface-card" [formGroup]="portfolioForm" (ngSubmit)="addPortfolioImage()">
+      <div class="form-grid form-grid--two">
+        <ion-item class="field"
+          ><ion-input label="HTTPS image URL" labelPlacement="stacked" formControlName="imageUrl" /></ion-item
+        ><ion-item class="field"
+          ><ion-input label="Image description" labelPlacement="stacked" formControlName="altText" /></ion-item
+        ><ion-item class="field"
+          ><ion-input type="number" label="Position (0–9)" labelPlacement="stacked" formControlName="displayOrder"
+        /></ion-item>
+      </div>
+      <ion-button type="submit">Add image</ion-button>
+    </form>
+    <div class="portfolio-grid" style="margin-top: 14px">
+      @for (image of portfolioImages(); track image.id) {
+      <article class="portfolio-item">
+        <img [src]="image.imageUrl" [alt]="image.altText" loading="lazy" />
+        <div class="portfolio-item__body">
+          <span class="status-badge" [attr.data-status]="image.status">{{ image.status }}</span>
+          <p>Position {{ image.displayOrder }}</p>
+          <ion-button size="small" fill="outline" color="danger" (click)="deletePortfolioImage(image)"
+            >Remove image</ion-button
+          >
+        </div>
+      </article>
+      }
+    </div>
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+  </main>
+</ion-content>

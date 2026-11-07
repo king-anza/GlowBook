@@ -1,0 +1,7 @@
+{
+  "name": "GlowBook",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

@@ -1,0 +1,83 @@
+<ion-header
+  ><ion-toolbar><ion-title>My bookings</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell">
+    <section class="page-heading">
+      <p class="eyebrow">Your beauty calendar</p>
+      <h1>Appointments</h1>
+      <p>Everything you have booked, all in one calm place.</p>
+    </section>
+    <section class="card-grid">
+      @for (booking of bookings(); track booking.id) {
+      <article class="surface-card booking-card">
+        <div class="booking-card__top">
+          <div>
+            <h2>{{ booking.serviceName }}</h2>
+            <p>{{ booking.businessName }} · {{ booking.staffName }}</p>
+          </div>
+          <span class="status-badge" [attr.data-status]="booking.status">{{ booking.status }}</span>
+        </div>
+        <p>
+          <strong>{{ booking.startUtc | date: 'EEEE, d MMMM' }}</strong> at {{ booking.startUtc | date: 'shortTime' }}
+        </p>
+        @if (booking.status === 'Pending' || booking.status === 'Confirmed') {
+        <ion-button
+          size="small"
+          color="danger"
+          fill="outline"
+          [disabled]="busyId() === booking.id"
+          (click)="cancel(booking)"
+          >Cancel booking</ion-button
+        >
+        } @if (booking.status === 'Completed') {
+        <div class="review-panel">
+          <p class="eyebrow">Share your experience</p>
+          @if (reviewFor(booking.id); as existing) {
+          <ion-select class="field" label="Rating" labelPlacement="stacked" [(ngModel)]="reviewRatings[existing.id]"
+            ><ion-select-option [value]="5">5 — Exceptional</ion-select-option
+            ><ion-select-option [value]="4">4 — Great</ion-select-option
+            ><ion-select-option [value]="3">3 — Good</ion-select-option
+            ><ion-select-option [value]="2">2 — Fair</ion-select-option
+            ><ion-select-option [value]="1">1 — Poor</ion-select-option></ion-select
+          >
+          <ion-textarea
+            class="field"
+            label="Review (optional)"
+            labelPlacement="stacked"
+            [(ngModel)]="reviewComments[existing.id]"
+          />
+          <div class="action-row">
+            <ion-button size="small" (click)="updateReview(existing)">Update review</ion-button
+            ><ion-button size="small" color="danger" fill="outline" (click)="deleteReview(existing)"
+              >Remove review</ion-button
+            >
+          </div>
+          } @else {
+          <ion-select class="field" label="Rating" labelPlacement="stacked" [(ngModel)]="reviewRatings[booking.id]"
+            ><ion-select-option [value]="5">5 — Exceptional</ion-select-option
+            ><ion-select-option [value]="4">4 — Great</ion-select-option
+            ><ion-select-option [value]="3">3 — Good</ion-select-option
+            ><ion-select-option [value]="2">2 — Fair</ion-select-option
+            ><ion-select-option [value]="1">1 — Poor</ion-select-option></ion-select
+          >
+          <ion-textarea
+            class="field"
+            label="Review (optional)"
+            labelPlacement="stacked"
+            [(ngModel)]="reviewComments[booking.id]"
+          />
+          <ion-button size="small" (click)="review(booking)">Submit review</ion-button>
+          }
+        </div>
+        }
+      </article>
+      } @empty {
+      <div class="empty-state">No bookings yet. Discover a professional and make time for yourself.</div>
+      }
+    </section>
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+  </main>
+</ion-content>

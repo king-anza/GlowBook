@@ -1,0 +1,70 @@
+<ion-header
+  ><ion-toolbar><ion-title>Manage bookings</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell">
+    <nav class="professional-nav" aria-label="Professional workspace">
+      <a routerLink="/professional/profile">Profile</a><a routerLink="/professional/services">Services & staff</a
+      ><a routerLink="/professional/availability">Availability</a
+      ><a class="active" routerLink="/professional/bookings">Bookings</a>
+    </nav>
+    <section class="page-heading">
+      <p class="eyebrow">Today and ahead</p>
+      <h1>Client appointments</h1>
+      <p>Respond quickly, keep statuses accurate and give every client a polished experience.</p>
+    </section>
+    <section class="card-grid">
+      @for (booking of bookings(); track booking.id) {
+      <article class="surface-card booking-card">
+        <div class="booking-card__top">
+          <div>
+            <h2>{{ booking.serviceName }}</h2>
+            <p>{{ booking.staffName }}</p>
+          </div>
+          <span class="status-badge" [attr.data-status]="booking.status">{{ booking.status }}</span>
+        </div>
+        <p>
+          <strong>{{ booking.startUtc | date: 'EEEE, d MMMM' }}</strong> at {{ booking.startUtc | date: 'shortTime' }}
+        </p>
+        <div class="action-row">
+          @if (booking.status === 'Pending') {
+          <ion-button size="small" [disabled]="busyId() === booking.id" (click)="act(booking, 'confirm')"
+            >Confirm</ion-button
+          ><ion-button
+            size="small"
+            color="danger"
+            fill="outline"
+            [disabled]="busyId() === booking.id"
+            (click)="act(booking, 'reject')"
+            >Reject</ion-button
+          >
+          } @if (booking.status === 'Confirmed') {
+          <ion-button size="small" [disabled]="busyId() === booking.id" (click)="act(booking, 'complete')"
+            >Complete</ion-button
+          ><ion-button
+            size="small"
+            color="medium"
+            fill="outline"
+            [disabled]="busyId() === booking.id"
+            (click)="act(booking, 'no-show')"
+            >No-show</ion-button
+          ><ion-button
+            size="small"
+            color="danger"
+            fill="outline"
+            [disabled]="busyId() === booking.id"
+            (click)="act(booking, 'cancel')"
+            >Cancel</ion-button
+          >
+          }
+        </div>
+      </article>
+      } @empty {
+      <div class="empty-state">No bookings yet. New client requests will appear here.</div>
+      }
+    </section>
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+  </main>
+</ion-content>

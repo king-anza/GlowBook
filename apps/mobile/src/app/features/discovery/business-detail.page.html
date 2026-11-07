@@ -1,0 +1,97 @@
+<ion-header
+  ><ion-toolbar><ion-title>{{ business()?.tradingName ?? 'Studio details' }}</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell">
+    @if (business(); as item) {
+    <section class="hero">
+      <p class="eyebrow">Verified GlowBook professional</p>
+      <h1>{{ item.tradingName }}</h1>
+      <p>{{ item.description }}</p>
+      <div class="chip-row">
+        <span class="chip">{{ item.suburb }}, {{ item.city }}</span><span class="chip">{{ item.province }}</span>
+      </div>
+    </section>
+
+    @if (item.portfolioImages.length) {
+    <h2 class="section-title">A look inside</h2>
+    <div class="portfolio-grid">
+      @for (image of item.portfolioImages; track image.id) {
+      <img [src]="image.imageUrl" [alt]="image.altText" loading="lazy" /> }
+    </div>
+    }
+
+    <h2 class="section-title">Services</h2>
+    <p class="section-copy">Choose a service and professional, then see their live availability.</p>
+    <div class="card-grid">
+      @for (service of item.services; track service.id) {
+      <ion-card>
+        <ion-card-header
+          ><p class="eyebrow">{{ service.category }}</p>
+          <ion-card-title>{{ service.name }}</ion-card-title></ion-card-header
+        >
+        <ion-card-content>
+          <p>{{ service.description }}</p>
+          @for (offering of service.offerings; track offering.id) {
+          <div class="surface-card" style="margin-top: 10px">
+            <strong>{{ offering.staffName }}</strong>
+            <p class="result-card__meta">
+              <span class="price">R{{ offering.price }}</span><span>·</span
+              ><span>{{ offering.durationMinutes }} min</span>
+            </p>
+            <ion-button expand="block" [routerLink]="['/book', offering.staffId, offering.id]"
+              >Choose a time</ion-button
+            >
+          </div>
+          }
+        </ion-card-content>
+      </ion-card>
+      } @empty {
+      <div class="empty-state">This studio is preparing its service menu.</div>
+      }
+    </div>
+
+    @if (reviews(); as reviewData) {
+    <h2 class="section-title">Client love</h2>
+    <p class="section-copy">
+      <strong>{{ reviewData.averageRating | number: '1.1-1' }} / 5</strong> from {{ reviewData.reviewCount }} reviews
+    </p>
+    <div class="card-grid">
+      @for (review of reviewData.reviews; track review.id) {
+      <div class="surface-card">
+        <span class="price">{{ review.rating }} / 5</span>
+        <p>{{ review.comment || 'A happy GlowBook client.' }}</p>
+      </div>
+      } @empty {
+      <div class="empty-state">No reviews yet. You could be the first after a completed booking.</div>
+      }
+    </div>
+    @if (reviewData.reviewCount > reviewPageSize) {
+    <nav class="pagination" aria-label="Review pages">
+      <ion-button fill="outline" [disabled]="reviewPage() === 1" (click)="previousReviewPage()"
+        >Previous reviews</ion-button
+      >
+      <span>Page {{ reviewPage() }}</span>
+      <ion-button
+        fill="outline"
+        [disabled]="reviewPage() * reviewPageSize >= reviewData.reviewCount"
+        (click)="nextReviewPage()"
+        >Next reviews</ion-button
+      >
+    </nav>
+    } } @if (reviewsError()) {
+    <p class="notice notice--error" role="status">Reviews could not be loaded right now.</p>
+    }
+    <section class="surface-card" style="margin-top: 28px">
+      <p class="eyebrow">Visit</p>
+      <strong>{{ item.addressLine1 }}</strong>
+      <p>{{ item.suburb }}, {{ item.city }}, {{ item.province }}</p>
+    </section>
+    } @else if (loading()) {
+    <div class="skeleton-detail" aria-hidden="true"></div>
+    <span class="sr-only" role="status">Loading studio details</span>
+    } @else {
+    <div class="notice notice--error" role="alert">{{ error() }}</div>
+    }
+  </main>
+</ion-content>

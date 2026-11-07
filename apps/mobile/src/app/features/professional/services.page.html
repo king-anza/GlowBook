@@ -1,0 +1,113 @@
+<ion-header
+  ><ion-toolbar><ion-title>Services & staff</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell">
+    <nav class="professional-nav" aria-label="Professional workspace">
+      <a routerLink="/professional/profile">Profile</a
+      ><a class="active" routerLink="/professional/services">Services & staff</a
+      ><a routerLink="/professional/availability">Availability</a><a routerLink="/professional/bookings">Bookings</a>
+    </nav>
+    <section class="page-heading">
+      <p class="eyebrow">Shape your menu</p>
+      <h1>People, services and pricing.</h1>
+      <p>Create the team and treatment menu clients will see when they discover your studio.</p>
+    </section>
+    <div class="card-grid card-grid--three">
+      <form class="surface-card" [formGroup]="staffForm" (ngSubmit)="addStaff()">
+        <p class="eyebrow">Step 1</p>
+        <h2>Add staff</h2>
+        <ion-list lines="none" class="form-grid"
+          ><ion-item class="field"
+            ><ion-input label="Display name" labelPlacement="stacked" formControlName="displayName" /></ion-item
+          ><ion-item class="field"
+            ><ion-textarea
+              label="Biography"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="biography" /></ion-item></ion-list
+        ><ion-button expand="block" type="submit">Add staff</ion-button>
+      </form>
+      <form class="surface-card" [formGroup]="serviceForm" (ngSubmit)="saveService()">
+        <p class="eyebrow">Step 2</p>
+        <h2>Add service</h2>
+        <ion-list lines="none" class="form-grid"
+          ><ion-item class="field"
+            ><ion-select label="Category" labelPlacement="stacked" formControlName="categoryId"
+              >@for (category of categories(); track category.id) {
+              <ion-select-option [value]="category.id">{{ category.name }}</ion-select-option> }</ion-select
+            ></ion-item
+          ><ion-item class="field"
+            ><ion-input label="Service name" labelPlacement="stacked" formControlName="name" /></ion-item
+          ><ion-item class="field"
+            ><ion-textarea
+              label="Description"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="description" /></ion-item></ion-list
+        ><ion-button expand="block" type="submit">Create service</ion-button>
+      </form>
+      <form class="surface-card" [formGroup]="offeringForm" (ngSubmit)="addOffering()">
+        <p class="eyebrow">Step 3</p>
+        <h2>Add pricing</h2>
+        <ion-list lines="none" class="form-grid"
+          ><ion-item class="field"
+            ><ion-select label="Service" labelPlacement="stacked" formControlName="serviceId"
+              >@for (service of services(); track service.id) {
+              <ion-select-option [value]="service.id">{{ service.name }}</ion-select-option> }</ion-select
+            ></ion-item
+          ><ion-item class="field"
+            ><ion-select label="Staff member" labelPlacement="stacked" formControlName="staffMemberId"
+              >@for (member of staff(); track member.id) {
+              <ion-select-option [value]="member.id">{{ member.displayName }}</ion-select-option> }</ion-select
+            ></ion-item
+          ><ion-item class="field"
+            ><ion-input type="number" label="Price (ZAR)" labelPlacement="stacked" formControlName="price" /></ion-item
+          ><ion-item class="field"
+            ><ion-input
+              type="number"
+              label="Duration (minutes)"
+              labelPlacement="stacked"
+              formControlName="durationMinutes" /></ion-item
+          ><ion-item class="field"
+            ><ion-input
+              type="number"
+              label="Buffer (minutes)"
+              labelPlacement="stacked"
+              formControlName="bufferMinutes" /></ion-item></ion-list
+        ><ion-button expand="block" type="submit">Add pricing</ion-button>
+      </form>
+    </div>
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+    <h2 class="section-title">Your service menu</h2>
+    <div class="card-grid">
+      @for (service of services(); track service.id) {
+      <article class="surface-card booking-card">
+        <div class="booking-card__top">
+          <div>
+            <p class="eyebrow">{{ service.categoryName }}</p>
+            <h2>{{ service.name }}</h2>
+          </div>
+          <span class="status-badge" [attr.data-status]="service.isActive ? 'Approved' : 'Draft'"
+            >{{ service.isActive ? 'Live' : 'Draft' }}</span
+          >
+        </div>
+        @for (offering of service.offerings; track offering.id) {
+        <p>
+          <strong>{{ offering.staffName }}</strong> · <span class="price">R{{ offering.price }}</span> · {{
+          offering.durationMinutes }} min
+        </p>
+        }<ion-button size="small" fill="outline" (click)="toggleService(service)"
+          >{{ service.isActive ? 'Deactivate' : 'Activate' }}</ion-button
+        >
+      </article>
+      } @empty {
+      <div class="empty-state">
+        Your service menu is empty. Follow the three steps above to publish your first treatment.
+      </div>
+      }
+    </div>
+  </main>
+</ion-content>
