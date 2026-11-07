@@ -1,7 +1,7 @@
 .app-footer { background: transparent; box-shadow: none; }
 .app-navigation { display: grid; grid-template-columns: repeat(4, 1fr); width: min(calc(100% - 24px), 560px); margin: 0 auto calc(10px + env(safe-area-inset-bottom)); padding: 7px; border: 1px solid var(--glow-line); border-radius: 24px; background: color-mix(in srgb, var(--glow-surface) 92%, transparent); box-shadow: 0 16px 45px rgba(52,31,40,.2); backdrop-filter: blur(22px); }
 .app-navigation a { display: grid; place-items: center; gap: 2px; min-height: 48px; border-radius: 17px; color: var(--glow-muted); text-decoration: none; }
-.app-navigation a span { font-size: 1.15rem; line-height: 1; }
+.app-navigation a ion-icon { font-size: 1.15rem; line-height: 1; }
 .app-navigation a small { font-size: .67rem; font-weight: 750; }
 .app-navigation a.active { background: var(--glow-plum); color: #fff; }
 .app-navigation a:focus-visible { outline: 3px solid color-mix(in srgb, var(--glow-plum) 35%, transparent); outline-offset: 2px; }

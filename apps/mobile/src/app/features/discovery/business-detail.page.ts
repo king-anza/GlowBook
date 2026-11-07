@@ -69,22 +69,34 @@ export class BusinessDetailPage {
   private readonly businessId = this.route.snapshot.paramMap.get('id')!;
   readonly business = signal<Business | null>(null);
   readonly reviews = signal<Reviews | null>(null);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly reviewsError = signal(false);
   readonly reviewPage = signal(1);
   readonly reviewPageSize = 20;
   constructor() {
-    this.http
-      .get<Business>(`${environment.apiUrl}/api/v1/businesses/${this.businessId}`)
-      .subscribe((value) => this.business.set(value));
+    this.http.get<Business>(`${environment.apiUrl}/api/v1/businesses/${this.businessId}`).subscribe({
+      next: (value) => {
+        this.business.set(value);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('This business could not be loaded. It may no longer be available.');
+        this.loading.set(false);
+      },
+    });
     this.loadReviews();
   }
   loadReviews(page = 1): void {
+    this.reviewsError.set(false);
     const params = new HttpParams().set('page', page).set('pageSize', this.reviewPageSize);
-    this.http
-      .get<Reviews>(`${environment.apiUrl}/api/v1/businesses/${this.businessId}/reviews`, { params })
-      .subscribe((value) => {
+    this.http.get<Reviews>(`${environment.apiUrl}/api/v1/businesses/${this.businessId}/reviews`, { params }).subscribe({
+      next: (value) => {
         this.reviews.set(value);
         this.reviewPage.set(page);
-      });
+      },
+      error: () => this.reviewsError.set(true),
+    });
   }
   previousReviewPage(): void {
     if (this.reviewPage() > 1) this.loadReviews(this.reviewPage() - 1);

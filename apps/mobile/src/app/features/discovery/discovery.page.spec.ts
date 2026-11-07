@@ -16,10 +16,12 @@ describe('DiscoveryPage', () => {
     const http = TestBed.inject(HttpTestingController);
     const fixture = TestBed.createComponent(DiscoveryPage);
     const page = fixture.componentInstance;
+    expect(page.loading()).toBe(true);
     http.expectOne(`${environment.apiUrl}/api/v1/categories`).flush([{ id: 'category-id', name: 'Hair' }]);
     http
       .expectOne((request) => request.url.endsWith('/api/v1/businesses'))
       .flush({ items: [], page: 1, pageSize: 20, totalCount: 0 });
+    expect(page.loading()).toBe(false);
     page.search = 'Glow';
     page.categoryId = 'category-id';
     page.province = 'Gauteng';
@@ -39,6 +41,12 @@ describe('DiscoveryPage', () => {
     const next = http.expectOne((candidate) => candidate.params.get('page') === '2');
     next.flush({ items: [], page: 2, pageSize: 20, totalCount: 21 });
     expect(page.currentPage()).toBe(2);
+    page.load();
+    http
+      .expectOne((candidate) => candidate.params.get('page') === '1')
+      .flush({}, { status: 503, statusText: 'Unavailable' });
+    expect(page.error()).toContain('could not load');
+    expect(page.loading()).toBe(false);
     http.verify();
   });
 });

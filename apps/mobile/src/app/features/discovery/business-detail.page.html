@@ -79,14 +79,19 @@
         >Next reviews</ion-button
       >
     </nav>
-    } }
+    } } @if (reviewsError()) {
+    <p class="notice notice--error" role="status">Reviews could not be loaded right now.</p>
+    }
     <section class="surface-card" style="margin-top: 28px">
       <p class="eyebrow">Visit</p>
       <strong>{{ item.addressLine1 }}</strong>
       <p>{{ item.suburb }}, {{ item.city }}, {{ item.province }}</p>
     </section>
+    } @else if (loading()) {
+    <div class="skeleton-detail" aria-hidden="true"></div>
+    <span class="sr-only" role="status">Loading studio details</span>
     } @else {
-    <div class="empty-state">Loading this beautiful space…</div>
+    <div class="notice notice--error" role="alert">{{ error() }}</div>
     }
   </main>
 </ion-content>
