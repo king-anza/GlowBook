@@ -52,7 +52,10 @@ behaviour. Map each prototype interaction to a real API-backed application flow.
 - [x] Reachable navigation/state map: Explore, My bookings, Pricing lab,
   provider detail, compare, filter, style reference, booking, feedback.
 - [ ] Mobile and desktop implementation captures
-- [ ] Deterministic Gqeberha seed-data mapping to demonstrated content
+- [x] Deterministic Gqeberha seed-data mapping to demonstrated content: six
+  approved providers, real prices (including Nomsa at R320), active portfolios,
+  reviews, weekly availability and a Development-only reconciler verified against
+  the local PostgreSQL database on 13 November 2026.
 
 ## Completion gate
 
