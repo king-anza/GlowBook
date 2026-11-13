@@ -9,12 +9,5 @@
 .prototype-nav ion-icon, .prototype-account ion-icon { font-size: 1rem; }
 .prototype-nav a.active, .prototype-nav a:hover, .prototype-account:hover, .prototype-account[aria-current='page'] { color: var(--glow-plum); background: var(--glow-accent-soft); }
 .prototype-account span { display: none; }
-.app-footer { background: transparent; box-shadow: none; }
-.app-navigation { display: grid; grid-template-columns: repeat(4, 1fr); width: min(calc(100% - 24px), 560px); margin: 0 auto calc(10px + env(safe-area-inset-bottom)); padding: 7px; border: 1px solid var(--glow-line); border-radius: 24px; background: color-mix(in srgb, var(--glow-surface) 92%, transparent); box-shadow: 0 16px 45px rgba(50,28,78,.14); backdrop-filter: blur(22px); }
-.app-navigation a { display: grid; place-items: center; gap: 2px; min-height: 48px; border-radius: 17px; color: var(--glow-muted); text-decoration: none; }
-.app-navigation a ion-icon { font-size: 1.15rem; line-height: 1; }
-.app-navigation a small { font-size: .67rem; font-weight: 750; }
-.app-navigation a.active { background: var(--glow-accent-soft); color: var(--glow-plum); }
-.app-navigation a:focus-visible { outline: 3px solid color-mix(in srgb, var(--glow-plum) 35%, transparent); outline-offset: 2px; }
 @media (min-width: 730px) { .prototype-shell { width: min(calc(100% - 48px), 1184px); } .prototype-header-inner { min-height: 69px; flex-wrap: nowrap; } .prototype-nav { order: 0; width: auto; padding: 0; gap: 5px; } .prototype-nav a { padding: 0 12px; } .prototype-account span { display: inline; } }
-@media (min-width: 980px) { .app-navigation { width: 440px; } .prototype-shell { width: min(calc(100% - 80px), 1184px); } }
+@media (min-width: 980px) { .prototype-shell { width: min(calc(100% - 80px), 1184px); } }

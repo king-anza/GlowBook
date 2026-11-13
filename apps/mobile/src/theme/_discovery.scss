@@ -29,6 +29,7 @@
 .hero-copy .eyebrow {
   color: #573883;
 }
+.discovery-city { display:flex; align-items:center; gap:6px; font-size:.67rem; }
 .hero-copy h1,
 .discovery-title {
   font-family: var(--glow-display-font);
@@ -36,6 +37,8 @@
   line-height: 1.05;
   letter-spacing: -0.06em;
 }
+.section-heading { display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between; gap:12px; }
+.section-heading p { margin:7px 0 0; color:var(--glow-muted); font-size:.82rem; }
 .hero-copy h1 {
   margin: 9px 0;
   font-size: clamp(2.6rem, 8vw, 5.35rem);

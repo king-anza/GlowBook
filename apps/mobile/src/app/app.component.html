@@ -15,32 +15,4 @@
     </ion-toolbar>
   </ion-header>
   <ion-router-outlet></ion-router-outlet>
-  <ion-footer class="app-footer">
-    <nav class="app-navigation" aria-label="Primary navigation">
-      <a
-        routerLink="/home"
-        [class.active]="isActive('discover')"
-        [attr.aria-current]="isActive('discover') ? 'page' : null"
-        ><ion-icon name="search-outline" aria-hidden="true" /><small>Discover</small></a
-      >
-      <a
-        routerLink="/bookings"
-        [class.active]="isActive('bookings')"
-        [attr.aria-current]="isActive('bookings') ? 'page' : null"
-        ><ion-icon name="calendar-clear-outline" aria-hidden="true" /><small>Bookings</small></a
-      >
-      <a
-        routerLink="/auth"
-        [class.active]="isActive('account')"
-        [attr.aria-current]="isActive('account') ? 'page' : null"
-        ><ion-icon name="person-circle-outline" aria-hidden="true" /><small>Account</small></a
-      >
-      <a
-        routerLink="/professional/profile"
-        [class.active]="isActive('studio')"
-        [attr.aria-current]="isActive('studio') ? 'page' : null"
-        ><ion-icon name="sparkles-outline" aria-hidden="true" /><small>Studio</small></a
-      >
-    </nav>
-  </ion-footer>
 </ion-app>

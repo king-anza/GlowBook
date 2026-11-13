@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { IonApp, IonFooter, IonHeader, IonIcon, IonRouterOutlet, IonToolbar } from '@ionic/angular';
+import { IonApp, IonHeader, IonIcon, IonRouterOutlet, IonToolbar } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { barChartOutline, calendarClearOutline, calendarOutline, compassOutline, personCircleOutline, searchOutline, sparklesOutline } from 'ionicons/icons';
 
@@ -8,7 +8,7 @@ import { barChartOutline, calendarClearOutline, calendarOutline, compassOutline,
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  imports: [RouterLink, IonApp, IonRouterOutlet, IonHeader, IonToolbar, IonFooter, IonIcon],
+  imports: [RouterLink, IonApp, IonRouterOutlet, IonHeader, IonToolbar, IonIcon],
 })
 export class AppComponent {
   private readonly router = inject(Router);

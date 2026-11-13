@@ -132,6 +132,9 @@ app.MapGet("/health", () => Results.Ok(new HealthResponse("Healthy")))
     .WithName("GetHealth")
     .WithTags("Health");
 
+if (app.Environment.IsDevelopment())
+    app.MapPost("/api/v1/development/gqeberha-demo-data", async (GlowBookDbContext db, CancellationToken ct) => Results.Ok(new { seeded = await GlowBook.Api.DevelopmentDemoData.SeedAsync(db, ct) }));
+
 var auth = app.MapGroup("/api/v1/auth").RequireRateLimiting("auth");
 auth.MapPost("/register/customer", (RegisterRequest request, IIdentityService identity, CancellationToken ct) => Register(request, "Customer", identity, ct)).AddEndpointFilter<ValidationFilter<RegisterRequest>>();
 auth.MapPost("/register/professional", (RegisterRequest request, IIdentityService identity, CancellationToken ct) => Register(request, "Professional", identity, ct)).AddEndpointFilter<ValidationFilter<RegisterRequest>>();

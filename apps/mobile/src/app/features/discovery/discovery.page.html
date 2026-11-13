@@ -1,17 +1,10 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>
-      <span class="discovery-brand"><img src="assets/glowbook/glow.svg" alt="" /> GlowBook</span>
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
 <ion-content>
   <main class="page-shell discovery">
     <section class="discovery-hero" aria-labelledby="discovery-title">
       <div class="hero-copy">
-        <p class="eyebrow">Beauty bookings in South Africa</p>
+        <p class="eyebrow discovery-city">⌖ GQEBERHA, SOUTH AFRICA</p>
         <h1 id="discovery-title">Find your <em>glow.</em></h1>
-        <p>Explore beauty professionals, compare prices, and book a time that suits you.</p>
+        <p>Find independent beauty pros, compare their work and prices, and book a time that suits you.</p>
       </div>
       <div class="hero-visual">
         <img src="assets/glowbook/hero.webp" alt="" fetchpriority="high" />
@@ -23,15 +16,15 @@
         <ion-input
           class="field"
           name="search"
-          label="Business name"
+          label="Service or style"
           labelPlacement="stacked"
-          placeholder="Salon, studio or artist"
+          placeholder="Try knotless braids"
           [(ngModel)]="search"
         />
         <ion-input
           class="field"
           name="city"
-          label="City"
+          label="Area"
           labelPlacement="stacked"
           placeholder="Gqeberha, Johannesburg…"
           [(ngModel)]="city"
@@ -81,7 +74,7 @@
     </form>
 
     <section aria-labelledby="results-title">
-      <h2 class="discovery-title" id="results-title">Explore beauty pros</h2>
+      <div class="section-heading"><div><h2 class="discovery-title" id="results-title">Explore beauty pros</h2><p>Browse portfolios, prices and appointment times.</p></div></div>
       @if (categories().length) {
       <div class="chip-row" aria-label="Filter by category">
         <button class="chip" type="button" [attr.aria-pressed]="!categoryId" (click)="selectCategory('')">
