@@ -35,8 +35,12 @@
         </div>
         <ion-button type="submit">Find a pro <span aria-hidden="true">&nbsp;→</span></ion-button>
       </div>
-      <details class="filter-details">
-        <summary>More filters <span>Category, area and price</span></summary>
+      <button class="filter-toggle" type="button" [attr.aria-expanded]="filterOpen()" (click)="toggleFilters()">
+        <ion-icon name="options-outline" aria-hidden="true" />Filters
+      </button>
+      @if (filterOpen()) {
+      <div class="filter-details">
+        <p class="filter-details__title">Narrow your search <span>Category, area and price</span></p>
         <div class="form-grid form-grid--two filter-details__body">
           <ion-select class="field" name="category" label="Category" labelPlacement="stacked" [(ngModel)]="categoryId">
             <ion-select-option value="">All categories</ion-select-option>
@@ -74,7 +78,8 @@
             [(ngModel)]="maxPrice"
           />
         </div>
-      </details>
+      </div>
+      }
     </form>
 
     <section aria-labelledby="results-title">
@@ -83,6 +88,14 @@
           <h2 class="discovery-title" id="results-title">Explore beauty pros</h2>
           <p>Browse portfolios, prices and appointment times.</p>
         </div>
+        <label class="sort-control"
+          >Sort by
+          <select [(ngModel)]="sortMode" name="sort">
+            <option value="recommended">Recommended</option>
+            <option value="rating">Highest rated</option>
+            <option value="price">Lowest price</option>
+          </select>
+        </label>
       </div>
       @if (categories().length) {
       <div class="chip-row" aria-label="Filter by category">
@@ -124,7 +137,7 @@
         {{ totalCount() }} {{ totalCount() === 1 ? 'business' : 'businesses' }} found
       </p>
       <div class="card-grid card-grid--three">
-        @for (business of businesses(); track business.id) {
+        @for (business of sortedBusinesses(); track business.id) {
         <article class="studio-card">
           <div class="studio-card__image">
             <img [src]="'assets/glowbook/' + imageFor(business) + '.webp'" alt="" loading="lazy" />
@@ -145,6 +158,11 @@
             </p>
             <p class="studio-card__description">{{ business.description }}</p>
             <p class="studio-card__price">From <strong>{{ business.fromPrice | currency: 'ZAR' : 'R' }}</strong></p>
+            @if (business.nextAvailableDate) {
+            <p class="studio-card__availability">
+              <ion-icon name="time-outline" aria-hidden="true" />{{ business.nextAvailableDate | date: 'EEE, d MMM' }}
+            </p>
+            }
             <div class="studio-card__actions">
               <button
                 class="studio-action"

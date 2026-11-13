@@ -39,6 +39,8 @@
 }
 .section-heading { display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between; gap:12px; }
 .section-heading p { margin:7px 0 0; color:var(--glow-muted); font-size:.82rem; }
+.sort-control { display: inline-flex; align-items: center; gap: 6px; color: var(--glow-muted); font-size: .78rem; white-space: nowrap; }
+.sort-control select { border: 0; background: transparent; color: var(--glow-ink); font: inherit; font-weight: 800; cursor: pointer; }
 .hero-copy h1 {
   margin: 9px 0;
   font-size: clamp(2.6rem, 8vw, 5.35rem);
@@ -78,6 +80,8 @@
 .search-fields ion-button {
   margin: 0;
 }
+.filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; margin: 10px 0 0 auto; padding: 0 13px; border: 1px solid var(--glow-line); border-radius: 10px; background: var(--glow-surface); color: var(--glow-plum); font: inherit; font-size: .8rem; font-weight: 750; }
+.filter-toggle ion-icon { font-size: 1rem; }
 .discovery-title {
   margin: 0 0 10px;
   font-size: clamp(2rem, 5vw, 3rem);
@@ -194,6 +198,8 @@
   color: var(--glow-ink);
   font-size: 1rem;
 }
+.studio-card__availability { display: flex; align-items: center; gap: 5px; margin: 0; color: #285c4b; font-size: .78rem; font-weight: 750; }
+.studio-card__availability ion-icon { font-size: .9rem; }
 .studio-card__actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

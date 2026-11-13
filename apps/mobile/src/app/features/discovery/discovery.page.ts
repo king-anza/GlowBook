@@ -1,6 +1,6 @@
-import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -29,6 +29,7 @@ interface BusinessSummary {
   categories: string[];
   averageRating: number;
   reviewCount: number;
+  nextAvailableDate: string | null;
 }
 interface Page {
   items: BusinessSummary[];
@@ -46,6 +47,7 @@ interface Category {
   templateUrl: './discovery.page.html',
   imports: [
     CurrencyPipe,
+    DatePipe,
     DecimalPipe,
     FormsModule,
     RouterLink,
@@ -66,11 +68,18 @@ export class DiscoveryPage {
   readonly selected = signal<BusinessSummary[]>([]);
   readonly comparisonOpen = signal(false);
   readonly businesses = signal<BusinessSummary[]>([]);
+  readonly sortedBusinesses = computed(() => {
+    const items = [...this.businesses()];
+    if (this.sortMode === 'price') return items.sort((left, right) => left.fromPrice - right.fromPrice);
+    if (this.sortMode === 'rating') return items.sort((left, right) => right.averageRating - left.averageRating);
+    return items.sort((left, right) => right.averageRating - left.averageRating || left.fromPrice - right.fromPrice);
+  });
   readonly categories = signal<Category[]>([]);
   readonly currentPage = signal(1);
   readonly totalCount = signal(0);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly filterOpen = signal(false);
   readonly pageSize = 20;
   search = '';
   categoryId = '';
@@ -79,6 +88,7 @@ export class DiscoveryPage {
   suburb = '';
   minPrice: number | null = null;
   maxPrice: number | null = null;
+  sortMode: 'recommended' | 'rating' | 'price' = 'recommended';
   constructor() {
     this.http
       .get<Category[]>(`${environment.apiUrl}/api/v1/categories`)
@@ -111,6 +121,10 @@ export class DiscoveryPage {
   selectCategory(categoryId: string): void {
     this.categoryId = categoryId;
     this.load();
+  }
+
+  toggleFilters(): void {
+    this.filterOpen.update((open) => !open);
   }
 
   categoryIcon(name: string): string {

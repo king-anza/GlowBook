@@ -51,6 +51,8 @@ ion-card-title { color: var(--glow-ink); font-size: 1.18rem; font-weight: 750; }
 .action-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; }
 .action-row ion-button { margin: 0; }
 .filter-details { margin-top: 12px; border: 1px solid var(--glow-line); border-radius: 16px; background: var(--glow-surface-soft); }
+.filter-details__title { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 15px; color: var(--glow-ink); font-weight: 750; }
+.filter-details__title span { margin-left: auto; color: var(--glow-muted); font-size: .8rem; font-weight: 500; }
 .filter-details summary { display: flex; justify-content: space-between; gap: 12px; padding: 15px; color: var(--glow-ink); font-weight: 750; cursor: pointer; list-style: none; }
 .filter-details summary::-webkit-details-marker { display: none; }
 .filter-details summary::after { content: '+'; color: var(--glow-plum); font-size: 1.2rem; line-height: 1; }

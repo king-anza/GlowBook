@@ -32,9 +32,26 @@ internal sealed class DiscoveryService(GlowBookDbContext db) : IDiscoveryService
             .GroupBy(x => x.BusinessId)
             .Select(x => new { BusinessId = x.Key, Average = x.Average(review => review.Rating), Count = x.Count() })
             .ToDictionaryAsync(x => x.BusinessId, ct);
+        var weeklyAvailability = await db.WeeklyAvailabilities.AsNoTracking()
+            .Where(x => ids.Contains(x.StaffMember.BusinessId) && x.StaffMember.IsActive && x.StaffMember.AcceptingBookings)
+            .Select(x => new { x.StaffMember.BusinessId, x.DayOfWeek })
+            .ToListAsync(ct);
+        var availabilityByBusiness = weeklyAvailability.GroupBy(x => x.BusinessId)
+            .ToDictionary(x => x.Key, x => x.Select(item => item.DayOfWeek).Distinct().ToArray());
         var items = new List<BusinessSummaryDto>();
-        foreach (var business in businesses.OrderBy(x => x.TradingName)) { var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); var rating = ratings.GetValueOrDefault(business.Id); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray(), (decimal)(rating?.Average ?? 0), rating?.Count ?? 0)); }
+        foreach (var business in businesses.OrderBy(x => x.TradingName)) { var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); var rating = ratings.GetValueOrDefault(business.Id); var availableDays = availabilityByBusiness.GetValueOrDefault(business.Id, []); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray(), (decimal)(rating?.Average ?? 0), rating?.Count ?? 0, NextAvailableDate(availableDays))); }
         return new(items, page, size, total);
+    }
+
+    private static DateOnly? NextAvailableDate(IReadOnlyCollection<DayOfWeek> days)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        for (var offset = 0; offset < 7; offset++)
+        {
+            var candidate = today.AddDays(offset);
+            if (days.Contains(candidate.DayOfWeek)) return candidate;
+        }
+        return null;
     }
 
     public async Task<BusinessDetailDto?> DetailAsync(Guid id, CancellationToken ct)

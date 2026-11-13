@@ -16,6 +16,7 @@ import {
   searchOutline,
   sparklesOutline,
   storefrontOutline,
+  timeOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -40,6 +41,7 @@ export class AppComponent {
       locationOutline,
       optionsOutline,
       storefrontOutline,
+      timeOutline,
       personCircleOutline,
       sparklesOutline,
     });
