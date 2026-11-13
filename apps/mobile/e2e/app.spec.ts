@@ -149,7 +149,10 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
   await expect(page.getByText('Glow Test Studio')).toBeVisible();
   await page.getByText('Glow Test Studio').click();
   await page.getByRole('link', { name: 'Choose a time' }).click();
-  await page.getByRole('button', { name: 'Select', exact: true }).click();
+  await page
+    .getByRole('button', { name: /^Select / })
+    .first()
+    .click();
   await expect(page.getByRole('heading', { name: 'Review your booking' })).toBeVisible();
   await page.getByRole('button', { name: 'Request booking' }).click();
   const bookingsPage = page.locator('app-bookings');

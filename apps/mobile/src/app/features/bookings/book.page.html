@@ -23,29 +23,34 @@
     } @if (loading()) {
     <p class="empty-state" role="status">Loading availability…</p>
     } @else if (!selectedSlot() && (!error() || slots().length)) {
-    <div class="card-grid">
-      @for (slot of slots(); track slot.startUtc) {
-      <div class="surface-card booking-card">
-        <div class="booking-card__top">
-          <div>
-            <strong>{{ slot.startUtc | date: 'EEEE, d MMMM' }}</strong>
-            <p>{{ slot.startUtc | date: 'shortTime' }}</p>
-          </div>
-          <ion-button
-            fill="outline"
-            [disabled]="submitting()"
-            [attr.aria-pressed]="selectedSlot()?.startUtc === slot.startUtc"
-            (click)="selectedSlot.set(slot)"
-            >Select</ion-button
-          >
-        </div>
+    <section class="booking-picker" aria-label="Choose an appointment time">
+      <div class="booking-date-picker" aria-label="Available dates">
+        @for (date of availableDates(); track date) {
+        <button type="button" class="booking-date" [class.active]="selectedDate() === date" (click)="chooseDate(date)">
+          <span>{{ date | date: 'EEE' }}</span><strong>{{ date | date: 'd' }}</strong
+          ><small>{{ date | date: 'MMM' }}</small>
+        </button>
+        }
       </div>
-      } @empty {
-      <div class="empty-state">
-        No available slots in the next week. Check back soon or explore another professional.
+      <h2>Available times</h2>
+      <div class="booking-time-grid">
+        @for (slot of slotsForSelectedDate(); track slot.startUtc) {
+        <button
+          type="button"
+          class="booking-time"
+          [disabled]="submitting()"
+          [attr.aria-label]="'Select ' + (slot.startUtc | date: 'shortTime')"
+          (click)="selectedSlot.set(slot)"
+        >
+          {{ slot.startUtc | date: 'shortTime' }}
+        </button>
+        } @empty {
+        <p class="empty-state">No available times on this date.</p>
+        }
       </div>
-      }
-    </div>
-    }
+    </section>
+    @if (!slots().length) {
+    <div class="empty-state">No available slots in the next week. Check back soon or explore another professional.</div>
+    } }
   </main>
 </ion-content>

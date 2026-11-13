@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonButton, IonContent } from '@ionic/angular';
 
@@ -24,6 +24,12 @@ export class BookPage {
   private readonly offeringId = this.route.snapshot.paramMap.get('offeringId')!;
 
   readonly slots = signal<Slot[]>([]);
+  readonly selectedDate = signal<string | null>(null);
+  readonly availableDates = computed(() => [...new Set(this.slots().map((slot) => slot.startUtc.slice(0, 10)))]);
+  readonly slotsForSelectedDate = computed(() => {
+    const date = this.selectedDate();
+    return date ? this.slots().filter((slot) => slot.startUtc.startsWith(date)) : [];
+  });
   readonly error = signal<string | null>(null);
   readonly loading = signal(true);
   readonly selectedSlot = signal<Slot | null>(null);
@@ -42,6 +48,7 @@ export class BookPage {
     this.http.get<Slot[]>(`${environment.apiUrl}/api/v1/staff/${this.staffId}/availability`, { params }).subscribe({
       next: (items) => {
         this.slots.set(items);
+        this.selectedDate.set(items[0]?.startUtc.slice(0, 10) ?? null);
         this.loading.set(false);
       },
       error: () => {
@@ -49,6 +56,10 @@ export class BookPage {
         this.loading.set(false);
       },
     });
+  }
+
+  chooseDate(date: string): void {
+    this.selectedDate.set(date);
   }
 
   book(slot: Slot): void {

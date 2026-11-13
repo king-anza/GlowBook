@@ -91,6 +91,18 @@ ion-card-title { color: var(--glow-ink); font-size: 1.18rem; font-weight: 750; }
 .booking-confirm { position: relative; margin-bottom: 18px; border-color: var(--glow-plum); }
 .booking-confirm p { margin: 0; color: var(--glow-muted); }
 .booking-confirm h2 { margin: 7px 0; font-size: 1.15rem; }
+.booking-picker { padding: 20px; border: 1px solid var(--glow-line); border-radius: var(--glow-radius); background: var(--glow-surface); box-shadow: var(--glow-shadow); }
+.booking-picker h2 { margin: 22px 0 12px; color: var(--glow-ink); font-size: 1rem; }
+.booking-date-picker { display: flex; gap: 8px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+.booking-date { display: grid; flex: 0 0 60px; min-height: 72px; place-content: center; gap: 1px; border: 1px solid var(--glow-line); border-radius: 12px; background: var(--glow-surface-soft); color: var(--glow-muted); font: inherit; text-align: center; cursor: pointer; }
+.booking-date span, .booking-date small { font-size: .69rem; }
+.booking-date strong { color: var(--glow-ink); font-size: 1.1rem; }
+.booking-date.active { border-color: var(--ion-color-primary); background: var(--ion-color-primary); color: #fff; }
+.booking-date.active strong { color: #fff; }
+.booking-time-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.booking-time { min-height: 46px; border: 1px solid var(--glow-line); border-radius: 10px; background: var(--glow-surface); color: var(--glow-plum); font: inherit; font-size: .86rem; font-weight: 750; cursor: pointer; }
+.booking-time:hover, .booking-time:focus-visible { border-color: var(--ion-color-primary); background: var(--glow-accent-soft); }
+.booking-time:disabled { opacity: .55; cursor: wait; }
 .offering-card { margin-top: 10px; box-shadow: none; }
 .portfolio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .portfolio-grid img { width: 100%; aspect-ratio: 1; border-radius: 18px; object-fit: cover; }
