@@ -5,6 +5,14 @@ Source of truth: `https://glowbook-gqeberha-validation.mugivhianzani.chatgpt.sit
 Status: **audit in progress**. The prototype is owner-private; it was inspected
 with the owner's Sites authorization on 13 November 2026.
 
+## Current owner scope
+
+The customer shell must retain only **Discover**, **My bookings**, **Studio**
+and **Account**. Pricing Lab remains a non-primary route for the existing
+feature, but must not replace any of those four navigation destinations.
+The supplied desktop captures are the precise visual reference for discovery
+cards, icons, filters, and the empty-bookings state.
+
 ## Audit method
 
 For each reachable screen, record the route/state, navigation action, mobile and

@@ -25,14 +25,17 @@ test('shows the discovery page', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Find a pro' })).toBeVisible();
 });
 
-test('keeps the prototype pricing-lab interaction available on mobile and desktop', async ({ page }) => {
+test('keeps the requested Discover, bookings, Studio and Account shell on mobile and desktop', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/pricing');
-  await expect(page.getByRole('heading', { name: 'Pricing lab' })).toBeVisible();
-  await expect(page.getByText('Estimated monthly revenue')).toBeVisible();
+  await page.goto('/home');
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('href', '/home');
+  await expect(nav.getByRole('link', { name: 'My bookings' })).toHaveAttribute('href', '/bookings');
+  await expect(nav.getByRole('link', { name: 'Studio' })).toHaveAttribute('href', '/professional/profile');
+  await expect(page.getByRole('link', { name: 'Account' })).toHaveAttribute('href', '/account/profile');
+  await expect(nav.getByRole('link', { name: /pricing/i })).toHaveCount(0);
   await page.setViewportSize({ width: 1280, height: 900 });
-  await expect(page.getByText('Booking commission')).toBeVisible();
-  await expect(page.getByText('Provider subscription')).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'Studio' })).toBeVisible();
 });
 
 test('registers and requests account recovery', async ({ page }) => {

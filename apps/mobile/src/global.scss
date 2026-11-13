@@ -33,7 +33,7 @@ ion-input, ion-select, ion-textarea { --highlight-color-focused: var(--glow-plum
 ion-card { margin: 0; border: 1px solid var(--glow-line); border-radius: var(--glow-radius); background: var(--glow-surface); box-shadow: var(--glow-shadow); color: var(--glow-ink); }
 ion-card-title { color: var(--glow-ink); font-size: 1.18rem; font-weight: 750; }
 
-.page-shell { width: min(100%, 1120px); margin: 0 auto; padding: 18px 18px calc(112px + env(safe-area-inset-bottom)); }
+.page-shell { width: min(100%, 1184px); margin: 0 auto; padding: 18px 18px calc(112px + env(safe-area-inset-bottom)); }
 .page-shell--narrow { width: min(100%, 680px); }
 .page-heading { margin: 10px 0 24px; }
 .page-heading .eyebrow, .eyebrow { margin: 0 0 8px; color: var(--glow-plum); font-size: 0.73rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -69,6 +69,11 @@ ion-card-title { color: var(--glow-ink); font-size: 1.18rem; font-weight: 750; }
 .status-badge[data-status='Confirmed'], .status-badge[data-status='Completed'], .status-badge[data-status='Approved'] { background: #e2f1eb; color: #2f6855; }
 .status-badge[data-status='Cancelled'], .status-badge[data-status='Rejected'], .status-badge[data-status='Suspended'] { background: #f8e4e6; color: #9c303f; }
 .booking-card { padding: 18px; }
+.booking-list { display: grid; gap: 14px; }
+.bookings-empty-state { min-height: 165px; display: grid; place-content: center; justify-items: center; }
+.bookings-empty-state h2 { margin: 0; color: var(--glow-ink); font-size: 1.2rem; }
+.bookings-empty-state p { margin: 8px 0 14px; }
+.bookings-empty-state a { padding: 10px 13px; border: 1px solid var(--glow-line); border-radius: 10px; background: var(--glow-surface); color: var(--glow-plum); font-size: .82rem; font-weight: 750; text-decoration: none; }
 .booking-card__top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
 .booking-card h2 { margin: 0 0 6px; font-size: 1.1rem; }
 .booking-card p { margin: 4px 0; color: var(--glow-muted); }

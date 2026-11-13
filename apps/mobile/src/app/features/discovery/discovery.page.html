@@ -13,22 +13,26 @@
 
     <form class="surface-card discovery-search" aria-label="Search and filters" (ngSubmit)="load()">
       <div class="search-fields">
-        <ion-input
-          class="field"
-          name="search"
-          label="Service or style"
-          labelPlacement="stacked"
-          placeholder="Try knotless braids"
-          [(ngModel)]="search"
-        />
-        <ion-input
-          class="field"
-          name="city"
-          label="Area"
-          labelPlacement="stacked"
-          placeholder="Gqeberha, Johannesburg…"
-          [(ngModel)]="city"
-        />
+        <div class="prototype-search-field">
+          <ion-icon name="search-outline" aria-hidden="true" /><ion-input
+            class="field"
+            name="search"
+            label="Service or style"
+            labelPlacement="stacked"
+            placeholder="Try knotless braids"
+            [(ngModel)]="search"
+          />
+        </div>
+        <div class="prototype-search-field">
+          <ion-icon name="location-outline" aria-hidden="true" /><ion-input
+            class="field"
+            name="city"
+            label="Area"
+            labelPlacement="stacked"
+            placeholder="All of Gqeberha"
+            [(ngModel)]="city"
+          />
+        </div>
         <ion-button type="submit">Find a pro <span aria-hidden="true">&nbsp;→</span></ion-button>
       </div>
       <details class="filter-details">
@@ -83,7 +87,7 @@
       @if (categories().length) {
       <div class="chip-row" aria-label="Filter by category">
         <button class="chip" type="button" [attr.aria-pressed]="!categoryId" (click)="selectCategory('')">
-          All services
+          <ion-icon name="sparkles-outline" aria-hidden="true" />All services
         </button>
         @for (category of categories(); track category.id) {
         <button
@@ -92,7 +96,7 @@
           [attr.aria-pressed]="categoryId === category.id"
           (click)="selectCategory(category.id)"
         >
-          {{ category.name }}
+          <ion-icon [name]="categoryIcon(category.name)" aria-hidden="true" />{{ category.name }}
         </button>
         }
       </div>
@@ -129,7 +133,9 @@
           </div>
           <div class="studio-card__body">
             <h3><a [routerLink]="['/businesses', business.id]">{{ business.tradingName }}</a></h3>
-            <p class="studio-card__location">{{ business.suburb }}, {{ business.city }}</p>
+            <p class="studio-card__location">
+              <ion-icon name="location-outline" aria-hidden="true" />{{ business.suburb }} · Studio or mobile
+            </p>
             <p
               class="studio-card__rating"
               [attr.aria-label]="business.averageRating + ' out of 5 from ' + business.reviewCount + ' reviews'"
@@ -148,10 +154,10 @@
                 [disabled]="selected().length >= 2 && !isSelected(business.id)"
                 (click)="toggleComparison(business)"
               >
-                {{ isSelected(business.id) ? 'Selected' : 'Compare' }}
+                {{ isSelected(business.id) ? 'Selected' : '＋ Compare' }}
               </button>
               <a class="studio-action studio-action--primary" [routerLink]="['/businesses', business.id]"
-                >View services</a
+                >Book&nbsp; →</a
               >
             </div>
           </div>

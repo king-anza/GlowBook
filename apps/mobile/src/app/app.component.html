@@ -7,17 +7,17 @@
         </a>
         <nav aria-label="Main navigation" class="prototype-nav">
           <a routerLink="/home" [class.active]="isActive('discover')"
-            ><ion-icon name="compass-outline" aria-hidden="true" />Explore</a
+            ><ion-icon name="compass-outline" aria-hidden="true" />Discover</a
           >
           <a routerLink="/bookings" [class.active]="isActive('bookings')"
             ><ion-icon name="calendar-outline" aria-hidden="true" />My bookings</a
           >
-          <a routerLink="/pricing" [class.active]="isActive('pricing')"
-            ><ion-icon name="bar-chart-outline" aria-hidden="true" />Pricing lab</a
+          <a routerLink="/professional/profile" [class.active]="isActive('studio')"
+            ><ion-icon name="storefront-outline" aria-hidden="true" />Studio</a
           >
         </nav>
         <a
-          routerLink="/auth"
+          routerLink="/account/profile"
           class="prototype-account"
           aria-label="Account"
           [attr.aria-current]="isActive('account') ? 'page' : null"

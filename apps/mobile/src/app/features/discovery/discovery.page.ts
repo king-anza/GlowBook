@@ -7,6 +7,7 @@ import {
   IonButton,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
   IonModal,
   IonSelect,
@@ -49,6 +50,7 @@ interface Category {
     FormsModule,
     RouterLink,
     IonHeader,
+    IonIcon,
     IonToolbar,
     IonTitle,
     IonContent,
@@ -109,6 +111,15 @@ export class DiscoveryPage {
   selectCategory(categoryId: string): void {
     this.categoryId = categoryId;
     this.load();
+  }
+
+  categoryIcon(name: string): string {
+    const category = name.toLowerCase();
+    if (category.includes('hair') || category.includes('braid')) return 'cut-outline';
+    if (category.includes('nail')) return 'hand-left-outline';
+    if (category.includes('makeup')) return 'color-palette-outline';
+    if (category.includes('lash') || category.includes('brow')) return 'eye-outline';
+    return 'sparkles-outline';
   }
 
   imageFor(business: BusinessSummary): string {
