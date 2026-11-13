@@ -15,11 +15,12 @@ internal static class DevelopmentDemoData
 
     private static readonly Studio[] Studios =
     [
-        new("10000000-0000-0000-0000-000000000001", "Nomsa Braid Studio", "Walmer", "Hair", "Medium knotless braids", 580, 210, "braids.webp", "Neat, lightweight braids with gentle tension and clean parting."),
+        new("10000000-0000-0000-0000-000000000001", "Nomsa Braid Studio", "Walmer", "Hair", "Small knotless braids", 320, 180, "braids.webp", "Neat, lightweight braids with gentle tension and clean parting."),
         new("10000000-0000-0000-0000-000000000002", "Lumi Nail Bar", "Newton Park", "Nails", "Gel overlay manicure", 280, 60, "nails.webp", "Detailed nail preparation and soft, clean finishes."),
         new("10000000-0000-0000-0000-000000000003", "Zola Artistry", "Summerstrand", "Makeup", "Soft glam makeup", 520, 60, "makeup.webp", "Skin-first soft glam for events, celebrations and photos."),
         new("10000000-0000-0000-0000-000000000004", "Nandi Lash Studio", "Central", "Eyebrows and Lashes", "Hybrid lash extensions", 550, 110, "lashes.webp", "Natural-looking lash sets, soft volume and tidy brow shaping."),
         new("10000000-0000-0000-0000-000000000005", "Imara Natural Hair", "Mount Croix", "Hair", "Two-strand twists", 350, 105, "beauty.webp", "Textured-hair styling, gentle detangling and protective styles."),
+        new("10000000-0000-0000-0000-000000000006", "Abeni Beauty Room", "Richmond Hill", "Eyebrows and Lashes", "Brow shape and tint", 260, 45, "lashes.webp", "Careful brow shaping and softly defined, natural-looking colour."),
     ];
 
     public static async Task<int> SeedAsync(GlowBookDbContext db, CancellationToken ct)
