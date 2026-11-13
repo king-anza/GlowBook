@@ -25,10 +25,11 @@ internal static class DevelopmentDemoData
 
     public static async Task<int> SeedAsync(GlowBookDbContext db, CancellationToken ct)
     {
-        if (await db.Businesses.AnyAsync(x => x.TradingName == "Nomsa Braid Studio", ct)) return 0;
         var now = DateTime.UtcNow;
         var customer = new ApplicationUser { Id = Guid.Parse("20000000-0000-0000-0000-000000000001"), UserName = "demo.customer@glowbook.local", NormalizedUserName = "DEMO.CUSTOMER@GLOWBOOK.LOCAL", Email = "demo.customer@glowbook.local", NormalizedEmail = "DEMO.CUSTOMER@GLOWBOOK.LOCAL", EmailConfirmed = true, DisplayName = "Gqeberha Glow Guest", TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now, CreatedAtUtc = now, SecurityStamp = "demo-customer" };
-        db.Users.Add(customer);
+        if (!await db.Users.AnyAsync(x => x.Id == customer.Id, ct)) db.Users.Add(customer);
+        var existingBusinessIds = await db.Businesses.Where(x => Studios.Select(studio => Guid.Parse(studio.Id)).Contains(x.Id)).Select(x => x.Id).ToHashSetAsync(ct);
+        var seeded = 0;
         foreach (var (studio, index) in Studios.Select((value, index) => (value, index)))
         {
             var businessId = Guid.Parse(studio.Id);
@@ -38,6 +39,22 @@ internal static class DevelopmentDemoData
             var serviceId = Guid.Parse($"24000000-0000-0000-0000-{index + 1:000000000000}");
             var offeringId = Guid.Parse($"25000000-0000-0000-0000-{index + 1:000000000000}");
             var categoryId = studio.Category == "Hair" ? Guid.Parse("44444444-4444-4444-4444-000000000001") : studio.Category == "Nails" ? Guid.Parse("44444444-4444-4444-4444-000000000003") : studio.Category == "Makeup" ? Guid.Parse("44444444-4444-4444-4444-000000000004") : Guid.Parse("44444444-4444-4444-4444-000000000006");
+            if (existingBusinessIds.Contains(businessId))
+            {
+                var existingBusiness = await db.Businesses.SingleAsync(x => x.Id == businessId, ct);
+                var existingService = await db.Services.SingleAsync(x => x.Id == serviceId, ct);
+                var existingOffering = await db.ServiceOfferings.SingleAsync(x => x.Id == offeringId, ct);
+                existingBusiness.Description = studio.Description;
+                existingBusiness.UpdatedAtUtc = now;
+                existingService.Name = studio.Service;
+                existingService.Description = studio.Description;
+                existingService.UpdatedAtUtc = now;
+                existingOffering.Price = studio.Price;
+                existingOffering.DurationMinutes = studio.Minutes;
+                existingOffering.UpdatedAtUtc = now;
+                seeded++;
+                continue;
+            }
             db.Users.Add(new ApplicationUser { Id = ownerId, UserName = $"demo.{index}@glowbook.local", NormalizedUserName = $"DEMO.{index}@GLOWBOOK.LOCAL", Email = $"demo.{index}@glowbook.local", NormalizedEmail = $"DEMO.{index}@GLOWBOOK.LOCAL", EmailConfirmed = true, DisplayName = studio.Name, TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now, CreatedAtUtc = now, SecurityStamp = $"demo-{index}" });
             db.Businesses.Add(new Business { Id = businessId, OwnerUserId = ownerId, TradingName = studio.Name, Description = studio.Description, CancellationPolicy = "Please cancel at least 24 hours before your appointment.", ApprovalStatus = BusinessApprovalStatus.Approved, ApprovedAtUtc = now, CreatedAtUtc = now, UpdatedAtUtc = now });
             db.BusinessLocations.Add(new BusinessLocation { Id = locationId, BusinessId = businessId, Name = studio.Name, AddressLine1 = $"{12 + index} Main Road", Suburb = studio.Area, City = "Gqeberha", Province = "Eastern Cape", PostalCode = "6001" });
@@ -49,8 +66,9 @@ internal static class DevelopmentDemoData
             db.Bookings.Add(booking);
             db.Reviews.Add(new Review { Id = Guid.NewGuid(), BookingId = booking.Id, CustomerUserId = customer.Id, BusinessId = businessId, Rating = index % 2 == 0 ? 5 : 4, Comment = "Beautiful result, welcoming service and an easy booking experience.", CreatedAtUtc = now.AddDays(-10), UpdatedAtUtc = now.AddDays(-10) });
             db.PortfolioImages.Add(new PortfolioImage { Id = Guid.NewGuid(), BusinessId = businessId, ImageUrl = $"assets/glowbook/{studio.Image}", AltText = $"Portfolio image for {studio.Name}", DisplayOrder = 1, CreatedAtUtc = now });
+            seeded++;
         }
         await db.SaveChangesAsync(ct);
-        return Studios.Length;
+        return seeded;
     }
 }
