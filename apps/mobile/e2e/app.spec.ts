@@ -377,7 +377,6 @@ test('administrator reviews a pending professional from the operations centre', 
   await page.getByLabel('Password').fill('ValidPass!1');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'Account' }).click();
-  await page.getByText('Manage my profile and privacy').click();
   await page.getByRole('link', { name: 'Open admin centre' }).click();
   await expect(page.getByRole('heading', { name: 'Keep the marketplace trusted.' })).toBeVisible();
   await expect(page.getByText('Lerato Beauty Studio')).toBeVisible();
