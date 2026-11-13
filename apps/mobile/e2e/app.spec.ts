@@ -25,6 +25,16 @@ test('shows the discovery page', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Find a pro' })).toBeVisible();
 });
 
+test('keeps the prototype pricing-lab interaction available on mobile and desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/pricing');
+  await expect(page.getByRole('heading', { name: 'Pricing lab' })).toBeVisible();
+  await expect(page.getByText('Estimated monthly revenue')).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(page.getByText('Booking commission')).toBeVisible();
+  await expect(page.getByText('Provider subscription')).toBeVisible();
+});
+
 test('registers and requests account recovery', async ({ page }) => {
   await page.route('**/api/v1/auth/register/customer', (route) => route.fulfill({ status: 202 }));
   await page.route('**/api/v1/auth/forgot-password', (route) => route.fulfill({ status: 202 }));

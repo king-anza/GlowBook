@@ -1,4 +1,19 @@
 <ion-app>
+  <ion-header class="prototype-topbar">
+    <ion-toolbar>
+      <div class="prototype-shell prototype-header-inner">
+        <a routerLink="/home" class="prototype-brand" aria-label="GlowBook home">
+          <img src="assets/glowbook/glow.svg" alt="" /> <span>GlowBook</span>
+        </a>
+        <nav aria-label="Main navigation" class="prototype-nav">
+          <a routerLink="/home" [class.active]="isActive('discover')"><ion-icon name="compass-outline" aria-hidden="true" />Explore</a>
+          <a routerLink="/bookings" [class.active]="isActive('bookings')"><ion-icon name="calendar-outline" aria-hidden="true" />My bookings</a>
+          <a routerLink="/pricing" [class.active]="isActive('pricing')"><ion-icon name="bar-chart-outline" aria-hidden="true" />Pricing lab</a>
+        </nav>
+        <a routerLink="/auth" class="prototype-account" [attr.aria-current]="isActive('account') ? 'page' : null"><ion-icon name="person-circle-outline" aria-hidden="true" /><span>Account</span></a>
+      </div>
+    </ion-toolbar>
+  </ion-header>
   <ion-router-outlet></ion-router-outlet>
   <ion-footer class="app-footer">
     <nav class="app-navigation" aria-label="Primary navigation">
