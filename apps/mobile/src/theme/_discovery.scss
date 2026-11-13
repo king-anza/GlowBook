@@ -162,6 +162,19 @@
   color: var(--glow-muted);
   font-size: 0.82rem;
 }
+.studio-card__rating {
+  margin: 0;
+  color: #503080;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.studio-card__rating span:first-child {
+  color: #d19126;
+}
+.studio-card__review-count {
+  color: var(--glow-muted);
+  font-weight: 500;
+}
 .studio-card__body .studio-card__price {
   margin-top: auto;
   padding-top: 9px;

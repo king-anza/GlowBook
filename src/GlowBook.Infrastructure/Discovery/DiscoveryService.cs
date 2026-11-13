@@ -1,5 +1,6 @@
 using GlowBook.Application.Discovery;
 using GlowBook.Domain.Professionals;
+using GlowBook.Domain.Reviews;
 using GlowBook.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,8 +27,13 @@ internal sealed class DiscoveryService(GlowBookDbContext db) : IDiscoveryService
                 (!request.MaxPrice.HasValue || o.Price <= request.MaxPrice)));
         var total = await query.CountAsync(ct); var ids = await query.OrderBy(x => x.TradingName).Skip((page - 1) * size).Take(size).Select(x => x.Id).ToArrayAsync(ct);
         var businesses = await db.Businesses.AsNoTracking().Include(x => x.Locations).Where(x => ids.Contains(x.Id)).ToArrayAsync(ct);
+        var ratings = await db.Reviews.AsNoTracking()
+            .Where(x => ids.Contains(x.BusinessId) && x.ModerationStatus == ReviewModerationStatus.Active)
+            .GroupBy(x => x.BusinessId)
+            .Select(x => new { BusinessId = x.Key, Average = x.Average(review => review.Rating), Count = x.Count() })
+            .ToDictionaryAsync(x => x.BusinessId, ct);
         var items = new List<BusinessSummaryDto>();
-        foreach (var business in businesses.OrderBy(x => x.TradingName)) { var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray())); }
+        foreach (var business in businesses.OrderBy(x => x.TradingName)) { var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); var rating = ratings.GetValueOrDefault(business.Id); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray(), (decimal)(rating?.Average ?? 0), rating?.Count ?? 0)); }
         return new(items, page, size, total);
     }
 

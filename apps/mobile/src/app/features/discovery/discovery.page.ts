@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,6 +26,8 @@ interface BusinessSummary {
   province: string;
   fromPrice: number;
   categories: string[];
+  averageRating: number;
+  reviewCount: number;
 }
 interface Page {
   items: BusinessSummary[];
@@ -43,6 +45,7 @@ interface Category {
   templateUrl: './discovery.page.html',
   imports: [
     CurrencyPipe,
+    DecimalPipe,
     FormsModule,
     RouterLink,
     IonHeader,

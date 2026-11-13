@@ -74,7 +74,12 @@
     </form>
 
     <section aria-labelledby="results-title">
-      <div class="section-heading"><div><h2 class="discovery-title" id="results-title">Explore beauty pros</h2><p>Browse portfolios, prices and appointment times.</p></div></div>
+      <div class="section-heading">
+        <div>
+          <h2 class="discovery-title" id="results-title">Explore beauty pros</h2>
+          <p>Browse portfolios, prices and appointment times.</p>
+        </div>
+      </div>
       @if (categories().length) {
       <div class="chip-row" aria-label="Filter by category">
         <button class="chip" type="button" [attr.aria-pressed]="!categoryId" (click)="selectCategory('')">
@@ -125,6 +130,13 @@
           <div class="studio-card__body">
             <h3><a [routerLink]="['/businesses', business.id]">{{ business.tradingName }}</a></h3>
             <p class="studio-card__location">{{ business.suburb }}, {{ business.city }}</p>
+            <p
+              class="studio-card__rating"
+              [attr.aria-label]="business.averageRating + ' out of 5 from ' + business.reviewCount + ' reviews'"
+            >
+              <span aria-hidden="true">★</span> {{ business.averageRating | number: '1.1-1' }}
+              <span class="studio-card__review-count">({{ business.reviewCount }})</span>
+            </p>
             <p class="studio-card__description">{{ business.description }}</p>
             <p class="studio-card__price">From <strong>{{ business.fromPrice | currency: 'ZAR' : 'R' }}</strong></p>
             <div class="studio-card__actions">

@@ -3,13 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import {
-  IonButton,
-  IonContent,
-  IonSelect,
-  IonSelectOption,
-  IonTextarea,
-} from '@ionic/angular';
+import { IonButton, IonContent, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 import { ConfirmationService } from '../../core/ui/confirmation.service';
@@ -34,16 +28,7 @@ interface Review {
 @Component({
   selector: 'app-bookings',
   templateUrl: './bookings.page.html',
-  imports: [
-    DatePipe,
-    FormsModule,
-    RouterLink,
-    IonContent,
-    IonButton,
-    IonSelect,
-    IonSelectOption,
-    IonTextarea,
-  ],
+  imports: [DatePipe, FormsModule, RouterLink, IonContent, IonButton, IonSelect, IonSelectOption, IonTextarea],
 })
 export class BookingsPage {
   private readonly http = inject(HttpClient);

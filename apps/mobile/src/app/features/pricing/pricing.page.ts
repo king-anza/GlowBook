@@ -16,8 +16,14 @@ export class PricingPage {
   readonly rate = signal(8);
   readonly subscription = signal(149);
   readonly gross = computed(() => this.providers() * this.volume() * this.average());
-  readonly commission = computed(() => this.gross() * this.rate() / 100);
+  readonly commission = computed(() => (this.gross() * this.rate()) / 100);
   readonly subscriptions = computed(() => this.providers() * this.subscription());
-  readonly bookingFee = computed(() => this.average() * this.rate() / 100);
-  reset(): void { this.providers.set(30); this.volume.set(12); this.average.set(450); this.rate.set(8); this.subscription.set(149); }
+  readonly bookingFee = computed(() => (this.average() * this.rate()) / 100);
+  reset(): void {
+    this.providers.set(30);
+    this.volume.set(12);
+    this.average.set(450);
+    this.rate.set(8);
+    this.subscription.set(149);
+  }
 }

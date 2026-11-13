@@ -1,18 +1,87 @@
-<ion-header><ion-toolbar><ion-title>Pricing lab</ion-title></ion-toolbar></ion-header>
-<ion-content><main class="page-shell pricing-page">
-  <section class="page-heading"><h1>Pricing lab</h1><p>See what independent beauty professionals might pay under two GlowBook pricing models.</p></section>
-  <section class="pricing-grid">
-    <form class="surface-card pricing-controls" (reset)="reset()"><h2>Monthly assumptions</h2>
-      <label>Active providers <output>{{ providers() }}</output><ion-range [value]="providers()" min="1" max="100" (ionInput)="providers.set(+$any($event).detail.value)"></ion-range></label>
-      <label>Bookings per provider <output>{{ volume() }}</output><ion-range [value]="volume()" min="1" max="60" (ionInput)="volume.set(+$any($event).detail.value)"></ion-range></label>
-      <label>Average booking price <output>{{ average() | currency:'ZAR':'R':'1.0-0' }}</output><ion-range [value]="average()" min="100" max="1500" step="25" (ionInput)="average.set(+$any($event).detail.value)"></ion-range></label>
-      <div class="numbers"><label>Commission rate <ion-input type="number" [value]="rate()" (ionInput)="rate.set(+$any($event).detail.value)"></ion-input></label><label>Monthly subscription <ion-input type="number" [value]="subscription()" (ionInput)="subscription.set(+$any($event).detail.value)"></ion-input></label></div>
-      <button type="reset" class="quiet-button">Reset assumptions</button>
-    </form>
-    <section class="surface-card pricing-results"><h2>Estimated monthly revenue</h2><p>{{ providers() * volume() }} appointments worth {{ gross() | currency:'ZAR':'R':'1.0-0' }} in total.</p>
-      <div class="metric"><strong>Booking commission</strong><b>{{ commission() | currency:'ZAR':'R':'1.0-0' }}</b><p>{{ bookingFee() | currency:'ZAR':'R':'1.0-0' }} per appointment · {{ bookingFee() * volume() | currency:'ZAR':'R':'1.0-0' }} per provider per month</p></div>
-      <div class="metric"><strong>Provider subscription</strong><b>{{ subscriptions() | currency:'ZAR':'R':'1.0-0' }}</b><p>{{ subscription() | currency:'ZAR':'R':'1.0-0' }} per provider per month</p></div>
-      <p class="break-even">At about {{ subscription() / (bookingFee() || 1) | number:'1.0-0' }} bookings per provider per month, the two models collect the same amount.</p><p class="disclaimer">Illustrative estimates before costs. Both models assume the same number of active providers.</p>
+<ion-header
+  ><ion-toolbar><ion-title>Pricing lab</ion-title></ion-toolbar></ion-header
+>
+<ion-content
+  ><main class="page-shell pricing-page">
+    <section class="page-heading">
+      <h1>Pricing lab</h1>
+      <p>See what independent beauty professionals might pay under two GlowBook pricing models.</p>
     </section>
-  </section>
-</main></ion-content>
+    <section class="pricing-grid">
+      <form class="surface-card pricing-controls" (reset)="reset()">
+        <h2>Monthly assumptions</h2>
+        <label
+          >Active providers <output>{{ providers() }}</output
+          ><ion-range
+            [value]="providers()"
+            min="1"
+            max="100"
+            (ionInput)="providers.set(+$any($event).detail.value)"
+          ></ion-range
+        ></label>
+        <label
+          >Bookings per provider <output>{{ volume() }}</output
+          ><ion-range
+            [value]="volume()"
+            min="1"
+            max="60"
+            (ionInput)="volume.set(+$any($event).detail.value)"
+          ></ion-range
+        ></label>
+        <label
+          >Average booking price <output>{{ average() | currency:'ZAR':'R':'1.0-0' }}</output
+          ><ion-range
+            [value]="average()"
+            min="100"
+            max="1500"
+            step="25"
+            (ionInput)="average.set(+$any($event).detail.value)"
+          ></ion-range
+        ></label>
+        <div class="numbers">
+          <div>
+            <label for="commission-rate">Commission rate</label
+            ><ion-input
+              id="commission-rate"
+              type="number"
+              [value]="rate()"
+              (ionInput)="rate.set(+$any($event).detail.value)"
+            ></ion-input>
+          </div>
+          <div>
+            <label for="monthly-subscription">Monthly subscription</label
+            ><ion-input
+              id="monthly-subscription"
+              type="number"
+              [value]="subscription()"
+              (ionInput)="subscription.set(+$any($event).detail.value)"
+            ></ion-input>
+          </div>
+        </div>
+        <button type="reset" class="quiet-button">Reset assumptions</button>
+      </form>
+      <section class="surface-card pricing-results">
+        <h2>Estimated monthly revenue</h2>
+        <p>{{ providers() * volume() }} appointments worth {{ gross() | currency:'ZAR':'R':'1.0-0' }} in total.</p>
+        <div class="metric">
+          <strong>Booking commission</strong><b>{{ commission() | currency:'ZAR':'R':'1.0-0' }}</b>
+          <p>
+            {{ bookingFee() | currency:'ZAR':'R':'1.0-0' }} per appointment · {{ bookingFee() * volume() |
+            currency:'ZAR':'R':'1.0-0' }} per provider per month
+          </p>
+        </div>
+        <div class="metric">
+          <strong>Provider subscription</strong><b>{{ subscriptions() | currency:'ZAR':'R':'1.0-0' }}</b>
+          <p>{{ subscription() | currency:'ZAR':'R':'1.0-0' }} per provider per month</p>
+        </div>
+        <p class="break-even">
+          At about {{ subscription() / (bookingFee() || 1) | number:'1.0-0' }} bookings per provider per month, the two
+          models collect the same amount.
+        </p>
+        <p class="disclaimer">
+          Illustrative estimates before costs. Both models assume the same number of active providers.
+        </p>
+      </section>
+    </section>
+  </main></ion-content
+>
