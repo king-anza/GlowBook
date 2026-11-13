@@ -10,7 +10,7 @@
           <a routerLink="/bookings" [class.active]="isActive('bookings')"><ion-icon name="calendar-outline" aria-hidden="true" />My bookings</a>
           <a routerLink="/pricing" [class.active]="isActive('pricing')"><ion-icon name="bar-chart-outline" aria-hidden="true" />Pricing lab</a>
         </nav>
-        <a routerLink="/auth" class="prototype-account" [attr.aria-current]="isActive('account') ? 'page' : null"><ion-icon name="person-circle-outline" aria-hidden="true" /><span>Account</span></a>
+        <a routerLink="/auth" class="prototype-account" aria-label="Account" [attr.aria-current]="isActive('account') ? 'page' : null"><ion-icon name="person-circle-outline" aria-hidden="true" /><span>Account</span></a>
       </div>
     </ion-toolbar>
   </ion-header>
