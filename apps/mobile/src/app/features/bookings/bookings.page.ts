@@ -2,15 +2,13 @@ import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonContent,
-  IonHeader,
   IonSelect,
   IonSelectOption,
   IonTextarea,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
@@ -39,9 +37,7 @@ interface Review {
   imports: [
     DatePipe,
     FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
+    RouterLink,
     IonContent,
     IonButton,
     IonSelect,
