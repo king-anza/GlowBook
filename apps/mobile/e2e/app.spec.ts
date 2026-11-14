@@ -349,6 +349,7 @@ test('administrator reviews a pending professional from the operations centre', 
       ],
     }),
   );
+  await page.route('**/api/v1/admin/businesses', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/users?**', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/bookings', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/audit-logs?**', (route) => route.fulfill({ json: [] }));

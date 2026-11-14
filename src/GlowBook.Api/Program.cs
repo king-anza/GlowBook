@@ -197,6 +197,7 @@ professional.MapPost("/bookings/{id:guid}/{action}", async (Guid id, string acti
 
 var admin = app.MapGroup("/api/v1/admin").RequireAuthorization(policy => policy.RequireRole("Admin"));
 admin.MapGet("/businesses/pending", (IProfessionalService service, CancellationToken ct) => service.PendingAsync(ct));
+admin.MapGet("/businesses", (IProfessionalService service, CancellationToken ct) => service.ManagedAsync(ct));
 admin.MapPost("/businesses/{id:guid}/approve", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Approved, null, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/businesses/{id:guid}/reject", async (Guid id, BusinessReviewRequest request, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Rejected, request.Reason, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/businesses/{id:guid}/suspend", async (Guid id, BusinessReviewRequest request, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Suspended, request.Reason, ct) ? Results.NoContent() : Results.NotFound());

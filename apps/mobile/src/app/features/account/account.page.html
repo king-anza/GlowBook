@@ -38,6 +38,7 @@
         ><ion-button color="danger" fill="outline" [disabled]="busy()" (click)="deleteAccount()"
           >Anonymise account</ion-button
         >
+        <ion-button fill="clear" (click)="signOut()">Sign out</ion-button>
       </div>
     </section>
     @if (isAdmin()) {

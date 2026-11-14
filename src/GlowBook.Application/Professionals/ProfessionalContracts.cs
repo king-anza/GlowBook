@@ -20,6 +20,7 @@ public interface IProfessionalService
     Task<bool> SubmitAsync(Guid ownerId, CancellationToken ct);
     Task<StaffDto?> AddStaffAsync(Guid ownerId, StaffRequest request, CancellationToken ct);
     Task<IReadOnlyCollection<BusinessDto>> PendingAsync(CancellationToken ct);
+    Task<IReadOnlyCollection<BusinessDto>> ManagedAsync(CancellationToken ct);
     Task<bool> ReviewAsync(Guid actorId, Guid businessId, BusinessApprovalStatus status, string? reason, CancellationToken ct);
     Task<PortfolioImageDto?> AddPortfolioImageAsync(Guid ownerId, PortfolioImageRequest request, CancellationToken ct);
     Task<IReadOnlyCollection<PortfolioImageDto>> PortfolioImagesAsync(Guid ownerId, CancellationToken ct);
