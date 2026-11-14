@@ -19,6 +19,8 @@ import {
   timeOutline,
 } from 'ionicons/icons';
 
+import { AuthService } from './core/auth/auth.service';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -27,8 +29,10 @@ import {
 })
 export class AppComponent {
   private readonly router = inject(Router);
+  readonly auth = inject(AuthService);
 
   constructor() {
+    void this.auth.restoreSession();
     addIcons({
       searchOutline,
       calendarClearOutline,

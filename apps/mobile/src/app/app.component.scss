@@ -8,6 +8,6 @@
 .prototype-nav a, .prototype-account { display: inline-flex; min-height: 40px; align-items: center; justify-content: center; gap: 6px; padding: 0 7px; border-radius: 9px; color: var(--glow-muted); font-size: .75rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .prototype-nav ion-icon, .prototype-account ion-icon { font-size: 1rem; }
 .prototype-nav a.active, .prototype-nav a:hover, .prototype-account:hover, .prototype-account[aria-current='page'] { color: var(--glow-plum); background: var(--glow-accent-soft); }
-.prototype-account span { display: none; }
+.prototype-account span { display: inline; }
 @media (min-width: 730px) { .prototype-shell { width: min(calc(100% - 48px), 1184px); } .prototype-header-inner { min-height: 69px; flex-wrap: nowrap; } .prototype-nav { order: 0; width: auto; padding: 0; gap: 5px; } .prototype-nav a { padding: 0 12px; } .prototype-account span { display: inline; } }
 @media (min-width: 980px) { .prototype-shell { width: min(calc(100% - 80px), 1184px); } }

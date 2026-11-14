@@ -32,7 +32,7 @@ test('keeps the requested Discover, bookings, Studio and Account shell on mobile
   await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('href', '/home');
   await expect(nav.getByRole('link', { name: 'My bookings' })).toHaveAttribute('href', '/bookings');
   await expect(nav.getByRole('link', { name: 'Studio' })).toHaveAttribute('href', '/professional/profile');
-  await expect(page.getByRole('link', { name: 'Account' })).toHaveAttribute('href', '/account/profile');
+  await expect(page.getByRole('link', { name: 'Sign in or create account' })).toHaveAttribute('href', '/auth');
   await expect(nav.getByRole('link', { name: /pricing/i })).toHaveCount(0);
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect(nav.getByRole('link', { name: 'Studio' })).toBeVisible();
