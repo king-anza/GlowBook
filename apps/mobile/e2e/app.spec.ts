@@ -21,8 +21,8 @@ test('shows the discovery page', async ({ page }) => {
     route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
   );
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Find your next glow.' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Search' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Find your glow.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Find a pro' })).toBeVisible();
 });
 
 test('registers and requests account recovery', async ({ page }) => {
@@ -136,7 +136,9 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
   await expect(page.getByText('Glow Test Studio')).toBeVisible();
   await page.getByText('Glow Test Studio').click();
   await page.getByRole('link', { name: 'Choose a time' }).click();
-  await page.getByRole('button', { name: 'Book' }).click();
+  await page.getByRole('button', { name: 'Select', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Review booking request' })).toBeVisible();
+  await page.getByRole('button', { name: 'Request booking' }).click();
   const bookingsPage = page.locator('app-bookings');
   await expect(bookingsPage.getByText('Silk press')).toBeVisible();
   await expect(bookingsPage.getByText('Pending')).toBeVisible();

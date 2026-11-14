@@ -1,16 +1,14 @@
+import { CurrencyPipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonContent,
   IonHeader,
   IonInput,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonTitle,
@@ -44,6 +42,7 @@ interface Category {
   selector: 'app-discovery',
   templateUrl: './discovery.page.html',
   imports: [
+    CurrencyPipe,
     FormsModule,
     RouterLink,
     IonHeader,
@@ -51,17 +50,16 @@ interface Category {
     IonTitle,
     IonContent,
     IonInput,
+    IonModal,
     IonSelect,
     IonSelectOption,
     IonButton,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
   ],
 })
 export class DiscoveryPage {
   private readonly http = inject(HttpClient);
+  readonly selected = signal<BusinessSummary[]>([]);
+  readonly comparisonOpen = signal(false);
   readonly businesses = signal<BusinessSummary[]>([]);
   readonly categories = signal<Category[]>([]);
   readonly currentPage = signal(1);
@@ -105,6 +103,32 @@ export class DiscoveryPage {
       },
     });
   }
+  selectCategory(categoryId: string): void {
+    this.categoryId = categoryId;
+    this.load();
+  }
+
+  imageFor(business: BusinessSummary): string {
+    const category = business.categories[0]?.toLowerCase() ?? '';
+    if (category === 'hair' || category.includes('braid')) return 'braids';
+    if (category === 'nails') return 'nails';
+    if (category === 'makeup') return 'makeup';
+    if (category.includes('lash') || category.includes('brow')) return 'lashes';
+    return 'beauty';
+  }
+
+  isSelected(id: string): boolean {
+    return this.selected().some((business) => business.id === id);
+  }
+
+  toggleComparison(business: BusinessSummary): void {
+    if (this.isSelected(business.id)) {
+      this.selected.update((items) => items.filter((item) => item.id !== business.id));
+    } else if (this.selected().length < 2) {
+      this.selected.update((items) => [...items, business]);
+    }
+  }
+
   previousPage(): void {
     if (this.currentPage() > 1) this.load(this.currentPage() - 1);
   }

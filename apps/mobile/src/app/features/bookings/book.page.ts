@@ -25,6 +25,9 @@ export class BookPage {
 
   readonly slots = signal<Slot[]>([]);
   readonly error = signal<string | null>(null);
+  readonly loading = signal(true);
+  readonly selectedSlot = signal<Slot | null>(null);
+  readonly submitting = signal(false);
 
   constructor() {
     const from = new Date();
@@ -37,13 +40,21 @@ export class BookPage {
       .set('to', to.toISOString().slice(0, 10));
 
     this.http.get<Slot[]>(`${environment.apiUrl}/api/v1/staff/${this.staffId}/availability`, { params }).subscribe({
-      next: (items) => this.slots.set(items),
-      error: () => this.error.set('Availability could not be loaded. Please try again.'),
+      next: (items) => {
+        this.slots.set(items);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Availability could not be loaded. Please try again.');
+        this.loading.set(false);
+      },
     });
   }
 
   book(slot: Slot): void {
+    if (this.submitting()) return;
     this.error.set(null);
+    this.submitting.set(true);
     this.http
       .post(`${environment.apiUrl}/api/v1/bookings`, {
         offeringId: this.offeringId,
@@ -52,8 +63,15 @@ export class BookPage {
         notes: null,
       })
       .subscribe({
-        next: () => void this.router.navigateByUrl('/bookings'),
-        error: () => this.error.set('That slot is no longer available.'),
+        next: () => {
+          this.selectedSlot.set(null);
+          this.submitting.set(false);
+          void this.router.navigateByUrl('/bookings');
+        },
+        error: () => {
+          this.submitting.set(false);
+          this.error.set('That slot is no longer available.');
+        },
       });
   }
 }

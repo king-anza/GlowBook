@@ -5,7 +5,7 @@
   <main class="page-shell">
     @if (business(); as item) {
     <section class="hero">
-      <p class="eyebrow">Verified GlowBook professional</p>
+      <p class="eyebrow">GlowBook professional</p>
       <h1>{{ item.tradingName }}</h1>
       <p>{{ item.description }}</p>
       <div class="chip-row">
@@ -14,7 +14,7 @@
     </section>
 
     @if (item.portfolioImages.length) {
-    <h2 class="section-title">A look inside</h2>
+    <h2 class="section-title">Portfolio</h2>
     <div class="portfolio-grid">
       @for (image of item.portfolioImages; track image.id) {
       <img [src]="image.imageUrl" [alt]="image.altText" loading="lazy" /> }
@@ -33,7 +33,7 @@
         <ion-card-content>
           <p>{{ service.description }}</p>
           @for (offering of service.offerings; track offering.id) {
-          <div class="surface-card" style="margin-top: 10px">
+          <div class="surface-card offering-card">
             <strong>{{ offering.staffName }}</strong>
             <p class="result-card__meta">
               <span class="price">R{{ offering.price }}</span><span>·</span
@@ -52,7 +52,7 @@
     </div>
 
     @if (reviews(); as reviewData) {
-    <h2 class="section-title">Client love</h2>
+    <h2 class="section-title">Customer reviews</h2>
     <p class="section-copy">
       <strong>{{ reviewData.averageRating | number: '1.1-1' }} / 5</strong> from {{ reviewData.reviewCount }} reviews
     </p>
@@ -60,7 +60,9 @@
       @for (review of reviewData.reviews; track review.id) {
       <div class="surface-card">
         <span class="price">{{ review.rating }} / 5</span>
-        <p>{{ review.comment || 'A happy GlowBook client.' }}</p>
+        @if (review.comment) {
+        <p>{{ review.comment }}</p>
+        }
       </div>
       } @empty {
       <div class="empty-state">No reviews yet. You could be the first after a completed booking.</div>
