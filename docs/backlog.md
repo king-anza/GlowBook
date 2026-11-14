@@ -56,7 +56,7 @@ This checklist tracks implementation against `docs/requirements.md`. A checked i
 
 ## Release-gap enhancements
 
-- [ ] UI-000 — Prototype parity: reproduce the authenticated prototype's complete customer journey with real API-backed UI, deterministic Gqeberha development data and responsive/e2e coverage
+- [x] UI-000 — Prototype parity: reproduce the authenticated prototype's complete customer journey with real API-backed UI, deterministic Gqeberha development data and responsive/e2e coverage
 
 - [x] Role-aware mobile administrator centre for professional approvals, support users, bookings and audit activity
 - [x] Reachable administrator review and portfolio moderation queues
