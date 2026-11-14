@@ -1,13 +1,10 @@
-<ion-header
-  ><ion-toolbar><ion-title>My bookings</ion-title></ion-toolbar></ion-header
->
 <ion-content>
   <main class="page-shell">
     <section class="page-heading">
-      <h1>My appointments</h1>
-      <p>View booking statuses, manage appointments and review completed services.</p>
+      <h1>My bookings</h1>
+      <p>Review or cancel appointments you have made with independent Gqeberha beauty professionals.</p>
     </section>
-    <section class="card-grid">
+    <section class="booking-list">
       @for (booking of bookings(); track booking.id) {
       <article class="surface-card booking-card">
         <div class="booking-card__top">
@@ -72,7 +69,11 @@
         }
       </article>
       } @empty {
-      <div class="empty-state">No bookings yet. Discover a professional and make time for yourself.</div>
+      <div class="empty-state bookings-empty-state">
+        <h2>No bookings yet</h2>
+        <p>Try an appointment to see how it appears here.</p>
+        <a routerLink="/home">Explore providers</a>
+      </div>
       }
     </section>
     @if (message()) {

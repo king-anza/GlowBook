@@ -38,6 +38,7 @@
         ><ion-button color="danger" fill="outline" [disabled]="busy()" (click)="deleteAccount()"
           >Anonymise account</ion-button
         >
+        <ion-button fill="clear" (click)="signOut()">Sign out</ion-button>
       </div>
     </section>
     @if (isAdmin()) {
@@ -50,7 +51,11 @@
       <ion-button routerLink="/admin">Open admin centre</ion-button>
     </section>
     } } @else {
-    <div class="empty-state">Sign in to view and manage your profile.</div>
+    <section class="empty-state account-sign-in">
+      <h2>Sign in to manage your account</h2>
+      <p>Update your details, download your data, and manage your privacy settings.</p>
+      <ion-button routerLink="/auth">Sign in or create an account</ion-button>
+    </section>
     } @if (message()) {
     <p class="notice notice--success" role="status">{{ message() }}</p>
     }

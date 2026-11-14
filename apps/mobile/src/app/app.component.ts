@@ -1,20 +1,54 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { IonApp, IonFooter, IonIcon, IonRouterOutlet } from '@ionic/angular';
+import { IonApp, IonHeader, IonIcon, IonRouterOutlet, IonToolbar } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { calendarClearOutline, personCircleOutline, searchOutline, sparklesOutline } from 'ionicons/icons';
+import {
+  calendarClearOutline,
+  calendarOutline,
+  colorPaletteOutline,
+  compassOutline,
+  cutOutline,
+  eyeOutline,
+  handLeftOutline,
+  locationOutline,
+  optionsOutline,
+  personCircleOutline,
+  searchOutline,
+  sparklesOutline,
+  storefrontOutline,
+  timeOutline,
+} from 'ionicons/icons';
+
+import { AuthService } from './core/auth/auth.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  imports: [RouterLink, IonApp, IonRouterOutlet, IonFooter, IonIcon],
+  imports: [RouterLink, IonApp, IonRouterOutlet, IonHeader, IonToolbar, IonIcon],
 })
 export class AppComponent {
   private readonly router = inject(Router);
+  readonly auth = inject(AuthService);
 
   constructor() {
-    addIcons({ searchOutline, calendarClearOutline, personCircleOutline, sparklesOutline });
+    void this.auth.restoreSession();
+    addIcons({
+      searchOutline,
+      calendarClearOutline,
+      calendarOutline,
+      colorPaletteOutline,
+      compassOutline,
+      cutOutline,
+      eyeOutline,
+      handLeftOutline,
+      locationOutline,
+      optionsOutline,
+      storefrontOutline,
+      timeOutline,
+      personCircleOutline,
+      sparklesOutline,
+    });
   }
 
   isActive(section: 'discover' | 'bookings' | 'account' | 'studio'): boolean {

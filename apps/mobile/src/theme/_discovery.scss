@@ -29,6 +29,7 @@
 .hero-copy .eyebrow {
   color: #573883;
 }
+.discovery-city { display:flex; align-items:center; gap:6px; font-size:.67rem; }
 .hero-copy h1,
 .discovery-title {
   font-family: var(--glow-display-font);
@@ -36,6 +37,10 @@
   line-height: 1.05;
   letter-spacing: -0.06em;
 }
+.section-heading { display:flex; flex-wrap:wrap; align-items:end; justify-content:space-between; gap:12px; }
+.section-heading p { margin:7px 0 0; color:var(--glow-muted); font-size:.82rem; }
+.sort-control { display: inline-flex; align-items: center; gap: 6px; color: var(--glow-muted); font-size: .78rem; white-space: nowrap; }
+.sort-control select { border: 0; background: transparent; color: var(--glow-ink); font: inherit; font-weight: 800; cursor: pointer; }
 .hero-copy h1 {
   margin: 9px 0;
   font-size: clamp(2.6rem, 8vw, 5.35rem);
@@ -69,17 +74,26 @@
   display: grid;
   gap: 6px;
 }
+.prototype-search-field { position: relative; min-width: 0; }
+.prototype-search-field > ion-icon { position: absolute; z-index: 2; top: 18px; left: 13px; color: var(--glow-plum); font-size: 1.1rem; pointer-events: none; }
+.prototype-search-field .field { --padding-start: 38px; }
 .search-fields ion-button {
   margin: 0;
 }
+.filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; margin: 10px 0 0 auto; padding: 0 13px; border: 1px solid var(--glow-line); border-radius: 10px; background: var(--glow-surface); color: var(--glow-plum); font: inherit; font-size: .8rem; font-weight: 750; }
+.filter-toggle ion-icon { font-size: 1rem; }
 .discovery-title {
   margin: 0 0 10px;
   font-size: clamp(2rem, 5vw, 3rem);
 }
 .discovery .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: 42px;
   cursor: pointer;
 }
+.discovery .chip ion-icon { font-size: .95rem; }
 .discovery .chip[aria-pressed='true'],
 .studio-action[aria-pressed='true'] {
   background: var(--glow-accent-soft);
@@ -159,6 +173,21 @@
   color: var(--glow-muted);
   font-size: 0.82rem;
 }
+.studio-card__location { display: flex; align-items: center; gap: 4px; }
+.studio-card__location ion-icon { flex: 0 0 auto; color: var(--glow-muted); font-size: .88rem; }
+.studio-card__rating {
+  margin: 0;
+  color: #503080;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.studio-card__rating span:first-child {
+  color: #d19126;
+}
+.studio-card__review-count {
+  color: var(--glow-muted);
+  font-weight: 500;
+}
 .studio-card__body .studio-card__price {
   margin-top: auto;
   padding-top: 9px;
@@ -169,6 +198,8 @@
   color: var(--glow-ink);
   font-size: 1rem;
 }
+.studio-card__availability { display: flex; align-items: center; gap: 5px; margin: 0; color: #285c4b; font-size: .78rem; font-weight: 750; }
+.studio-card__availability ion-icon { font-size: .9rem; }
 .studio-card__actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

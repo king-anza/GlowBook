@@ -2,17 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 
@@ -49,19 +39,7 @@ interface Reviews {
 @Component({
   selector: 'app-business-detail',
   templateUrl: './business-detail.page.html',
-  imports: [
-    DecimalPipe,
-    RouterLink,
-    IonButton,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-  ],
+  imports: [DecimalPipe, RouterLink, IonButton, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
 })
 export class BusinessDetailPage {
   private readonly http = inject(HttpClient);

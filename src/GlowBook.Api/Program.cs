@@ -132,6 +132,9 @@ app.MapGet("/health", () => Results.Ok(new HealthResponse("Healthy")))
     .WithName("GetHealth")
     .WithTags("Health");
 
+if (app.Environment.IsDevelopment())
+    app.MapPost("/api/v1/development/gqeberha-demo-data", async (GlowBookDbContext db, CancellationToken ct) => Results.Ok(new { seeded = await GlowBook.Api.DevelopmentDemoData.SeedAsync(db, ct) }));
+
 var auth = app.MapGroup("/api/v1/auth").RequireRateLimiting("auth");
 auth.MapPost("/register/customer", (RegisterRequest request, IIdentityService identity, CancellationToken ct) => Register(request, "Customer", identity, ct)).AddEndpointFilter<ValidationFilter<RegisterRequest>>();
 auth.MapPost("/register/professional", (RegisterRequest request, IIdentityService identity, CancellationToken ct) => Register(request, "Professional", identity, ct)).AddEndpointFilter<ValidationFilter<RegisterRequest>>();
@@ -194,6 +197,7 @@ professional.MapPost("/bookings/{id:guid}/{action}", async (Guid id, string acti
 
 var admin = app.MapGroup("/api/v1/admin").RequireAuthorization(policy => policy.RequireRole("Admin"));
 admin.MapGet("/businesses/pending", (IProfessionalService service, CancellationToken ct) => service.PendingAsync(ct));
+admin.MapGet("/businesses", (IProfessionalService service, CancellationToken ct) => service.ManagedAsync(ct));
 admin.MapPost("/businesses/{id:guid}/approve", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Approved, null, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/businesses/{id:guid}/reject", async (Guid id, BusinessReviewRequest request, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Rejected, request.Reason, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/businesses/{id:guid}/suspend", async (Guid id, BusinessReviewRequest request, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Suspended, request.Reason, ct) ? Results.NoContent() : Results.NotFound());

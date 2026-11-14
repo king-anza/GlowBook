@@ -1,15 +1,12 @@
-<ion-header
-  ><ion-toolbar><ion-title>{{ business()?.tradingName ?? 'Studio details' }}</ion-title></ion-toolbar></ion-header
->
 <ion-content>
   <main class="page-shell">
     @if (business(); as item) {
     <section class="hero">
-      <p class="eyebrow">GlowBook professional</p>
+      <p class="eyebrow">GLOWBOOK PROFESSIONAL</p>
       <h1>{{ item.tradingName }}</h1>
       <p>{{ item.description }}</p>
-      <div class="chip-row">
-        <span class="chip">{{ item.suburb }}, {{ item.city }}</span><span class="chip">{{ item.province }}</span>
+      <div class="chip-row studio-detail-meta">
+        <span class="chip">⌖ {{ item.suburb }} · {{ item.city }}</span><span class="chip">{{ item.province }}</span>
       </div>
     </section>
 
@@ -21,7 +18,7 @@
     </div>
     }
 
-    <h2 class="section-title">Services</h2>
+    <h2 class="section-title">Services &amp; prices</h2>
     <p class="section-copy">Choose a service and professional, then see their live availability.</p>
     <div class="card-grid">
       @for (service of item.services; track service.id) {
