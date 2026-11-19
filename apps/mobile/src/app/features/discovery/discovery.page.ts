@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import type { ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -65,6 +66,10 @@ interface Category {
 })
 export class DiscoveryPage {
   private readonly http = inject(HttpClient);
+  private readonly categoryScroller = viewChild<ElementRef<HTMLElement>>('categoryScroller');
+  private categoryHintTimer: ReturnType<typeof setTimeout> | undefined;
+  private categoryHintReturnTimer: ReturnType<typeof setTimeout> | undefined;
+  private categoryHintShown = false;
   readonly selected = signal<BusinessSummary[]>([]);
   readonly comparisonOpen = signal(false);
   readonly businesses = signal<BusinessSummary[]>([]);
@@ -90,9 +95,10 @@ export class DiscoveryPage {
   maxPrice: number | null = null;
   sortMode: 'recommended' | 'rating' | 'price' = 'recommended';
   constructor() {
-    this.http
-      .get<Category[]>(`${environment.apiUrl}/api/v1/categories`)
-      .subscribe((items) => this.categories.set(items));
+    this.http.get<Category[]>(`${environment.apiUrl}/api/v1/categories`).subscribe((items) => {
+      this.categories.set(items);
+      this.showCategoryHint();
+    });
     this.load();
   }
   load(page = 1): void {
@@ -121,6 +127,26 @@ export class DiscoveryPage {
   selectCategory(categoryId: string): void {
     this.categoryId = categoryId;
     this.load();
+  }
+
+  /** Briefly reveals the horizontally hidden mobile categories without taking control from the user. */
+  showCategoryHint(): void {
+    if (this.categoryHintShown || typeof window === 'undefined') return;
+    this.categoryHintTimer = setTimeout(() => {
+      const scroller = this.categoryScroller()?.nativeElement;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!scroller || reducedMotion || window.innerWidth >= 680 || scroller.scrollWidth <= scroller.clientWidth + 12)
+        return;
+      this.categoryHintShown = true;
+      scroller.scrollTo({ left: Math.min(176, scroller.scrollWidth - scroller.clientWidth), behavior: 'smooth' });
+      this.categoryHintReturnTimer = setTimeout(() => scroller.scrollTo({ left: 0, behavior: 'smooth' }), 1900);
+    }, 800);
+  }
+
+  stopCategoryHint(): void {
+    if (this.categoryHintTimer) clearTimeout(this.categoryHintTimer);
+    if (this.categoryHintReturnTimer) clearTimeout(this.categoryHintReturnTimer);
+    this.categoryHintShown = true;
   }
 
   toggleFilters(): void {

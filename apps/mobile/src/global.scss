@@ -318,6 +318,20 @@ ion-card-title {
   padding: 3px 1px 8px;
   scrollbar-width: none;
 }
+.chip-row--discover {
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+}
+.chip-row--discover .chip {
+  scroll-snap-align: start;
+}
+@media (max-width: 679px) {
+  .chip-row--discover {
+    margin-right: -18px;
+    padding-right: 30px;
+    mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
+  }
+}
 .chip {
   flex: 0 0 auto;
   padding: 8px 12px;

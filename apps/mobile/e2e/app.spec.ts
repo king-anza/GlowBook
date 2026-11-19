@@ -66,6 +66,31 @@ test('keeps routed mobile content below the shared navigation bar', async ({ pag
   await expect(page.getByRole('heading', { name: 'Find your glow.' })).toBeVisible();
 });
 
+test('briefly reveals off-screen category filters on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/api/v1/categories', (route) =>
+    route.fulfill({
+      json: [
+        { id: 'hair', name: 'Hair & braids' },
+        { id: 'nails', name: 'Nails' },
+        { id: 'makeup', name: 'Makeup' },
+        { id: 'lashes', name: 'Lashes & brows' },
+      ],
+    }),
+  );
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+
+  await page.goto('/home');
+  const categories = page.locator('.chip-row--discover');
+  await expect(categories).toBeVisible();
+  await expect.poll(() => categories.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+  await expect(categories).toHaveCSS('scroll-behavior', 'smooth');
+  await page.waitForTimeout(1100);
+  await expect.poll(() => categories.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+});
+
 test('registers and requests account recovery', async ({ page }) => {
   await page.route('**/api/v1/auth/register/customer', (route) => route.fulfill({ status: 202 }));
   await page.route('**/api/v1/auth/forgot-password', (route) => route.fulfill({ status: 202 }));

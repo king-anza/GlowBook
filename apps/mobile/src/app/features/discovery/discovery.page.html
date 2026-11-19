@@ -98,7 +98,15 @@
         </label>
       </div>
       @if (categories().length) {
-      <div class="chip-row" aria-label="Filter by category">
+      <div
+        #categoryScroller
+        class="chip-row chip-row--discover"
+        aria-label="Filter by category"
+        tabindex="0"
+        (pointerdown)="stopCategoryHint()"
+        (touchstart)="stopCategoryHint()"
+        (keydown)="stopCategoryHint()"
+      >
         <button class="chip" type="button" [attr.aria-pressed]="!categoryId" (click)="selectCategory('')">
           <ion-icon name="sparkles-outline" aria-hidden="true" />All services
         </button>
