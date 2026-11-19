@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "glowbook-web",
+  "name": "glowbook",
   "compatibility_date": "2026-11-19",
   "build": {
     "command": "npm run build:cloudflare",
