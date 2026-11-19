@@ -105,8 +105,35 @@ const businesses: Business[] = [
   },
 ];
 
-let bookings: Record<string, unknown>[] = [];
-let reviews: Record<string, unknown>[] = [];
+let bookings: Record<string, unknown>[] = [
+  {
+    id: 'demo-upcoming-booking',
+    businessName: 'Nomsa Braid Studio',
+    serviceName: 'Medium knotless braids',
+    staffName: 'Nomsa Braid',
+    startUtc: timeOnDate(2, '09:00:00'),
+    status: 'Confirmed',
+    concurrencyToken: 'demo-upcoming-token',
+  },
+  {
+    id: 'demo-completed-booking',
+    businessName: 'Lumi Nail Bar',
+    serviceName: 'Gel overlay manicure',
+    staffName: 'Lumi Nail',
+    startUtc: timeOnDate(-7, '11:30:00'),
+    status: 'Completed',
+    concurrencyToken: 'demo-completed-token',
+  },
+];
+let reviews: Record<string, unknown>[] = [
+  {
+    id: 'demo-booking-review',
+    bookingId: 'demo-completed-booking',
+    rating: 5,
+    comment: 'The studio was welcoming and my nails lasted beautifully.',
+    concurrencyToken: 'demo-review-token',
+  },
+];
 let account = {
   id: 'demo-customer',
   email: 'demo@glowbook.test',
@@ -202,6 +229,10 @@ function nextDate(days: number): string {
   const date = new Date();
   date.setDate(date.getDate() + days);
   return date.toISOString().slice(0, 10);
+}
+
+function timeOnDate(days: number, time: string): string {
+  return `${nextDate(days)}T${time}Z`;
 }
 
 function searchBusinesses(url: URL) {
