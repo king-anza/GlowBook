@@ -1,6 +1,8 @@
 .prototype-topbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  right: 0;
+  left: 0;
   z-index: 20;
   border-bottom: 1px solid var(--glow-line);
 }
@@ -72,8 +74,10 @@
   display: inline;
 }
 .demo-banner {
-  position: sticky;
-  top: 64px;
+  position: fixed;
+  top: var(--glow-topbar-height);
+  right: 0;
+  left: 0;
   z-index: 19;
   padding: 8px 16px;
   background: #efe7fa;
