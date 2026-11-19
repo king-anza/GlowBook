@@ -66,7 +66,7 @@ test('keeps routed mobile content below the shared navigation bar', async ({ pag
   await expect(page.getByRole('heading', { name: 'Find your glow.' })).toBeVisible();
 });
 
-test('briefly reveals off-screen category filters on mobile', async ({ page }) => {
+test('continuously cycles off-screen category filters on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route('**/api/v1/categories', (route) =>
     route.fulfill({
@@ -85,10 +85,8 @@ test('briefly reveals off-screen category filters on mobile', async ({ page }) =
   await page.goto('/home');
   const categories = page.locator('.chip-row--discover');
   await expect(categories).toBeVisible();
-  await expect.poll(() => categories.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
-  await expect(categories).toHaveCSS('scroll-behavior', 'smooth');
-  await page.waitForTimeout(1100);
-  await expect.poll(() => categories.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+  await expect(categories.locator('.chip-set')).toHaveCount(2);
+  await expect(categories.locator('.chip-track')).toHaveCSS('animation-name', 'category-marquee');
 });
 
 test('registers and requests account recovery', async ({ page }) => {

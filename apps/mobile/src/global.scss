@@ -319,17 +319,44 @@ ion-card-title {
   scrollbar-width: none;
 }
 .chip-row--discover {
-  scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
+  overflow: hidden;
 }
-.chip-row--discover .chip {
-  scroll-snap-align: start;
+.chip-track,
+.chip-set {
+  display: flex;
+  align-items: center;
+  width: max-content;
+}
+.chip-set {
+  gap: 8px;
+  padding-right: 8px;
 }
 @media (max-width: 679px) {
   .chip-row--discover {
     margin-right: -18px;
-    padding-right: 30px;
-    mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
+    padding-right: 0;
+    mask-image: linear-gradient(to right, #000 94%, transparent);
+  }
+  .chip-row--discover .chip-track {
+    animation: category-marquee 18s linear infinite;
+  }
+  .chip-row--discover:hover .chip-track,
+  .chip-row--discover:focus-within .chip-track {
+    animation-play-state: paused;
+  }
+}
+@keyframes category-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip-row--discover {
+    overflow-x: auto;
+    mask-image: none;
+  }
+  .chip-row--discover .chip-track {
+    animation: none;
   }
 }
 .chip {

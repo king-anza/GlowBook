@@ -98,28 +98,30 @@
         </label>
       </div>
       @if (categories().length) {
-      <div
-        #categoryScroller
-        class="chip-row chip-row--discover"
-        aria-label="Filter by category"
-        tabindex="0"
-        (pointerdown)="stopCategoryHint()"
-        (touchstart)="stopCategoryHint()"
-        (keydown)="stopCategoryHint()"
-      >
-        <button class="chip" type="button" [attr.aria-pressed]="!categoryId" (click)="selectCategory('')">
-          <ion-icon name="sparkles-outline" aria-hidden="true" />All services
-        </button>
-        @for (category of categories(); track category.id) {
-        <button
-          class="chip"
-          type="button"
-          [attr.aria-pressed]="categoryId === category.id"
-          (click)="selectCategory(category.id)"
-        >
-          <ion-icon [name]="categoryIcon(category.name)" aria-hidden="true" />{{ category.name }}
-        </button>
-        }
+      <div class="chip-row chip-row--discover" aria-label="Filter by category">
+        <div class="chip-track">
+          <div class="chip-set">
+            <button class="chip" type="button" [attr.aria-pressed]="!categoryId" (click)="selectCategory('')">
+              <ion-icon name="sparkles-outline" aria-hidden="true" />All services
+            </button>
+            @for (category of categories(); track category.id) {
+            <button
+              class="chip"
+              type="button"
+              [attr.aria-pressed]="categoryId === category.id"
+              (click)="selectCategory(category.id)"
+            >
+              <ion-icon [name]="categoryIcon(category.name)" aria-hidden="true" />{{ category.name }}
+            </button>
+            }
+          </div>
+          <div class="chip-set" aria-hidden="true">
+            <span class="chip"><ion-icon name="sparkles-outline" />All services</span>
+            @for (category of categories(); track 'repeat-' + category.id) {
+            <span class="chip"><ion-icon [name]="categoryIcon(category.name)" />{{ category.name }}</span>
+            }
+          </div>
+        </div>
       </div>
       } @if (selected().length) {
       <div class="compare-bar">
