@@ -25,6 +25,70 @@ test('shows the discovery page', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Find a pro' })).toBeVisible();
 });
 
+test('keeps form controls readable when the browser prefers dark mode', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/auth');
+  await expect(page.getByLabel('Email')).toBeVisible();
+  await expect
+    .poll(() => page.locator('html').evaluate((element) => getComputedStyle(element).colorScheme))
+    .toBe('light');
+  await expect
+    .poll(() => page.getByLabel('Email').evaluate((element) => getComputedStyle(element).color))
+    .toBe('rgb(39, 33, 62)');
+});
+
+test('keeps the requested Discover, bookings, Studio and Account shell on mobile and desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/home');
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('href', '/home');
+  await expect(nav.getByRole('link', { name: 'My bookings' })).toHaveAttribute('href', '/bookings');
+  await expect(nav.getByRole('link', { name: 'Studio' })).toHaveAttribute('href', '/professional/profile');
+  await expect(page.getByRole('link', { name: 'Sign in or create account' })).toHaveAttribute('href', '/auth');
+  await expect(nav.getByRole('link', { name: /pricing/i })).toHaveCount(0);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(nav.getByRole('link', { name: 'Studio' })).toBeVisible();
+});
+
+test('keeps routed mobile content below the shared navigation bar', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+
+  await page.goto('/home');
+  const topBarBottom = await page
+    .locator('.prototype-topbar')
+    .evaluate((element) => element.getBoundingClientRect().bottom);
+  const pageTop = await page.locator('app-discovery').evaluate((element) => element.getBoundingClientRect().top);
+  expect(pageTop).toBeGreaterThanOrEqual(topBarBottom);
+  await expect(page.getByRole('heading', { name: 'Find your glow.' })).toBeVisible();
+});
+
+test('continuously cycles off-screen category filters on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/api/v1/categories', (route) =>
+    route.fulfill({
+      json: [
+        { id: 'hair', name: 'Hair & braids' },
+        { id: 'nails', name: 'Nails' },
+        { id: 'makeup', name: 'Makeup' },
+        { id: 'lashes', name: 'Lashes & brows' },
+      ],
+    }),
+  );
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+
+  await page.goto('/home');
+  const categories = page.locator('.chip-row--discover');
+  await expect(categories).toBeVisible();
+  await expect(categories.locator('.chip-set')).toHaveCount(2);
+  await expect(categories.locator('.chip-track')).toHaveCSS('animation-name', 'category-marquee');
+});
+
 test('registers and requests account recovery', async ({ page }) => {
   await page.route('**/api/v1/auth/register/customer', (route) => route.fulfill({ status: 202 }));
   await page.route('**/api/v1/auth/forgot-password', (route) => route.fulfill({ status: 202 }));
@@ -136,8 +200,11 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
   await expect(page.getByText('Glow Test Studio')).toBeVisible();
   await page.getByText('Glow Test Studio').click();
   await page.getByRole('link', { name: 'Choose a time' }).click();
-  await page.getByRole('button', { name: 'Select', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Review booking request' })).toBeVisible();
+  await page
+    .getByRole('button', { name: /^Select / })
+    .first()
+    .click();
+  await expect(page.getByRole('heading', { name: 'Review your booking' })).toBeVisible();
   await page.getByRole('button', { name: 'Request booking' }).click();
   const bookingsPage = page.locator('app-bookings');
   await expect(bookingsPage.getByText('Silk press')).toBeVisible();
@@ -333,6 +400,7 @@ test('administrator reviews a pending professional from the operations centre', 
       ],
     }),
   );
+  await page.route('**/api/v1/admin/businesses', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/users?**', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/bookings', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/audit-logs?**', (route) => route.fulfill({ json: [] }));
@@ -364,7 +432,6 @@ test('administrator reviews a pending professional from the operations centre', 
   await page.getByLabel('Password').fill('ValidPass!1');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'Account' }).click();
-  await page.getByText('Manage my profile and privacy').click();
   await page.getByRole('link', { name: 'Open admin centre' }).click();
   await expect(page.getByRole('heading', { name: 'Keep the marketplace trusted.' })).toBeVisible();
   await expect(page.getByText('Lerato Beauty Studio')).toBeVisible();

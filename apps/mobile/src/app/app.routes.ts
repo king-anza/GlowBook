@@ -30,6 +30,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/bookings/bookings.page').then((m) => m.BookingsPage),
   },
   {
+    path: 'pricing',
+    loadComponent: () => import('./features/pricing/pricing.page').then((m) => m.PricingPage),
+  },
+  {
     path: 'professional/profile',
     loadComponent: () => import('./features/professional/profile.page').then((m) => m.ProfilePage),
   },

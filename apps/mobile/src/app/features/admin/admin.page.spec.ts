@@ -31,6 +31,7 @@ describe('AdminPage', () => {
       staff: [],
     };
     http.expectOne(`${environment.apiUrl}/api/v1/admin/businesses/pending`).flush([business]);
+    http.expectOne(`${environment.apiUrl}/api/v1/admin/businesses`).flush([]);
     http.expectOne((request) => request.url.endsWith('/api/v1/admin/users')).flush([]);
     http.expectOne(`${environment.apiUrl}/api/v1/admin/bookings`).flush([]);
     http.expectOne((request) => request.url.endsWith('/api/v1/admin/audit-logs')).flush([]);

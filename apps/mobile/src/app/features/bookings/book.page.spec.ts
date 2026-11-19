@@ -27,6 +27,9 @@ describe('BookPage', () => {
     const page = TestBed.createComponent(BookPage).componentInstance;
     const slot = { startUtc: '2026-11-10T07:00:00Z', endUtc: '2026-11-10T07:30:00Z' };
     http.expectOne((request) => request.url.endsWith('/api/v1/staff/staff-1/availability')).flush([slot]);
+    expect(page.availableDates()).toEqual(['2026-11-10']);
+    expect(page.selectedDate()).toBe('2026-11-10');
+    expect(page.slotsForSelectedDate()).toEqual([slot]);
 
     page.book(slot);
 

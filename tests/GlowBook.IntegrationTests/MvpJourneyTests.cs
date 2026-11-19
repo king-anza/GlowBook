@@ -63,8 +63,11 @@ public sealed class MvpJourneyTests
         await SuccessAsync(client.PostAsJsonAsync($"/api/v1/admin/businesses/{business.Id}/approve", new { }));
 
         client.DefaultRequestHeaders.Authorization = null;
-        var discovered = await client.GetAsync($"/api/v1/businesses?search=Glow%20API&categoryId={categoryId}&province=Gauteng&page=1&pageSize=20");
-        await SuccessAsync(Task.FromResult(discovered));
+        var discovered = await client.GetFromJsonAsync<PagedBusinesses>($"/api/v1/businesses?search=Glow%20API&categoryId={categoryId}&province=Gauteng&page=1&pageSize=20");
+        Assert.NotNull(discovered);
+        var discoveredBusiness = Assert.Single(discovered.Items);
+        Assert.Equal(0, discoveredBusiness.AverageRating);
+        Assert.Equal(0, discoveredBusiness.ReviewCount);
         var outsidePriceRange = await client.GetFromJsonAsync<PagedBusinesses>($"/api/v1/businesses?minPrice=300&maxPrice=500&page=1&pageSize=20");
         Assert.NotNull(outsidePriceRange);
         Assert.Equal(0, outsidePriceRange.TotalCount);
@@ -126,5 +129,6 @@ public sealed class MvpJourneyTests
     private static async Task SuccessAsync(Task<HttpResponseMessage> responseTask) { var response = await responseTask; var body = await response.Content.ReadAsStringAsync(); Assert.True(response.IsSuccessStatusCode, $"{(int)response.StatusCode} {response.ReasonPhrase}: {body}"); }
     private static DateOnly NextWeekday(DateOnly date, DayOfWeek day) { while (date.DayOfWeek != day) date = date.AddDays(1); return date; }
     private sealed record Slot(DateTime StartUtc, DateTime EndUtc);
-    private sealed record PagedBusinesses(int TotalCount);
+    private sealed record PagedBusinesses(int TotalCount, IReadOnlyCollection<BusinessSummary> Items);
+    private sealed record BusinessSummary(decimal AverageRating, int ReviewCount);
 }

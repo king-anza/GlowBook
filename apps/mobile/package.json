@@ -7,6 +7,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:cloudflare": "npm run configure:production && npm run build",
+    "deploy:cloudflare": "npx wrangler deploy",
     "assets:android": "capacitor-assets generate --android",
     "android:sync": "npm run build && cap sync android",
     "configure:production": "node scripts/configure-production.mjs",

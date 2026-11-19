@@ -30,7 +30,7 @@
       </form>
       <form class="surface-card" [formGroup]="serviceForm" (ngSubmit)="saveService()">
         <p class="eyebrow">Step 2</p>
-        <h2>Add service</h2>
+        <h2>{{ editingService() ? 'Edit service' : 'Add service' }}</h2>
         <ion-list lines="none" class="form-grid"
           ><ion-item class="field"
             ><ion-select label="Category" labelPlacement="stacked" formControlName="categoryId"
@@ -45,11 +45,15 @@
               labelPlacement="stacked"
               autoGrow="true"
               formControlName="description" /></ion-item></ion-list
-        ><ion-button expand="block" type="submit">Create service</ion-button>
+        ><ion-button expand="block" type="submit"
+          >{{ editingService() ? 'Save service' : 'Create service' }}</ion-button
+        >
+        @if (editingService()) {
+        <ion-button expand="block" fill="clear" type="button" (click)="cancelServiceEdit()">Cancel edit</ion-button> }
       </form>
       <form class="surface-card" [formGroup]="offeringForm" (ngSubmit)="addOffering()">
         <p class="eyebrow">Step 3</p>
-        <h2>Add pricing</h2>
+        <h2>{{ editingOffering() ? 'Edit pricing' : 'Add pricing' }}</h2>
         <ion-list lines="none" class="form-grid"
           ><ion-item class="field"
             ><ion-select label="Service" labelPlacement="stacked" formControlName="serviceId"
@@ -75,7 +79,9 @@
               label="Buffer (minutes)"
               labelPlacement="stacked"
               formControlName="bufferMinutes" /></ion-item></ion-list
-        ><ion-button expand="block" type="submit">Add pricing</ion-button>
+        ><ion-button expand="block" type="submit">{{ editingOffering() ? 'Save pricing' : 'Add pricing' }}</ion-button>
+        @if (editingOffering()) {
+        <ion-button expand="block" fill="clear" type="button" (click)="cancelOfferingEdit()">Cancel edit</ion-button> }
       </form>
     </div>
     @if (message()) {
@@ -99,9 +105,16 @@
           <strong>{{ offering.staffName }}</strong> · <span class="price">R{{ offering.price }}</span> · {{
           offering.durationMinutes }} min
         </p>
+        <div class="action-row">
+          <ion-button size="small" fill="clear" (click)="editOffering(service, offering)">Edit pricing</ion-button>
+          <ion-button size="small" fill="clear" (click)="toggleOffering(offering)"
+            >{{ offering.isActive ? 'Pause pricing' : 'Resume pricing' }}</ion-button
+          >
+        </div>
         }<ion-button size="small" fill="outline" (click)="toggleService(service)"
           >{{ service.isActive ? 'Deactivate' : 'Activate' }}</ion-button
         >
+        <ion-button size="small" fill="clear" (click)="editService(service)">Edit service</ion-button>
       </article>
       } @empty {
       <div class="empty-state">

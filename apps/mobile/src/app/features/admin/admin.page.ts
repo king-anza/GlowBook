@@ -69,6 +69,7 @@ export class AdminPage {
   private readonly http = inject(HttpClient);
   private readonly confirmation = inject(ConfirmationService);
   readonly pendingBusinesses = signal<Business[]>([]);
+  readonly managedBusinesses = signal<Business[]>([]);
   readonly users = signal<AdminUser[]>([]);
   readonly bookings = signal<Booking[]>([]);
   readonly audits = signal<AuditLog[]>([]);
@@ -89,6 +90,7 @@ export class AdminPage {
   refresh(): void {
     this.loading.set(true);
     this.loadBusinesses();
+    this.loadManagedBusinesses();
     this.loadUsers(this.userPage());
     this.loadBookings();
     this.loadAudits(this.auditPage());
@@ -122,6 +124,37 @@ export class AdminPage {
     )
       return;
     this.reviewBusiness(business, 'reject', { reason });
+  }
+
+  async toggleBusinessStatus(business: Business): Promise<void> {
+    const action = business.status === 'Suspended' ? 'reactivate' : 'suspend';
+    const reason = action === 'suspend' ? this.rejectionReasons[business.id]?.trim() : undefined;
+    if (action === 'suspend' && !reason) {
+      this.message.set('Add a reason before suspending the business.');
+      return;
+    }
+    if (
+      !(await this.confirmation.confirm(
+        `${action === 'suspend' ? 'Suspend' : 'Reactivate'} ${business.tradingName}?`,
+        action === 'suspend' ? 'It will be removed from public discovery.' : 'It will return to public discovery.',
+        action === 'suspend' ? 'Suspend business' : 'Reactivate business',
+      ))
+    )
+      return;
+    this.busyId.set(business.id);
+    this.http
+      .post(`${environment.apiUrl}/api/v1/admin/businesses/${business.id}/${action}`, reason ? { reason } : {})
+      .subscribe({
+        next: () => {
+          this.message.set(`${business.tradingName} was ${action === 'suspend' ? 'suspended' : 'reactivated'}.`);
+          this.busyId.set(null);
+          this.loadManagedBusinesses();
+        },
+        error: () => {
+          this.message.set('The business status could not be updated.');
+          this.busyId.set(null);
+        },
+      });
   }
 
   changeUserPage(offset: number): void {
@@ -182,6 +215,13 @@ export class AdminPage {
     this.http.get<Business[]>(`${environment.apiUrl}/api/v1/admin/businesses/pending`).subscribe({
       next: (items) => this.pendingBusinesses.set(items),
       error: () => this.message.set('Administrator access is required or applications could not be loaded.'),
+    });
+  }
+
+  private loadManagedBusinesses(): void {
+    this.http.get<Business[]>(`${environment.apiUrl}/api/v1/admin/businesses`).subscribe({
+      next: (items) => this.managedBusinesses.set(items.filter((item) => item.status !== 'PendingReview')),
+      error: () => this.message.set('Business management data could not be loaded.'),
     });
   }
 

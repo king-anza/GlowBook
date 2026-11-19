@@ -2,6 +2,8 @@
 
 No hosting resource has been created. The application is container-ready, but provider accounts, vendor acceptance, regions, credentials and production cost remain owner-controlled decisions.
 
+For the Cloudflare web-hosting contract and the exact Workers Builds settings, see [Cloudflare deployment](cloudflare-deployment.md).
+
 ## Recommended staged approach
 
 For a private preview, use a free Render web service for the API and a free Neon PostgreSQL project. Render explicitly positions its free services for preview/hobby use rather than production, spins idle services down, and its free Render PostgreSQL database expires after 30 days. Neon currently offers a $0 free plan with scale-to-zero compute and limited storage/transfer. These limits make the combination appropriate for development acceptance, not dependable live appointment booking.

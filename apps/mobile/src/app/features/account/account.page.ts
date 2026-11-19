@@ -123,6 +123,15 @@ export class AccountPage {
       },
     });
   }
+  signOut(): void {
+    this.auth.logout().subscribe({
+      next: () => void this.router.navigateByUrl('/home'),
+      error: () => {
+        this.auth.clearSession();
+        void this.router.navigateByUrl('/home');
+      },
+    });
+  }
   private load(): void {
     this.http.get<CurrentUser>(`${environment.apiUrl}/api/v1/me`).subscribe({
       next: (user) => this.isAdmin.set(user.roles.some((role) => role.toLowerCase() === 'admin')),

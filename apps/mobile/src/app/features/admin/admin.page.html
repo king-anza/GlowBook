@@ -59,6 +59,41 @@
       }
     </section>
 
+    <h2 class="section-title">Live business management</h2>
+    <p class="section-copy">Suspend a visible business with a reason, or reactivate one that has been suspended.</p>
+    <section class="card-grid">
+      @for (business of managedBusinesses(); track business.id) {
+      <article class="surface-card">
+        <div class="admin-row__top">
+          <div>
+            <h3>{{ business.tradingName }}</h3>
+            <p>{{ business.location.suburb }}, {{ business.location.city }}</p>
+          </div>
+          <span class="status-badge" [attr.data-status]="business.status">{{ business.status }}</span>
+        </div>
+        @if (business.status !== 'Suspended') {
+        <ion-item class="field"
+          ><ion-input
+            label="Suspension reason"
+            labelPlacement="stacked"
+            maxlength="1000"
+            [(ngModel)]="rejectionReasons[business.id]"
+        /></ion-item>
+        }
+        <ion-button
+          size="small"
+          [color]="business.status === 'Suspended' ? 'primary' : 'danger'"
+          fill="outline"
+          [disabled]="busyId() === business.id"
+          (click)="toggleBusinessStatus(business)"
+          >{{ business.status === 'Suspended' ? 'Reactivate' : 'Suspend' }}</ion-button
+        >
+      </article>
+      } @empty {
+      <div class="empty-state">No approved or suspended businesses are available.</div>
+      }
+    </section>
+
     <h2 class="section-title">Support users</h2>
     <section class="surface-card admin-list">
       @for (user of users(); track user.id) {
