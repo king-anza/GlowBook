@@ -15,19 +15,21 @@ internal static class DevelopmentDemoData
 
     private static readonly Studio[] Studios =
     [
-        new("10000000-0000-0000-0000-000000000001", "Nomsa Braid Studio", "Walmer", "Hair", "Small knotless braids", 320, 180, "braids.webp", "Neat, lightweight braids with gentle tension and clean parting."),
-        new("10000000-0000-0000-0000-000000000002", "Lumi Nail Bar", "Newton Park", "Nails", "Gel overlay manicure", 280, 60, "nails.webp", "Detailed nail preparation and soft, clean finishes."),
-        new("10000000-0000-0000-0000-000000000003", "Zola Artistry", "Summerstrand", "Makeup", "Soft glam makeup", 520, 60, "makeup.webp", "Skin-first soft glam for events, celebrations and photos."),
-        new("10000000-0000-0000-0000-000000000004", "Nandi Lash Studio", "Central", "Eyebrows and Lashes", "Hybrid lash extensions", 550, 110, "lashes.webp", "Natural-looking lash sets, soft volume and tidy brow shaping."),
-        new("10000000-0000-0000-0000-000000000005", "Imara Natural Hair", "Mount Croix", "Hair", "Two-strand twists", 350, 105, "beauty.webp", "Textured-hair styling, gentle detangling and protective styles."),
-        new("10000000-0000-0000-0000-000000000006", "Abeni Beauty Room", "Richmond Hill", "Eyebrows and Lashes", "Brow shape and tint", 260, 45, "lashes.webp", "Careful brow shaping and softly defined, natural-looking colour."),
+        new("10000000-0000-0000-0000-000000000001", "Nomsa Braid Studio", "Block F", "Hair", "Small knotless braids", 320, 180, "braids.webp", "Neat, lightweight braids with gentle tension and clean parting."),
+        new("10000000-0000-0000-0000-000000000002", "Lumi Nail Bar", "Sibasa", "Nails", "Gel overlay manicure", 280, 60, "nails.webp", "Detailed nail preparation and soft, clean finishes."),
+        new("10000000-0000-0000-0000-000000000003", "Zola Artistry", "Makwarela", "Makeup", "Soft glam makeup", 520, 60, "makeup.webp", "Skin-first soft glam for events, celebrations and photos."),
+        new("10000000-0000-0000-0000-000000000004", "Nandi Lash Studio", "Manini", "Eyebrows and Lashes", "Hybrid lash extensions", 550, 110, "lashes.webp", "Natural-looking lash sets, soft volume and tidy brow shaping."),
+        new("10000000-0000-0000-0000-000000000005", "Imara Natural Hair", "Shayandima", "Hair", "Two-strand twists", 350, 105, "beauty.webp", "Textured-hair styling, gentle detangling and protective styles."),
+        new("10000000-0000-0000-0000-000000000006", "Abeni Beauty Room", "P-East", "Eyebrows and Lashes", "Brow shape and tint", 260, 45, "lashes.webp", "Careful brow shaping and softly defined, natural-looking colour."),
     ];
 
     public static async Task<int> SeedAsync(GlowBookDbContext db, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
-        var customer = new ApplicationUser { Id = Guid.Parse("20000000-0000-0000-0000-000000000001"), UserName = "demo.customer@glowbook.local", NormalizedUserName = "DEMO.CUSTOMER@GLOWBOOK.LOCAL", Email = "demo.customer@glowbook.local", NormalizedEmail = "DEMO.CUSTOMER@GLOWBOOK.LOCAL", EmailConfirmed = true, DisplayName = "Gqeberha Glow Guest", TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now, CreatedAtUtc = now, SecurityStamp = "demo-customer" };
-        if (!await db.Users.AnyAsync(x => x.Id == customer.Id, ct)) db.Users.Add(customer);
+        var customer = new ApplicationUser { Id = Guid.Parse("20000000-0000-0000-0000-000000000001"), UserName = "demo.customer@glowbook.local", NormalizedUserName = "DEMO.CUSTOMER@GLOWBOOK.LOCAL", Email = "demo.customer@glowbook.local", NormalizedEmail = "DEMO.CUSTOMER@GLOWBOOK.LOCAL", EmailConfirmed = true, DisplayName = "Thohoyandou Glow Guest", TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now, CreatedAtUtc = now, SecurityStamp = "demo-customer" };
+        var existingCustomer = await db.Users.SingleOrDefaultAsync(x => x.Id == customer.Id, ct);
+        if (existingCustomer is null) db.Users.Add(customer);
+        else existingCustomer.DisplayName = customer.DisplayName;
         var existingBusinessIds = await db.Businesses.Where(x => Studios.Select(studio => Guid.Parse(studio.Id)).Contains(x.Id)).Select(x => x.Id).ToHashSetAsync(ct);
         var seeded = 0;
         foreach (var (studio, index) in Studios.Select((value, index) => (value, index)))
@@ -46,6 +48,11 @@ internal static class DevelopmentDemoData
                 var existingOffering = await db.ServiceOfferings.SingleAsync(x => x.Id == offeringId, ct);
                 existingBusiness.Description = studio.Description;
                 existingBusiness.UpdatedAtUtc = now;
+                var existingLocation = await db.BusinessLocations.SingleAsync(x => x.Id == locationId, ct);
+                existingLocation.Suburb = studio.Area;
+                existingLocation.City = "Thohoyandou";
+                existingLocation.Province = "Limpopo";
+                existingLocation.PostalCode = "0950";
                 existingService.Name = studio.Service;
                 existingService.Description = studio.Description;
                 existingService.UpdatedAtUtc = now;
@@ -57,7 +64,7 @@ internal static class DevelopmentDemoData
             }
             db.Users.Add(new ApplicationUser { Id = ownerId, UserName = $"demo.{index}@glowbook.local", NormalizedUserName = $"DEMO.{index}@GLOWBOOK.LOCAL", Email = $"demo.{index}@glowbook.local", NormalizedEmail = $"DEMO.{index}@GLOWBOOK.LOCAL", EmailConfirmed = true, DisplayName = studio.Name, TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now, CreatedAtUtc = now, SecurityStamp = $"demo-{index}" });
             db.Businesses.Add(new Business { Id = businessId, OwnerUserId = ownerId, TradingName = studio.Name, Description = studio.Description, CancellationPolicy = "Please cancel at least 24 hours before your appointment.", ApprovalStatus = BusinessApprovalStatus.Approved, ApprovedAtUtc = now, CreatedAtUtc = now, UpdatedAtUtc = now });
-            db.BusinessLocations.Add(new BusinessLocation { Id = locationId, BusinessId = businessId, Name = studio.Name, AddressLine1 = $"{12 + index} Main Road", Suburb = studio.Area, City = "Gqeberha", Province = "Eastern Cape", PostalCode = "6001" });
+            db.BusinessLocations.Add(new BusinessLocation { Id = locationId, BusinessId = businessId, Name = studio.Name, AddressLine1 = $"{12 + index} Main Road", Suburb = studio.Area, City = "Thohoyandou", Province = "Limpopo", PostalCode = "0950" });
             db.StaffMembers.Add(new StaffMember { Id = staffId, BusinessId = businessId, DisplayName = studio.Name.Split(' ')[0], Biography = studio.Description, CreatedAtUtc = now, UpdatedAtUtc = now });
             db.Services.Add(new Service { Id = serviceId, BusinessId = businessId, CategoryId = categoryId, Name = studio.Service, Description = studio.Description, IsActive = true, CreatedAtUtc = now, UpdatedAtUtc = now });
             db.ServiceOfferings.Add(new ServiceOffering { Id = offeringId, ServiceId = serviceId, StaffMemberId = staffId, BusinessLocationId = locationId, Price = studio.Price, DurationMinutes = studio.Minutes, BufferMinutes = 15, CreatedAtUtc = now, UpdatedAtUtc = now });
