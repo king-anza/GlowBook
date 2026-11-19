@@ -20,9 +20,15 @@ In **Workers & Pages**, create a Worker from the GitHub repository and use these
 | Deploy command | `npx wrangler deploy` |
 | Node version | `24` |
 
-Add `GLOWBOOK_API_URL` as a production build variable. It must be the HTTPS API origin only: no path, credentials, query string, or fragment. It is public configuration, not a secret. Keep all API, database, JWT, SMTP, and administrator-bootstrap secrets in the API host's protected environment instead.
+For an API-backed build, add `GLOWBOOK_API_URL` as a production build variable. It must be the HTTPS API origin only: no path, credentials, query string, or fragment. It is public configuration, not a secret. Keep all API, database, JWT, SMTP, and administrator-bootstrap secrets in the API host's protected environment instead.
 
 Cloudflare Workers Builds runs its dashboard build command before its deploy command. Do not leave the build command blank: Wrangler's custom build configuration is used for local deployment but Workers Builds requires the dashboard build command.
+
+## Static demonstration deployment
+
+For a demonstration that must not connect to the API or PostgreSQL database, add the Cloudflare production build variable `GLOWBOOK_DEMO_MODE` with the value `true`, and do not set `GLOWBOOK_API_URL` for that deployment. The build bundles deterministic Gqeberha providers, availability, simulated bookings, reviews, and local Discover/portfolio images.
+
+Demo mode is visibly labelled in the application. It intercepts application API calls in the browser, retains changes only for the current browser session, and never creates real accounts or bookings. It must not be used for a customer-facing production release.
 
 ## Local validation and direct deployment
 

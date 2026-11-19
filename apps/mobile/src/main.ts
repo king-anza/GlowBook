@@ -14,12 +14,13 @@ import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/auth/auth.interceptor';
 import { AuthService } from './app/core/auth/auth.service';
+import { demoInterceptor } from './app/core/demo/demo.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([demoInterceptor, authInterceptor])),
     provideAppInitializer(() => inject(AuthService).restoreSession()),
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
   ],

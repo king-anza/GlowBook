@@ -19,6 +19,8 @@ import {
   timeOutline,
 } from 'ionicons/icons';
 
+import { environment } from '../environments/environment';
+
 import { AuthService } from './core/auth/auth.service';
 
 @Component({
@@ -30,6 +32,7 @@ import { AuthService } from './core/auth/auth.service';
 export class AppComponent {
   private readonly router = inject(Router);
   readonly auth = inject(AuthService);
+  readonly isDemo = environment.demoMode;
 
   constructor() {
     void this.auth.restoreSession();

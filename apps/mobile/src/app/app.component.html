@@ -28,5 +28,10 @@
       </div>
     </ion-toolbar>
   </ion-header>
+  @if (isDemo) {
+    <div class="demo-banner" role="status">
+      Demo mode — sample data only. Bookings and account changes are simulated.
+    </div>
+  }
   <ion-router-outlet></ion-router-outlet>
 </ion-app>
