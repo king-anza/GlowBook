@@ -37,6 +37,8 @@
               formControlName="password"
           /></ion-item>
           @if (mode() === 'register') {
+          <p class="field-hint">Use at least 10 characters, including uppercase, lowercase, a number, and a symbol.</p>
+          } @if (mode() === 'register') {
           <ion-item class="field"
             ><ion-checkbox formControlName="professional">I am a beauty professional</ion-checkbox></ion-item
           >
