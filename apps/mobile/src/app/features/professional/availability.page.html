@@ -1,0 +1,118 @@
+<ion-header
+  ><ion-toolbar><ion-title>Availability</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell">
+    <nav class="professional-nav" aria-label="Professional workspace">
+      <a routerLink="/professional/profile">Profile</a><a routerLink="/professional/services">Services & staff</a
+      ><a class="active" routerLink="/professional/availability">Availability</a
+      ><a routerLink="/professional/bookings">Bookings</a>
+    </nav>
+    <section class="page-heading">
+      <p class="eyebrow">Own your time</p>
+      <h1>Set a schedule that works.</h1>
+      <p>Create regular hours, make date-specific changes, or protect time from bookings.</p>
+    </section>
+    <form class="surface-card" [formGroup]="form" (ngSubmit)="addWeeklyRow()">
+      <h2 class="section-title" style="margin-top: 0">Weekly hours</h2>
+      <p class="section-copy">Saving replaces the selected staff member’s current weekly schedule.</p>
+      <div class="form-grid form-grid--two">
+        <ion-item class="field"
+          ><ion-select
+            label="Staff member"
+            labelPlacement="stacked"
+            formControlName="staffId"
+            (ionChange)="loadWeekly()"
+            >@for (member of staff(); track member.id) {
+            <ion-select-option [value]="member.id">{{ member.displayName }}</ion-select-option> }</ion-select
+          ></ion-item
+        ><ion-item class="field"
+          ><ion-select label="Day" labelPlacement="stacked" formControlName="dayOfWeek"
+            ><ion-select-option [value]="1">Monday</ion-select-option
+            ><ion-select-option [value]="2">Tuesday</ion-select-option
+            ><ion-select-option [value]="3">Wednesday</ion-select-option
+            ><ion-select-option [value]="4">Thursday</ion-select-option
+            ><ion-select-option [value]="5">Friday</ion-select-option
+            ><ion-select-option [value]="6">Saturday</ion-select-option
+            ><ion-select-option [value]="0">Sunday</ion-select-option></ion-select
+          ></ion-item
+        ><ion-item class="field"
+          ><ion-input type="time" label="Start" labelPlacement="stacked" formControlName="startTime" /></ion-item
+        ><ion-item class="field"
+          ><ion-input type="time" label="End" labelPlacement="stacked" formControlName="endTime"
+        /></ion-item>
+      </div>
+      <div class="action-row">
+        <ion-button type="submit">Add interval</ion-button
+        ><ion-button type="button" fill="outline" (click)="save()">Save full schedule</ion-button>
+      </div>
+    </form>
+    <div class="card-grid" style="margin-top: 14px">
+      @for (row of weeklyRows(); track $index) {
+      <div class="surface-card booking-card">
+        <div class="booking-card__top">
+          <strong>Day {{ row.dayOfWeek }}</strong
+          ><ion-button size="small" fill="clear" color="danger" (click)="removeWeeklyRow($index)">Remove</ion-button>
+        </div>
+        <p>{{ row.startTime }}–{{ row.endTime }}</p>
+      </div>
+      } @empty {
+      <div class="empty-state">No weekly intervals added for this staff member yet.</div>
+      }
+    </div>
+    <div class="card-grid" style="margin-top: 16px">
+      <form class="surface-card" [formGroup]="exceptionForm" (ngSubmit)="addException()">
+        <h2 class="section-title" style="margin-top: 0">Date exception</h2>
+        <p class="section-copy">Close a day or add special opening hours.</p>
+        <ion-list lines="none" class="form-grid"
+          ><ion-item class="field"
+            ><ion-select label="Staff member" labelPlacement="stacked" formControlName="staffId"
+              >@for (member of staff(); track member.id) {
+              <ion-select-option [value]="member.id">{{ member.displayName }}</ion-select-option> }</ion-select
+            ></ion-item
+          ><ion-item class="field"
+            ><ion-input type="date" label="Date" labelPlacement="stacked" formControlName="date" /></ion-item
+          ><ion-item class="field"
+            ><ion-select label="Type" labelPlacement="stacked" formControlName="type"
+              ><ion-select-option [value]="0">Unavailable</ion-select-option
+              ><ion-select-option [value]="1">Additional availability</ion-select-option></ion-select
+            ></ion-item
+          ><ion-item class="field"
+            ><ion-input
+              type="time"
+              label="Start (optional for full-day unavailable)"
+              labelPlacement="stacked"
+              formControlName="startTime" /></ion-item
+          ><ion-item class="field"
+            ><ion-input type="time" label="End" labelPlacement="stacked" formControlName="endTime" /></ion-item
+          ><ion-item class="field"
+            ><ion-input label="Reason" labelPlacement="stacked" formControlName="reason" /></ion-item></ion-list
+        ><ion-button expand="block" type="submit">Add exception</ion-button>
+      </form>
+      <form class="surface-card" [formGroup]="blockedForm" (ngSubmit)="addBlockedTime()">
+        <h2 class="section-title" style="margin-top: 0">Block time</h2>
+        <p class="section-copy">Protect time for breaks, training or private commitments.</p>
+        <ion-list lines="none" class="form-grid"
+          ><ion-item class="field"
+            ><ion-select label="Staff member" labelPlacement="stacked" formControlName="staffId"
+              >@for (member of staff(); track member.id) {
+              <ion-select-option [value]="member.id">{{ member.displayName }}</ion-select-option> }</ion-select
+            ></ion-item
+          ><ion-item class="field"
+            ><ion-input
+              type="datetime-local"
+              label="Start"
+              labelPlacement="stacked"
+              formControlName="startUtc" /></ion-item
+          ><ion-item class="field"
+            ><ion-input type="datetime-local" label="End" labelPlacement="stacked" formControlName="endUtc" /></ion-item
+          ><ion-item class="field"
+            ><ion-input label="Reason" labelPlacement="stacked" formControlName="reason" /></ion-item></ion-list
+        ><ion-button expand="block" type="submit">Block time</ion-button>
+      </form>
+    </div>
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+  </main>
+</ion-content>

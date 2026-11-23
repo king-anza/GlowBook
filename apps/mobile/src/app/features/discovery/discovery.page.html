@@ -1,0 +1,244 @@
+<ion-content>
+  <main class="page-shell discovery">
+    <section class="discovery-hero" aria-labelledby="discovery-title">
+      <div class="hero-copy">
+        <p class="eyebrow discovery-city">⌖ THOHOYANDOU, SOUTH AFRICA</p>
+        <h1 id="discovery-title">Find your <em>glow.</em></h1>
+        <p>Find independent beauty pros, compare their work and prices, and book a time that suits you.</p>
+      </div>
+      <div class="hero-visual">
+        <img src="assets/glowbook/hero.webp" alt="" fetchpriority="high" />
+      </div>
+    </section>
+
+    <form class="surface-card discovery-search" aria-label="Search and filters" (ngSubmit)="load()">
+      <div class="search-fields">
+        <div class="prototype-search-field">
+          <ion-icon name="search-outline" aria-hidden="true" /><ion-input
+            class="field"
+            name="search"
+            label="Service or style"
+            labelPlacement="stacked"
+            placeholder="Try knotless braids"
+            [(ngModel)]="search"
+          />
+        </div>
+        <div class="prototype-search-field">
+          <ion-icon name="location-outline" aria-hidden="true" /><ion-input
+            class="field"
+            name="city"
+            label="Area"
+            labelPlacement="stacked"
+            placeholder="All of Thohoyandou"
+            [(ngModel)]="city"
+          />
+        </div>
+        <ion-button type="submit">Find a pro <span aria-hidden="true">&nbsp;→</span></ion-button>
+      </div>
+      <button class="filter-toggle" type="button" [attr.aria-expanded]="filterOpen()" (click)="toggleFilters()">
+        <ion-icon name="options-outline" aria-hidden="true" />Filters
+      </button>
+      @if (filterOpen()) {
+      <div class="filter-details">
+        <p class="filter-details__title">Narrow your search <span>Category, area and price</span></p>
+        <div class="form-grid form-grid--two filter-details__body">
+          <ion-select class="field" name="category" label="Category" labelPlacement="stacked" [(ngModel)]="categoryId">
+            <ion-select-option value="">All categories</ion-select-option>
+            @for (category of categories(); track category.id) {
+            <ion-select-option [value]="category.id">{{ category.name }}</ion-select-option>
+            }
+          </ion-select>
+          <ion-select class="field" name="province" label="Province" labelPlacement="stacked" [(ngModel)]="province">
+            <ion-select-option value="">All provinces</ion-select-option>
+            <ion-select-option value="Eastern Cape">Eastern Cape</ion-select-option>
+            <ion-select-option value="Free State">Free State</ion-select-option>
+            <ion-select-option value="Gauteng">Gauteng</ion-select-option>
+            <ion-select-option value="KwaZulu-Natal">KwaZulu-Natal</ion-select-option>
+            <ion-select-option value="Limpopo">Limpopo</ion-select-option>
+            <ion-select-option value="Mpumalanga">Mpumalanga</ion-select-option>
+            <ion-select-option value="North West">North West</ion-select-option>
+            <ion-select-option value="Northern Cape">Northern Cape</ion-select-option>
+            <ion-select-option value="Western Cape">Western Cape</ion-select-option>
+          </ion-select>
+          <ion-input class="field" name="suburb" label="Suburb" labelPlacement="stacked" [(ngModel)]="suburb" />
+          <ion-input
+            class="field"
+            name="minimum"
+            type="number"
+            label="Minimum price (ZAR)"
+            labelPlacement="stacked"
+            [(ngModel)]="minPrice"
+          />
+          <ion-input
+            class="field"
+            name="maximum"
+            type="number"
+            label="Maximum price (ZAR)"
+            labelPlacement="stacked"
+            [(ngModel)]="maxPrice"
+          />
+        </div>
+      </div>
+      }
+    </form>
+
+    <section aria-labelledby="results-title">
+      <div class="section-heading">
+        <div>
+          <h2 class="discovery-title" id="results-title">Explore beauty pros</h2>
+          <p>Browse portfolios, prices and appointment times.</p>
+        </div>
+        <label class="sort-control"
+          >Sort by
+          <select [(ngModel)]="sortMode" name="sort">
+            <option value="recommended">Recommended</option>
+            <option value="rating">Highest rated</option>
+            <option value="price">Lowest price</option>
+          </select>
+        </label>
+      </div>
+      @if (categories().length) {
+      <div class="chip-row chip-row--discover" aria-label="Filter by category">
+        <div class="chip-track">
+          <div class="chip-set">
+            <button class="chip" type="button" [attr.aria-pressed]="!categoryId" (click)="selectCategory('')">
+              <ion-icon name="sparkles-outline" aria-hidden="true" />All services
+            </button>
+            @for (category of categories(); track category.id) {
+            <button
+              class="chip"
+              type="button"
+              [attr.aria-pressed]="categoryId === category.id"
+              (click)="selectCategory(category.id)"
+            >
+              <ion-icon [name]="categoryIcon(category.name)" aria-hidden="true" />{{ category.name }}
+            </button>
+            }
+          </div>
+          <div class="chip-set" aria-hidden="true">
+            <span class="chip"><ion-icon name="sparkles-outline" />All services</span>
+            @for (category of categories(); track 'repeat-' + category.id) {
+            <span class="chip"><ion-icon [name]="categoryIcon(category.name)" />{{ category.name }}</span>
+            }
+          </div>
+        </div>
+      </div>
+      } @if (selected().length) {
+      <div class="compare-bar">
+        <p role="status">{{ selected().length }} of 2 selected</p>
+        <ion-button type="button" fill="outline" (click)="selected.set([])">Clear</ion-button>
+        <ion-button type="button" [disabled]="selected().length < 2" (click)="comparisonOpen.set(true)">
+          Compare
+        </ion-button>
+      </div>
+      } @if (loading()) {
+      <div class="card-grid card-grid--three">
+        <div class="skeleton-card" aria-hidden="true"></div>
+        <div class="skeleton-card" aria-hidden="true"></div>
+        <div class="skeleton-card" aria-hidden="true"></div>
+        <span class="sr-only" role="status">Loading beauty professionals</span>
+      </div>
+      } @else if (error()) {
+      <div class="notice notice--error" role="alert">
+        {{ error() }} <ion-button size="small" fill="outline" (click)="load()">Try again</ion-button>
+      </div>
+      } @else {
+      <p class="discovery-count" role="status">
+        {{ totalCount() }} {{ totalCount() === 1 ? 'business' : 'businesses' }} found
+      </p>
+      <div class="card-grid card-grid--three">
+        @for (business of sortedBusinesses(); track business.id) {
+        <article class="studio-card">
+          <div class="studio-card__image">
+            <img [src]="'assets/glowbook/' + imageFor(business) + '.webp'" alt="" loading="lazy" />
+            <span class="studio-card__tag">{{ business.categories[0] || 'Beauty studio' }}</span>
+            <span class="studio-card__caption">Illustrative image</span>
+          </div>
+          <div class="studio-card__body">
+            <h3><a [routerLink]="['/businesses', business.id]">{{ business.tradingName }}</a></h3>
+            <p class="studio-card__location">
+              <ion-icon name="location-outline" aria-hidden="true" />{{ business.suburb }} · Studio or mobile
+            </p>
+            <p
+              class="studio-card__rating"
+              [attr.aria-label]="business.averageRating + ' out of 5 from ' + business.reviewCount + ' reviews'"
+            >
+              <span aria-hidden="true">★</span> {{ business.averageRating | number: '1.1-1' }}
+              <span class="studio-card__review-count">({{ business.reviewCount }})</span>
+            </p>
+            <p class="studio-card__description">{{ business.description }}</p>
+            <p class="studio-card__price">From <strong>{{ business.fromPrice | currency: 'ZAR' : 'R' }}</strong></p>
+            @if (business.nextAvailableDate) {
+            <p class="studio-card__availability">
+              <ion-icon name="time-outline" aria-hidden="true" />{{ business.nextAvailableDate | date: 'EEE, d MMM' }}
+            </p>
+            }
+            <div class="studio-card__actions">
+              <button
+                class="studio-action"
+                type="button"
+                [attr.aria-label]="'Compare ' + business.tradingName"
+                [attr.aria-pressed]="isSelected(business.id)"
+                [disabled]="selected().length >= 2 && !isSelected(business.id)"
+                (click)="toggleComparison(business)"
+              >
+                {{ isSelected(business.id) ? 'Selected' : '＋ Compare' }}
+              </button>
+              <a class="studio-action studio-action--primary" [routerLink]="['/businesses', business.id]"
+                >Book&nbsp; →</a
+              >
+            </div>
+          </div>
+        </article>
+        } @empty {
+        <div class="empty-state">
+          No approved businesses match your search yet. Try widening your location or price filters.
+        </div>
+        }
+      </div>
+      @if (totalCount() > pageSize) {
+      <nav class="pagination" aria-label="Search result pages">
+        <ion-button fill="outline" [disabled]="currentPage() === 1" (click)="previousPage()">Previous</ion-button>
+        <span>Page {{ currentPage() }} · {{ totalCount() }} businesses</span>
+        <ion-button fill="outline" [disabled]="currentPage() * pageSize >= totalCount()" (click)="nextPage()"
+          >Next</ion-button
+        >
+      </nav>
+      } }
+    </section>
+  </main>
+</ion-content>
+<ion-modal
+  class="provider-comparison"
+  [isOpen]="comparisonOpen()"
+  aria-labelledby="comparison-title"
+  (didDismiss)="comparisonOpen.set(false)"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title id="comparison-title">Compare beauty pros</ion-title>
+        <ion-button slot="end" fill="clear" (click)="comparisonOpen.set(false)">Close</ion-button>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <div class="compare-grid">
+        @for (business of selected(); track business.id) {
+        <article class="surface-card">
+          <h2>{{ business.tradingName }}</h2>
+          <p>{{ business.suburb }}, {{ business.city }}</p>
+          <p>{{ business.categories.join(' · ') }}</p>
+          <p>From <strong>{{ business.fromPrice | currency: 'ZAR' : 'R' }}</strong></p>
+          <ion-button
+            fill="outline"
+            expand="block"
+            [routerLink]="['/businesses', business.id]"
+            (click)="comparisonOpen.set(false)"
+            >View services</ion-button
+          >
+        </article>
+        }
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

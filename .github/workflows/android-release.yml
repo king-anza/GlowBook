@@ -1,0 +1,86 @@
+name: Android release bundle
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: Production HTTPS API origin
+        required: true
+        type: string
+      version_code:
+        description: Monotonically increasing Android version code
+        required: true
+        type: number
+      version_name:
+        description: User-facing version such as 1.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    name: Signed Android App Bundle
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      GLOWBOOK_API_URL: ${{ inputs.api_url }}
+      GLOWBOOK_VERSION_CODE: ${{ inputs.version_code }}
+      GLOWBOOK_VERSION_NAME: ${{ inputs.version_name }}
+      GLOWBOOK_KEYSTORE_PATH: ${{ github.workspace }}/apps/mobile/android/glowbook-upload.jks
+      GLOWBOOK_KEYSTORE_PASSWORD: ${{ secrets.GLOWBOOK_KEYSTORE_PASSWORD }}
+      GLOWBOOK_KEY_ALIAS: ${{ secrets.GLOWBOOK_KEY_ALIAS }}
+      GLOWBOOK_KEY_PASSWORD: ${{ secrets.GLOWBOOK_KEY_PASSWORD }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Validate signing secrets
+        shell: bash
+        run: |
+          test -n "${{ secrets.GLOWBOOK_UPLOAD_KEYSTORE_BASE64 }}"
+          test -n "$GLOWBOOK_KEYSTORE_PASSWORD"
+          test -n "$GLOWBOOK_KEY_ALIAS"
+          test -n "$GLOWBOOK_KEY_PASSWORD"
+
+      - name: Restore upload keystore
+        shell: bash
+        run: echo "${{ secrets.GLOWBOOK_UPLOAD_KEYSTORE_BASE64 }}" | base64 --decode > android/glowbook-upload.jks
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure and build web application
+        run: npm run android:bundle:release
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x android/gradlew
+
+      - name: Build signed release bundle
+        run: ./gradlew bundleRelease --no-daemon
+        working-directory: apps/mobile/android
+
+      - name: Upload release bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: glowbook-android-release-${{ inputs.version_name }}
+          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14

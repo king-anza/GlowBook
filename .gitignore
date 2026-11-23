@@ -1,0 +1,31 @@
+# .NET
+**/bin/
+**/obj/
+.vs/
+TestResults/
+/artifacts/
+
+# Angular / Ionic
+**/node_modules/
+**/www/
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+# Native build output
+**/android/.gradle/
+**/android/app/build/
+**/ios/App/Pods/
+
+# Local configuration and tooling
+.idea/
+.vscode/
+*.user
+*.suo
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+Thumbs.db
