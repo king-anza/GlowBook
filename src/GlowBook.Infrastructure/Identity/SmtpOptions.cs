@@ -11,3 +11,9 @@ public sealed class SmtpOptions
     public string FromAddress { get; set; } = string.Empty;
     public string FromName { get; set; } = "GlowBook";
 }
+
+public sealed class PublicAppOptions
+{
+    public const string SectionName = "PublicApp";
+    public string BaseUrl { get; set; } = string.Empty;
+}
