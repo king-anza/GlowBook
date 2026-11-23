@@ -32,8 +32,8 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("ConnectionStrings:GlowBook is required.");
         services.AddDbContext<GlowBookDbContext>(options => options.UseNpgsql(connectionString));
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
-        services.Configure<RegistrationOptions>(configuration.GetSection(RegistrationOptions.SectionName));
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.Configure<PublicAppOptions>(configuration.GetSection(PublicAppOptions.SectionName));
         services.Configure<AdminBootstrapOptions>(configuration.GetSection(AdminBootstrapOptions.SectionName));
         services.AddIdentityCore<ApplicationUser>(options =>
             {
@@ -54,6 +54,8 @@ public static class DependencyInjection
         if (string.IsNullOrWhiteSpace(configuration[$"{SmtpOptions.SectionName}:Host"])) services.AddSingleton<IIdentityEmailSender, NullIdentityEmailSender>();
         else
         {
+            if (!Uri.TryCreate(configuration[$"{PublicAppOptions.SectionName}:BaseUrl"], UriKind.Absolute, out var publicAppUri) || publicAppUri.Scheme != Uri.UriSchemeHttps)
+                throw new InvalidOperationException("PublicApp:BaseUrl must be an absolute HTTPS URL when SMTP is enabled.");
             services.AddSingleton<IEmailClient, SmtpEmailClient>();
             services.AddSingleton<IIdentityEmailSender, SmtpIdentityEmailSender>();
             services.AddHostedService<NotificationDispatcher>();
