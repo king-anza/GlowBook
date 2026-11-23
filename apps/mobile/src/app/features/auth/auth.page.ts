@@ -1,3 +1,4 @@
+import type { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -56,25 +57,33 @@ export class AuthPage {
   });
 
   submit(): void {
+    const value = this.form.getRawValue();
     if (
       this.form.invalid ||
       (this.mode() === 'register' &&
-        (!this.form.controls.acceptTerms.value || !this.form.controls.confirmMinimumAge.value))
+        (!value.displayName.trim() ||
+          !value.acceptTerms ||
+          !value.confirmMinimumAge ||
+          !/[A-Z]/.test(value.password) ||
+          !/[a-z]/.test(value.password) ||
+          !/\d/.test(value.password) ||
+          !/[^A-Za-z0-9]/.test(value.password)))
     ) {
       this.form.markAllAsTouched();
+      if (this.mode() === 'register')
+        this.error.set('Enter a display name and a password with uppercase, lowercase, a number, and a symbol.');
       return;
     }
     this.busy.set(true);
     this.error.set(null);
-    const value = this.form.getRawValue();
     if (this.mode() === 'login') {
       this.auth.login(value.email, value.password).subscribe({
         next: (tokens) => {
           this.auth.setSession(tokens);
           void this.router.navigateByUrl('/home');
         },
-        error: () => {
-          this.error.set('Sign-in failed. Check your details and email verification.');
+        error: (error: HttpErrorResponse) => {
+          this.error.set(this.apiError(error, 'Sign-in failed. Check your details and email verification.'));
           this.busy.set(false);
         },
       });
@@ -85,8 +94,8 @@ export class AuthPage {
         this.mode.set('login');
         this.busy.set(false);
       },
-      error: () => {
-        this.error.set('Registration failed. Please review your details.');
+      error: (error: HttpErrorResponse) => {
+        this.error.set(this.apiError(error, 'Registration failed. Please review your details.'));
         this.busy.set(false);
       },
     });
@@ -105,5 +114,10 @@ export class AuthPage {
   private messageAfterSignOut(): void {
     this.error.set(null);
     this.busy.set(false);
+  }
+
+  private apiError(error: HttpErrorResponse, fallback: string): string {
+    const errors = error.error?.errors;
+    return Array.isArray(errors) && errors.length ? errors.join(' ') : fallback;
   }
 }
