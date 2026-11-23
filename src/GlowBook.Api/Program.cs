@@ -73,10 +73,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 builder.Services.AddAuthorization();
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+var allowedOrigins = configuredOrigins
+    .Concat(["https://localhost", "capacitor://localhost", "ionic://localhost"])
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
 builder.Services.AddCors(options => options.AddPolicy("mobile", policy =>
 {
-    if (allowedOrigins.Length != 0) policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
 }));
 builder.Services.AddRateLimiter(options =>
 {
