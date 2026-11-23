@@ -25,14 +25,19 @@
       </div>
     </section>
     <section class="surface-card" style="margin-top: 16px">
-      <h2 class="section-title" style="margin-top: 0">Use your secure token</h2>
+      <h2 class="section-title" style="margin-top: 0">
+        {{ action === 'reset' ? 'Choose a new password' : 'Use your secure token' }}
+      </h2>
       <ion-list lines="none" class="form-grid">
+        @if (action !== 'reset') {
         <ion-item class="field"
           ><ion-input label="User ID from verification email" labelPlacement="stacked" [(ngModel)]="userId"
         /></ion-item>
+        } @if (action !== 'verify') {
         <ion-item class="field"
           ><ion-input label="Verification or reset token" labelPlacement="stacked" [(ngModel)]="token"
         /></ion-item>
+        }
         <ion-item class="field"
           ><ion-input
             type="password"
@@ -43,8 +48,11 @@
         /></ion-item>
       </ion-list>
       <div class="action-row">
-        <ion-button (click)="verify()">Verify email</ion-button
-        ><ion-button fill="outline" (click)="reset()">Reset password</ion-button>
+        @if (action !== 'reset') {
+        <ion-button (click)="verify()">Verify email</ion-button>
+        } @if (action !== 'verify') {
+        <ion-button fill="outline" (click)="reset()">Reset password</ion-button>
+        }
       </div>
     </section>
     @if (message()) {
