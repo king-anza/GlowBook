@@ -13,34 +13,51 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace GlowBook.Infrastructure.Identity;
 
+internal sealed class RegistrationOptions
+{
+    public const string SectionName = "Registration";
+    public bool AutoConfirmNewAccounts { get; init; }
+}
+
 internal sealed class IdentityService(
     UserManager<ApplicationUser> userManager,
     GlowBookDbContext dbContext,
     IIdentityEmailSender emailSender,
     IOptions<JwtOptions> options,
+    IOptions<RegistrationOptions> registrationOptions,
     ILogger<IdentityService> logger) : IIdentityService
 {
     private readonly JwtOptions _options = options.Value;
+    private readonly RegistrationOptions _registrationOptions = registrationOptions.Value;
 
     public async Task<AuthResult> RegisterAsync(RegisterRequest request, string role, CancellationToken cancellationToken)
     {
         if (!request.AcceptTerms) return Failure("terms_required", "Terms must be accepted.");
         if (!request.ConfirmMinimumAge) return Failure("minimum_age_required", "The minimum age must be confirmed.");
         var now = DateTime.UtcNow;
-        var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = request.Email.Trim(), Email = request.Email.Trim(), DisplayName = request.DisplayName.Trim(), CreatedAtUtc = now, TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now };
+        var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = request.Email.Trim(), Email = request.Email.Trim(), DisplayName = request.DisplayName.Trim(), CreatedAtUtc = now, TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now, EmailConfirmed = _registrationOptions.AutoConfirmNewAccounts };
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded) return Failure("registration_failed", "Registration could not be completed.");
         await userManager.AddToRoleAsync(user, role);
         dbContext.AuditLogs.Add(Audit(user.Id, "AccountRegistered")); await dbContext.SaveChangesAsync(cancellationToken);
-        try { await emailSender.SendVerificationAsync(user.Email, user.Id, await userManager.GenerateEmailConfirmationTokenAsync(user), cancellationToken); }
-        catch (Exception exception) { logger.LogError(exception, "Verification email delivery failed for user {UserId}", user.Id); }
+        if (!user.EmailConfirmed)
+        {
+            try { await emailSender.SendVerificationAsync(user.Email, user.Id, await userManager.GenerateEmailConfirmationTokenAsync(user), cancellationToken); }
+            catch (Exception exception) { logger.LogError(exception, "Verification email delivery failed for user {UserId}", user.Id); }
+        }
         return new AuthResult(true);
     }
 
     public async Task<AuthResult> LoginAsync(LoginRequest request, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(request.Email.Trim());
-        if (user is null || !await userManager.CheckPasswordAsync(user, request.Password) || !user.EmailConfirmed || user.AccountStatus != "Active") return Failure("invalid_credentials", "Invalid email or password.");
+        if (user is null || !await userManager.CheckPasswordAsync(user, request.Password) || user.AccountStatus != "Active") return Failure("invalid_credentials", "Invalid email or password.");
+        if (!user.EmailConfirmed && _registrationOptions.AutoConfirmNewAccounts)
+        {
+            user.EmailConfirmed = true;
+            await userManager.UpdateAsync(user);
+        }
+        if (!user.EmailConfirmed) return Failure("email_not_verified", "Verify your email before signing in.");
         user.LastLoginAtUtc = DateTime.UtcNow;
         var tokens = await IssueTokensAsync(user, null, cancellationToken); dbContext.AuditLogs.Add(Audit(user.Id, "LoginSucceeded")); await dbContext.SaveChangesAsync(cancellationToken); return new AuthResult(true, Tokens: tokens);
     }
