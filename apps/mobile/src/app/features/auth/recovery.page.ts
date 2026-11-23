@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonList, IonTitle, IonToolbar } from '@ionic/angular';
@@ -11,14 +12,25 @@ import { environment } from '../../../environments/environment';
   templateUrl: './recovery.page.html',
   imports: [FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonInput, IonButton],
 })
-export class RecoveryPage {
+export class RecoveryPage implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   readonly message = signal<string | null>(null);
-  email = this.route.snapshot.queryParamMap.get('email') ?? '';
+  email = '';
   userId = '';
   token = '';
   newPassword = '';
+  action: 'verify' | 'reset' | null = null;
+
+  ngOnInit(): void {
+    const query = this.route.snapshot.queryParamMap;
+    this.email = query.get('email') ?? '';
+    this.userId = query.get('userId') ?? '';
+    this.token = query.get('token') ?? '';
+    const action = query.get('action');
+    this.action = action === 'verify' || action === 'reset' ? action : null;
+    if (this.action === 'verify' && this.userId && this.token) this.verify();
+  }
   requestVerification(): void {
     this.post(
       '/resend-verification',
