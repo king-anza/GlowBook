@@ -32,6 +32,7 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("ConnectionStrings:GlowBook is required.");
         services.AddDbContext<GlowBookDbContext>(options => options.UseNpgsql(connectionString));
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<RegistrationOptions>(configuration.GetSection(RegistrationOptions.SectionName));
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.Configure<AdminBootstrapOptions>(configuration.GetSection(AdminBootstrapOptions.SectionName));
         services.AddIdentityCore<ApplicationUser>(options =>
