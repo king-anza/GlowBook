@@ -5,6 +5,10 @@ const config: CapacitorConfig = {
   appName: 'GlowBook',
   webDir: 'www',
   includePlugins: ['capacitor-token-vault'],
+  server: {
+    hostname: 'localhost',
+    androidScheme: 'https',
+  },
 };
 
 export default config;
