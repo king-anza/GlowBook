@@ -13,6 +13,8 @@
       <ion-list lines="none" class="form-grid"
         ><ion-item class="field"
           ><ion-input
+            id="recovery-email"
+            name="recoveryEmail"
             type="email"
             label="Email"
             labelPlacement="stacked"
@@ -31,15 +33,27 @@
       <ion-list lines="none" class="form-grid">
         @if (action !== 'reset') {
         <ion-item class="field"
-          ><ion-input label="User ID from verification email" labelPlacement="stacked" [(ngModel)]="userId"
+          ><ion-input
+            id="recovery-user-id"
+            name="recoveryUserId"
+            label="User ID from verification email"
+            labelPlacement="stacked"
+            [(ngModel)]="userId"
         /></ion-item>
         } @if (action !== 'verify') {
         <ion-item class="field"
-          ><ion-input label="Verification or reset token" labelPlacement="stacked" [(ngModel)]="token"
+          ><ion-input
+            id="recovery-token"
+            name="recoveryToken"
+            label="Verification or reset token"
+            labelPlacement="stacked"
+            [(ngModel)]="token"
         /></ion-item>
         }
         <ion-item class="field"
           ><ion-input
+            id="recovery-new-password"
+            name="recoveryNewPassword"
             type="password"
             label="New password"
             labelPlacement="stacked"
