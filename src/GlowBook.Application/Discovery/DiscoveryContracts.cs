@@ -1,7 +1,7 @@
 namespace GlowBook.Application.Discovery;
 
 public sealed record DiscoveryQuery(string? Search, Guid? CategoryId, string? Province, string? City, string? Suburb, decimal? MinPrice, decimal? MaxPrice, double? Latitude, double? Longitude, double? RadiusKm, int Page = 1, int PageSize = 20);
-public sealed record BusinessSummaryDto(Guid Id, string TradingName, string Description, string City, string Suburb, string Province, bool IsDemo, decimal FromPrice, IReadOnlyCollection<string> Categories, decimal AverageRating, int ReviewCount, DateOnly? NextAvailableDate, double? DistanceKm);
+public sealed record BusinessSummaryDto(Guid Id, string TradingName, string Description, string City, string Suburb, string Province, bool IsDemo, string? CoverImageUrl, decimal FromPrice, IReadOnlyCollection<string> Categories, decimal AverageRating, int ReviewCount, DateOnly? NextAvailableDate, double? DistanceKm);
 public sealed record PublicOfferingDto(Guid Id, Guid StaffId, string StaffName, decimal Price, int DurationMinutes, int BufferMinutes);
 public sealed record PublicServiceDto(Guid Id, string Category, string Name, string Description, IReadOnlyCollection<PublicOfferingDto> Offerings);
 public sealed record PublicPortfolioImageDto(Guid Id, string ImageUrl, string AltText);

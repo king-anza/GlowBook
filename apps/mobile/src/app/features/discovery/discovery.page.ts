@@ -26,6 +26,7 @@ interface BusinessSummary {
   suburb: string;
   province: string;
   isDemo: boolean;
+  coverImageUrl: string | null;
   fromPrice: number;
   categories: string[];
   averageRating: number;
@@ -192,6 +193,10 @@ export class DiscoveryPage {
     if (category === 'makeup') return 'makeup';
     if (category.includes('lash') || category.includes('brow')) return 'lashes';
     return 'beauty';
+  }
+
+  cardImageFor(business: BusinessSummary): string {
+    return business.coverImageUrl || `assets/glowbook/${this.imageFor(business)}.webp`;
   }
 
   isSelected(id: string): boolean {

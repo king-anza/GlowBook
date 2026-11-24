@@ -47,7 +47,7 @@ internal sealed class DiscoveryService(GlowBookDbContext db) : IDiscoveryService
         var pageResults = rankedArray.Skip((page - 1) * size).Take(size).ToArray();
         var ids = pageResults.Select(x => x.Id).ToArray();
         var distances = pageResults.ToDictionary(x => x.Id, x => x.DistanceKm);
-        var businesses = (await db.Businesses.AsNoTracking().Include(x => x.Locations).Where(x => ids.Contains(x.Id)).ToArrayAsync(ct)).ToDictionary(x => x.Id);
+        var businesses = (await db.Businesses.AsNoTracking().Include(x => x.Locations).Include(x => x.PortfolioImages).Where(x => ids.Contains(x.Id)).ToArrayAsync(ct)).ToDictionary(x => x.Id);
         var ratings = await db.Reviews.AsNoTracking()
             .Where(x => ids.Contains(x.BusinessId) && x.ModerationStatus == ReviewModerationStatus.Active)
             .GroupBy(x => x.BusinessId)
@@ -60,7 +60,7 @@ internal sealed class DiscoveryService(GlowBookDbContext db) : IDiscoveryService
         var availabilityByBusiness = weeklyAvailability.GroupBy(x => x.BusinessId)
             .ToDictionary(x => x.Key, x => x.Select(item => item.DayOfWeek).Distinct().ToArray());
         var items = new List<BusinessSummaryDto>();
-        foreach (var id in ids) { var business = businesses[id]; var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); var rating = ratings.GetValueOrDefault(business.Id); var availableDays = availabilityByBusiness.GetValueOrDefault(business.Id, []); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, business.IsDemo, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray(), (decimal)(rating?.Average ?? 0), rating?.Count ?? 0, NextAvailableDate(availableDays), distances[id])); }
+        foreach (var id in ids) { var business = businesses[id]; var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); var rating = ratings.GetValueOrDefault(business.Id); var availableDays = availabilityByBusiness.GetValueOrDefault(business.Id, []); var coverImage = business.PortfolioImages.Where(x => x.Status == PortfolioImageStatus.Active).OrderBy(x => x.DisplayOrder).Select(x => x.ImageUrl).FirstOrDefault(); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, business.IsDemo, coverImage, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray(), (decimal)(rating?.Average ?? 0), rating?.Count ?? 0, NextAvailableDate(availableDays), distances[id])); }
         return new(items, page, size, total);
     }
 

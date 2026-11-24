@@ -178,7 +178,11 @@
         @for (business of sortedBusinesses(); track business.id) {
         <article class="studio-card">
           <div class="studio-card__image">
-            <img [src]="'assets/glowbook/' + imageFor(business) + '.webp'" alt="" loading="lazy" />
+            <img
+              [src]="cardImageFor(business)"
+              [alt]="business.tradingName + (business.isDemo ? ' demo salon cover' : ' salon cover')"
+              loading="lazy"
+            />
             <span class="studio-card__tag">{{ business.categories[0] || 'Beauty studio' }}</span>
             @if (business.isDemo) { <span class="studio-card__caption">Demo salon</span> } @else {
             <span class="studio-card__caption">Illustrative image</span> }
