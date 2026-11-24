@@ -18,7 +18,7 @@ public sealed class AuthenticationJourneyTests
     private const string Password = "ValidPass!123";
 
     [Fact]
-    public async Task Duplicate_registration_returns_an_actionable_error()
+    public async Task Duplicate_registration_returns_a_non_enumerating_error()
     {
         if (!HasPostgreSql()) return;
         await using var factory = new PostgreSqlApplicationFactory();
@@ -30,7 +30,10 @@ public sealed class AuthenticationJourneyTests
 
         Assert.Equal(HttpStatusCode.BadRequest, duplicate.StatusCode);
         var problem = await duplicate.Content.ReadFromJsonAsync<JsonElement>();
-        Assert.Equal("email_already_registered", problem.GetProperty("code").GetString());
+        Assert.Equal("registration_failed", problem.GetProperty("code").GetString());
+        var body = problem.ToString();
+        Assert.DoesNotContain("already", body, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("exists", body, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

@@ -148,7 +148,7 @@ internal sealed class IdentityService(
     {
         var codes = result.Errors.Select(error => error.Code).ToHashSet(StringComparer.OrdinalIgnoreCase);
         if (codes.Contains("DuplicateEmail") || codes.Contains("DuplicateUserName"))
-            return Failure("email_already_registered", "An account with this email already exists. Sign in or resend the verification email.");
+            return Failure("registration_failed", "Registration could not be completed. Try signing in or resend the verification email.");
         if (codes.Any(code => code.StartsWith("Password", StringComparison.OrdinalIgnoreCase)))
             return Failure("password_requirements_not_met", "Use at least 10 characters with uppercase, lowercase, a number, and a symbol.");
         return Failure("registration_failed", "Registration could not be completed.");
