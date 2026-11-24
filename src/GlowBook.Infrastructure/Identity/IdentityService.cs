@@ -29,7 +29,7 @@ internal sealed class IdentityService(
         var now = DateTime.UtcNow;
         var user = new ApplicationUser { Id = Guid.NewGuid(), UserName = request.Email.Trim(), Email = request.Email.Trim(), DisplayName = request.DisplayName.Trim(), CreatedAtUtc = now, TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now };
         var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded) return Failure("registration_failed", "Registration could not be completed.");
+        if (!result.Succeeded) return RegistrationFailure(result);
         await userManager.AddToRoleAsync(user, role);
         dbContext.AuditLogs.Add(Audit(user.Id, "AccountRegistered")); await dbContext.SaveChangesAsync(cancellationToken);
         try { await emailSender.SendVerificationAsync(user.Email, user.Id, await userManager.GenerateEmailConfirmationTokenAsync(user), cancellationToken); }
@@ -144,5 +144,14 @@ internal sealed class IdentityService(
 
     private static string Hash(string value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
     private static AuditLog Audit(Guid userId, string action) => new() { Id = Guid.NewGuid(), ActorUserId = userId, Action = action, SubjectType = "User", SubjectId = userId, OccurredAtUtc = DateTime.UtcNow };
+    private static AuthResult RegistrationFailure(IdentityResult result)
+    {
+        var codes = result.Errors.Select(error => error.Code).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (codes.Contains("DuplicateEmail") || codes.Contains("DuplicateUserName"))
+            return Failure("email_already_registered", "An account with this email already exists. Sign in or resend the verification email.");
+        if (codes.Any(code => code.StartsWith("Password", StringComparison.OrdinalIgnoreCase)))
+            return Failure("password_requirements_not_met", "Use at least 10 characters with uppercase, lowercase, a number, and a symbol.");
+        return Failure("registration_failed", "Registration could not be completed.");
+    }
     private static AuthResult Failure(string code, params string[] errors) => new(false, code, errors);
 }

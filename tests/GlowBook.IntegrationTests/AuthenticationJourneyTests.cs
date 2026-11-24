@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using GlowBook.Application.Identity;
 using GlowBook.Infrastructure.Identity;
 using GlowBook.Infrastructure.Persistence;
@@ -15,6 +16,22 @@ public sealed class AuthenticationJourneyTests
 {
     private const string Email = "auth@example.test";
     private const string Password = "ValidPass!123";
+
+    [Fact]
+    public async Task Duplicate_registration_returns_an_actionable_error()
+    {
+        if (!HasPostgreSql()) return;
+        await using var factory = new PostgreSqlApplicationFactory();
+        await ResetAsync(factory.Services);
+        using var client = factory.CreateClient();
+        await RegisterAndConfirmAsync(client, factory.Services);
+
+        var duplicate = await client.PostAsJsonAsync("/api/v1/auth/register/customer", new { email = Email, password = Password, displayName = "Auth Test", acceptTerms = true, confirmMinimumAge = true });
+
+        Assert.Equal(HttpStatusCode.BadRequest, duplicate.StatusCode);
+        var problem = await duplicate.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("email_already_registered", problem.GetProperty("code").GetString());
+    }
 
     [Fact]
     public async Task Refresh_rotation_reuse_detection_and_logout_revoke_tokens()
