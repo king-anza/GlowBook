@@ -100,6 +100,17 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+if (app.Environment.IsProduction())
+{
+    await using var demoScope = app.Services.CreateAsyncScope();
+    var demoDatabase = demoScope.ServiceProvider.GetRequiredService<GlowBookDbContext>();
+    if (!await demoDatabase.Businesses.AnyAsync())
+    {
+        var seeded = await GlowBook.Api.DemoDataSeeder.SeedAsync(demoDatabase, CancellationToken.None);
+        app.Logger.LogInformation("Seeded {DemoSalonCount} demo salons because the production marketplace was empty.", seeded);
+    }
+}
+
 app.UseForwardedHeaders();
 app.Use(async (context, next) =>
 {
