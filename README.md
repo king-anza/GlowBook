@@ -1,6 +1,8 @@
-# GlowBook
+# Glow by LunaMay
 
-GlowBook is a modular-monolith mobile platform for discovering and booking beauty services in South Africa.
+**Find it. Book it. Glow.**
+
+Glow by LunaMay is a modular-monolith mobile platform for discovering and booking beauty services in South Africa. Internal project, namespace and infrastructure identifiers retain the original `GlowBook` name for deployment and migration compatibility.
 
 ## Repository layout
 

@@ -45,7 +45,7 @@ internal sealed class AdminBootstrapService(
             UserName = email,
             Email = email,
             EmailConfirmed = true,
-            DisplayName = "GlowBook Administrator",
+            DisplayName = "Glow Administrator",
             AccountStatus = "Active",
             TermsVersion = "operator-bootstrap",
             TermsAcceptedAtUtc = now,

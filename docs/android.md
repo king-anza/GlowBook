@@ -1,6 +1,6 @@
 # Android testing and release
 
-GlowBook includes a Capacitor Android project with application ID `za.co.glowbook.app`. The repository CI can build a free, installable debug APK, so Android Studio is not required merely to preview the application on a physical phone.
+Glow by LunaMay includes a Capacitor Android project with application ID `za.co.lunamaygroup.glow`. The repository CI can build a free, installable debug APK, so Android Studio is not required merely to preview the application on a physical phone.
 
 ## Download the CI test APK
 

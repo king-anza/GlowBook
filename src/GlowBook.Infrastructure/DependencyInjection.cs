@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddDbContext<GlowBookDbContext>(options => options.UseNpgsql(connectionString));
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.Configure<ResendOptions>(configuration.GetSection(ResendOptions.SectionName));
         services.Configure<PublicAppOptions>(configuration.GetSection(PublicAppOptions.SectionName));
         services.Configure<AdminBootstrapOptions>(configuration.GetSection(AdminBootstrapOptions.SectionName));
         services.AddIdentityCore<ApplicationUser>(options =>
@@ -51,12 +52,28 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddHostedService<AdminBootstrapService>();
-        if (string.IsNullOrWhiteSpace(configuration[$"{SmtpOptions.SectionName}:Host"])) services.AddSingleton<IIdentityEmailSender, NullIdentityEmailSender>();
+        var resendApiKey = configuration[$"{ResendOptions.SectionName}:ApiKey"];
+        var smtpHost = configuration[$"{SmtpOptions.SectionName}:Host"];
+        if (string.IsNullOrWhiteSpace(resendApiKey) && string.IsNullOrWhiteSpace(smtpHost))
+        {
+            services.AddSingleton<IIdentityEmailSender, NullIdentityEmailSender>();
+        }
         else
         {
             if (!Uri.TryCreate(configuration[$"{PublicAppOptions.SectionName}:BaseUrl"], UriKind.Absolute, out var publicAppUri) || publicAppUri.Scheme != Uri.UriSchemeHttps)
-                throw new InvalidOperationException("PublicApp:BaseUrl must be an absolute HTTPS URL when SMTP is enabled.");
-            services.AddSingleton<IEmailClient, SmtpEmailClient>();
+                throw new InvalidOperationException("PublicApp:BaseUrl must be an absolute HTTPS URL when email delivery is enabled.");
+
+            if (!string.IsNullOrWhiteSpace(resendApiKey))
+            {
+                if (string.IsNullOrWhiteSpace(configuration[$"{ResendOptions.SectionName}:FromAddress"]))
+                    throw new InvalidOperationException("Resend:FromAddress is required when Resend is enabled.");
+                services.AddHttpClient<IEmailClient, ResendEmailClient>();
+            }
+            else
+            {
+                services.AddSingleton<IEmailClient, SmtpEmailClient>();
+            }
+
             services.AddSingleton<IIdentityEmailSender, SmtpIdentityEmailSender>();
             services.AddHostedService<NotificationDispatcher>();
         }

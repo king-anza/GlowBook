@@ -1,4 +1,4 @@
-package za.co.glowbook.app;
+package za.co.lunamaygroup.glow;
 
 import com.getcapacitor.BridgeActivity;
 

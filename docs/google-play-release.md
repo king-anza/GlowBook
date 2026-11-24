@@ -1,11 +1,11 @@
 # Google Play release preparation
 
-GlowBook can produce a signed Android App Bundle without deploying it. Publishing remains an explicit owner action in Google Play Console.
+Glow by LunaMay can produce a signed Android App Bundle without deploying it. Publishing remains an explicit owner action in Google Play Console.
 
 ## One-time owner setup
 
 1. Create and verify the owner-controlled Google Play Console account.
-2. Create the app using package name `za.co.glowbook.app` and enable Play App Signing.
+2. Create the app as **Glow by LunaMay: Beauty**, using package name `za.co.lunamaygroup.glow`, and enable Play App Signing.
 3. Generate an upload keystore once and keep its original plus recovery information in protected offline storage.
 4. Add these GitHub **production environment** secrets:
    - `GLOWBOOK_UPLOAD_KEYSTORE_BASE64`

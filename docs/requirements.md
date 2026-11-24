@@ -1,4 +1,4 @@
-# GlowBook MVP Requirements
+# Glow by LunaMay MVP Requirements
 
 Status: Approved implementation baseline
 Market: South Africa
@@ -7,7 +7,7 @@ Default time zone: Africa/Johannesburg
 
 ## 1. Product purpose
 
-GlowBook is a mobile platform that allows customers to discover beauty
+Glow by LunaMay is a mobile platform that allows customers to discover beauty
 professionals, view their services and availability, book appointments,
 and manage existing bookings.
 
@@ -239,7 +239,7 @@ SMS, WhatsApp, and push notifications are excluded from MVP.
 
 ## 7. Privacy
 
-GlowBook must support POPIA-oriented practices, including:
+Glow by LunaMay must support POPIA-oriented practices, including:
 
 - Data minimisation
 - A clear privacy notice

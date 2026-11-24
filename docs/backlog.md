@@ -1,4 +1,4 @@
-# GlowBook MVP Backlog
+# Glow by LunaMay MVP Backlog
 
 This checklist tracks implementation against `docs/requirements.md`. A checked item means code, validation, relevant tests, and builds are complete; it does not mean a migration was applied or the feature was deployed.
 
@@ -65,9 +65,9 @@ This checklist tracks implementation against `docs/requirements.md`. A checked i
 - [ ] Owner Play Console/signing secrets and store declarations; manual signed `.aab` workflow is implemented
 - [ ] Physical-device accessibility and complete live-environment acceptance testing
 
-# GlowBook Growth Roadmap
+# Glow by LunaMay Growth Roadmap
 
-This post-MVP roadmap turns GlowBook from a booking utility into an inspiration-to-booking product. Items that conflict with `docs/requirements.md` require an approved requirements update before implementation.
+This post-MVP roadmap turns Glow by LunaMay from a booking utility into an inspiration-to-booking product. Items that conflict with `docs/requirements.md` require an approved requirements update before implementation.
 
 ## Codex completion rules
 
@@ -75,7 +75,7 @@ Implement one numbered feature at a time on its own `codex/<feature-name>` branc
 
 ## UI-000 — Prototype parity (mandatory prerequisite)
 
-- [ ] **UI-000: Match the hosted GlowBook validation prototype** — Reproduce every reachable screen, icon, image, colour, typography choice, spacing rule, responsive state and important interaction from the hosted prototype in the functional Ionic/Angular application.
+- [ ] **UI-000: Match the hosted Glow by LunaMay validation prototype** — Reproduce every reachable screen, icon, image, colour, typography choice, spacing rule, responsive state and important interaction from the hosted prototype in the functional Ionic/Angular application.
 - [ ] Connect prototype presentation to the existing API, authentication, provider-management and booking journeys rather than introducing static mock screens.
 - [ ] Add deterministic, realistic Gqeberha seed data for providers, services, prices, portfolios, ratings, reviews, availability and booking examples where needed.
 - [ ] Complete screen-by-screen parity checks, customer-journey Playwright coverage, mobile/desktop visual checks, backend tests and Android CI.
@@ -97,18 +97,18 @@ No GROW or VOICE implementation begins until UI-000 is complete. Do not merge or
 
 **V1 outcome:** product decisions use verified behaviour and structured customer/provider feedback, not only isolated comments.
 
-## V2 — GlowBook interview and podcast research programme
+## V2 — Glow by LunaMay interview and podcast research programme
 
 - [ ] **RESEARCH-001: Define the interview plan** — Identify customer, stylist, salon-owner and beauty-specialist participant groups across Gqeberha and later South Africa.
 - [ ] **RESEARCH-002: Prepare consent and release forms** — Obtain explicit permission for recording, publication, quotation and optional use of names/images; provide an off-camera research option.
-- [ ] **RESEARCH-003: Create a standard discussion guide** — Cover beauty routines, discovery, trust, price transparency, availability, safety, communication, frustrations and desired GlowBook features.
+- [ ] **RESEARCH-003: Create a standard discussion guide** — Cover beauty routines, discovery, trust, price transparency, availability, safety, communication, frustrations and desired Glow by LunaMay features.
 - [ ] **RESEARCH-004: Run a private pilot** — Conduct 5–8 research interviews before publishing a public podcast and use them to improve the questions.
-- [ ] **RESEARCH-005: Launch “GlowBook Conversations”** — Record recurring customer/provider sessions focused on real beauty needs rather than promotional interviews only.
+- [ ] **RESEARCH-005: Launch “Glow Conversations”** — Record recurring customer/provider sessions focused on real beauty needs rather than promotional interviews only.
 - [ ] **RESEARCH-006: Produce structured research notes** — Tag recurring needs, direct quotes with consent, contradictions, segment differences and suggested opportunities.
-- [ ] **RESEARCH-007: Publish an insights summary** — Share anonymised themes and explain which requests GlowBook is researching, planning or declining.
+- [ ] **RESEARCH-007: Publish an insights summary** — Share anonymised themes and explain which requests Glow by LunaMay is researching, planning or declining.
 - [ ] **RESEARCH-008: Review insights monthly** — Compare interview themes with in-app behaviour and update priorities only when evidence supports the change.
 
-**V2 outcome:** GlowBook builds a visible community while maintaining a repeatable research process that informs development.
+**V2 outcome:** Glow by LunaMay builds a visible community while maintaining a repeatable research process that informs development.
 
 ## G1 — Trust and price clarity
 

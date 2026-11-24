@@ -89,15 +89,49 @@ internal sealed class IdentityService(
     public async Task RequestEmailVerificationAsync(string email, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(email.Trim());
-        if (user is not null && !user.EmailConfirmed)
-            await emailSender.SendVerificationAsync(user.Email!, user.Id, await userManager.GenerateEmailConfirmationTokenAsync(user), cancellationToken);
+        if (user is null || user.EmailConfirmed) return;
+
+        try
+        {
+            await emailSender.SendVerificationAsync(
+                user.Email!,
+                user.Id,
+                await userManager.GenerateEmailConfirmationTokenAsync(user),
+                cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            // Keep the public response identical for existing and unknown addresses while
+            // preserving the provider failure in the service logs for diagnosis.
+            logger.LogError(exception, "Verification email delivery failed for user {UserId}", user.Id);
+        }
     }
 
     public async Task RequestPasswordResetAsync(string email, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(email.Trim());
-        if (user is not null && user.EmailConfirmed)
-            await emailSender.SendPasswordResetAsync(user.Email!, await userManager.GeneratePasswordResetTokenAsync(user), cancellationToken);
+        if (user is null || !user.EmailConfirmed) return;
+
+        try
+        {
+            await emailSender.SendPasswordResetAsync(
+                user.Email!,
+                await userManager.GeneratePasswordResetTokenAsync(user),
+                cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            // Password recovery must not disclose whether the supplied address exists.
+            logger.LogError(exception, "Password reset email delivery failed for user {UserId}", user.Id);
+        }
     }
 
     public async Task<bool> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken cancellationToken)

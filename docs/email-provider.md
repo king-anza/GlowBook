@@ -7,4 +7,4 @@ Use Brevo's SMTP relay for the initial MVP, subject to vendor/privacy review bef
 
 This fits the provider-neutral SMTP adapter already implemented and avoids another SDK. Do not create an account or enter credentials automatically. Before enabling it, accept the vendor agreement/DPA, verify POPIA cross-border safeguards, authenticate the sending domain with SPF/DKIM/DMARC, use a least-privilege SMTP key, configure secrets outside source control, and test suppression/bounce handling. Re-evaluate limits and terms immediately before launch because free plans can change.
 
-If Brevo does not pass legal/vendor review, Resend is the fallback: its official pricing currently lists SMTP relay, a 100-message daily free limit and 30-day data retention. The same GlowBook adapter can switch providers through configuration only.
+If Brevo does not pass legal/vendor review, Resend is the fallback: its official pricing currently lists SMTP relay, a 100-message daily free limit and 30-day data retention. The same Glow by LunaMay adapter can switch providers through configuration only.

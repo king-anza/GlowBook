@@ -412,7 +412,7 @@ test('administrator reviews a pending professional from the operations centre', 
       json: {
         id: 'admin-1',
         email: 'admin@example.test',
-        displayName: 'GlowBook Admin',
+        displayName: 'Glow Admin',
         marketingConsent: false,
         accountStatus: 'Active',
         createdAtUtc: '2026-11-07T00:00:00Z',
@@ -423,7 +423,7 @@ test('administrator reviews a pending professional from the operations centre', 
   );
   await page.route('**/api/v1/me', (route) =>
     route.fulfill({
-      json: { id: 'admin-1', email: 'admin@example.test', displayName: 'GlowBook Admin', roles: ['Admin'] },
+      json: { id: 'admin-1', email: 'admin@example.test', displayName: 'Glow Admin', roles: ['Admin'] },
     }),
   );
 

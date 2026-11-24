@@ -29,7 +29,7 @@ internal sealed class NotificationDispatcher(IServiceScopeFactory scopes, IEmail
                 item.AttemptCount++;
                 try
                 {
-                    if (!string.IsNullOrWhiteSpace(recipient) && await email.SendAsync(recipient, "GlowBook booking update", $"Booking event: {item.EventType}\nBooking reference: {item.SubjectId}", ct))
+                    if (!string.IsNullOrWhiteSpace(recipient) && await email.SendAsync(recipient, "Glow by LunaMay booking update", $"Booking event: {item.EventType}\nBooking reference: {item.SubjectId}\n\nFind it. Book it. Glow.", ct))
                     {
                         item.Status = NotificationStatus.Sent;
                         item.ProcessedAtUtc = DateTime.UtcNow;

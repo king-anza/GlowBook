@@ -97,7 +97,7 @@ export class AccountPage {
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'glowbook-account-data.json';
+      link.download = 'glow-account-data.json';
       link.click();
       URL.revokeObjectURL(link.href);
     });

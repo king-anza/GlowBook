@@ -27,14 +27,27 @@
   align-items: center;
   gap: 9px;
   color: var(--glow-ink);
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: -0.065em;
   text-decoration: none;
 }
 .prototype-brand img {
   width: 32px;
   height: 32px;
+}
+.prototype-brand__lockup {
+  display: flex;
+  flex-direction: column;
+}
+.prototype-brand__lockup strong {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+.prototype-brand__lockup small {
+  margin-top: 4px;
+  color: var(--glow-muted);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 .prototype-nav {
   order: 3;

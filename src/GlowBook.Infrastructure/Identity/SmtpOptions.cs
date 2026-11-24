@@ -9,11 +9,19 @@ public sealed class SmtpOptions
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string FromAddress { get; set; } = string.Empty;
-    public string FromName { get; set; } = "GlowBook";
+    public string FromName { get; set; } = "Glow by LunaMay";
 }
 
 public sealed class PublicAppOptions
 {
     public const string SectionName = "PublicApp";
     public string BaseUrl { get; set; } = string.Empty;
+}
+
+public sealed class ResendOptions
+{
+    public const string SectionName = "Resend";
+    public string ApiKey { get; set; } = string.Empty;
+    public string FromAddress { get; set; } = string.Empty;
+    public string FromName { get; set; } = "Glow by LunaMay";
 }

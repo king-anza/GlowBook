@@ -63,5 +63,5 @@
     "vitest": "^5.1.0"
   },
   "prettier": "@ionic/prettier-config",
-  "description": "GlowBook mobile beauty-services discovery and booking application"
+  "description": "Glow by LunaMay mobile beauty-services discovery and booking application"
 }

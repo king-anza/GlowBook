@@ -1,6 +1,6 @@
 # Architecture
 
-GlowBook is a modular monolith: one Ionic/Angular client, one ASP.NET Core API process, and one PostgreSQL database. HTTP endpoints delegate to application contracts implemented by infrastructure services; domain entities contain marketplace state and do not depend on the client or persistence framework.
+Glow by LunaMay is a modular monolith: one Ionic/Angular client, one ASP.NET Core API process, and one PostgreSQL database. HTTP endpoints delegate to application contracts implemented by infrastructure services; domain entities contain marketplace state and do not depend on the client or persistence framework. Internal code identifiers retain the original `GlowBook` namespace for compatibility.
 
 ```text
 apps/mobile                 Ionic/Angular feature pages and auth interceptor

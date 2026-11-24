@@ -4,7 +4,9 @@ This repository deploys the Ionic/Angular web application as Cloudflare Worker s
 
 ## Required architecture
 
-Cloudflare hosts the web application only. GlowBook's API remains an ASP.NET Core container and requires a PostgreSQL database. Do not use Cloudflare D1 as a substitute: the application uses EF Core and Npgsql/PostgreSQL features.
+Cloudflare hosts the web application only. Glow by LunaMay's API remains an ASP.NET Core container and requires a PostgreSQL database. Do not use Cloudflare D1 as a substitute: the application uses EF Core and Npgsql/PostgreSQL features.
+
+The production custom domain is `https://glow.lunamaygroup.co.za`. Keep the previous `https://glowbook.lunamaygroup.co.za` hostname only as a temporary redirect during the transition.
 
 Before publishing a web build, deploy the API and PostgreSQL database to a production-like environment and obtain its HTTPS origin, for example `https://api-staging.example.com`. Configure the API's allowed CORS origins to include the final Cloudflare URL and custom domain.
 
