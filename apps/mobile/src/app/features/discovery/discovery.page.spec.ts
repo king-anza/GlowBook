@@ -29,6 +29,8 @@ describe('DiscoveryPage', () => {
     page.suburb = 'Sandton';
     page.minPrice = 100;
     page.maxPrice = 500;
+    page.locationCoordinates.set({ latitude: -33.9608, longitude: 25.6022 });
+    page.radiusKm = 10;
     page.load();
     const request = http.expectOne(
       (candidate) =>
@@ -36,6 +38,9 @@ describe('DiscoveryPage', () => {
     );
     expect(request.request.params.get('province')).toBe('Gauteng');
     expect(request.request.params.get('minPrice')).toBe('100');
+    expect(request.request.params.get('latitude')).toBe('-33.9608');
+    expect(request.request.params.get('longitude')).toBe('25.6022');
+    expect(request.request.params.get('radiusKm')).toBe('10');
     request.flush({ items: [], page: 1, pageSize: 20, totalCount: 21 });
     page.nextPage();
     const next = http.expectOne((candidate) => candidate.params.get('page') === '2');

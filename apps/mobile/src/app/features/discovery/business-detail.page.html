@@ -6,7 +6,8 @@
       <h1>{{ item.tradingName }}</h1>
       <p>{{ item.description }}</p>
       <div class="chip-row studio-detail-meta">
-        <span class="chip">⌖ {{ item.suburb }} · {{ item.city }}</span><span class="chip">{{ item.province }}</span>
+        <span class="chip">⌖ {{ item.suburb }} · {{ item.city }}</span><span class="chip">{{ item.province }}</span> @if
+        (item.isDemo) { <span class="chip">Demo salon</span> }
       </div>
     </section>
 

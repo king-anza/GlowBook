@@ -22,6 +22,8 @@ interface BusinessProfile {
     city: string;
     province: string;
     postalCode: string;
+    latitude: number | null;
+    longitude: number | null;
   };
 }
 interface PortfolioImage {
@@ -57,6 +59,8 @@ export class ProfilePage {
   readonly concurrencyToken = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly portfolioImages = signal<PortfolioImage[]>([]);
+  readonly locationCoordinates = signal<{ latitude: number; longitude: number } | null>(null);
+  readonly locating = signal(false);
   readonly form = this.fb.nonNullable.group({
     tradingName: ['', Validators.required],
     description: [''],
@@ -81,6 +85,8 @@ export class ProfilePage {
       next: (profile) => {
         this.status.set(profile.status);
         this.concurrencyToken.set(profile.concurrencyToken);
+        if (typeof profile.location.latitude === 'number' && typeof profile.location.longitude === 'number')
+          this.locationCoordinates.set({ latitude: profile.location.latitude, longitude: profile.location.longitude });
         this.form.setValue({
           tradingName: profile.tradingName,
           description: profile.description,
@@ -119,6 +125,8 @@ export class ProfilePage {
         city: value.city,
         province: value.province,
         postalCode: value.postalCode,
+        latitude: this.locationCoordinates()?.latitude ?? null,
+        longitude: this.locationCoordinates()?.longitude ?? null,
       },
       concurrencyToken: this.concurrencyToken(),
     };
@@ -136,6 +144,27 @@ export class ProfilePage {
         },
         error: () => this.message.set('Unable to save the profile.'),
       });
+  }
+
+  useCurrentLocation(): void {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      this.message.set('Location is not supported on this device.');
+      return;
+    }
+    this.locating.set(true);
+    this.message.set('Requesting the studio location…');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.locationCoordinates.set({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+        this.locating.set(false);
+        this.message.set('Studio coordinates captured. Save the profile to apply them.');
+      },
+      () => {
+        this.locating.set(false);
+        this.message.set('Location permission was declined or the studio location could not be determined.');
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 60_000 },
+    );
   }
 
   submitForReview(): void {

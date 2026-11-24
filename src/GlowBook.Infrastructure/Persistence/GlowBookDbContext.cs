@@ -73,6 +73,13 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
         {
             entity.Property(x => x.AddressLine1).HasMaxLength(150).IsRequired();
             entity.Property(x => x.Province).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.Latitude);
+            entity.Property(x => x.Longitude);
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_BusinessLocation_Latitude", "\"Latitude\" IS NULL OR \"Latitude\" BETWEEN -90 AND 90");
+                table.HasCheckConstraint("CK_BusinessLocation_Longitude", "\"Longitude\" IS NULL OR \"Longitude\" BETWEEN -180 AND 180");
+            });
             entity.HasIndex(x => x.BusinessId).HasFilter("\"IsPrimary\" = true").IsUnique();
             entity.HasOne(x => x.Business).WithMany(x => x.Locations).HasForeignKey(x => x.BusinessId).OnDelete(DeleteBehavior.Cascade);
         });

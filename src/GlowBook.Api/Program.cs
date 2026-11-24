@@ -146,7 +146,7 @@ app.MapGet("/health", () => Results.Ok(new HealthResponse("Healthy")))
     .WithTags("Health");
 
 if (app.Environment.IsDevelopment())
-    app.MapPost("/api/v1/development/gqeberha-demo-data", async (GlowBookDbContext db, CancellationToken ct) => Results.Ok(new { seeded = await GlowBook.Api.DevelopmentDemoData.SeedAsync(db, ct) }));
+    app.MapPost("/api/v1/development/gqeberha-demo-data", async (GlowBookDbContext db, CancellationToken ct) => Results.Ok(new { seeded = await GlowBook.Api.DemoDataSeeder.SeedAsync(db, ct) }));
 
 var auth = app.MapGroup("/api/v1/auth").RequireRateLimiting("auth");
 auth.MapPost("/register/customer", (RegisterRequest request, IIdentityService identity, CancellationToken ct) => Register(request, "Customer", identity, ct)).AddEndpointFilter<ValidationFilter<RegisterRequest>>();
@@ -193,7 +193,7 @@ professional.MapPut("/staff/{staffId:guid}/weekly-availability", async (Guid sta
 professional.MapPost("/staff/{staffId:guid}/availability-exceptions", async (Guid staffId, ExceptionRequest request, ClaimsPrincipal user, IAvailabilityService service, CancellationToken ct) => await service.AddExceptionAsync(UserId(user), staffId, request, ct) ? Results.NoContent() : Results.BadRequest()).AddEndpointFilter<ValidationFilter<ExceptionRequest>>();
 professional.MapPost("/staff/{staffId:guid}/blocked-times", async (Guid staffId, BlockedTimeRequest request, ClaimsPrincipal user, IAvailabilityService service, CancellationToken ct) => await service.AddBlockedTimeAsync(UserId(user), staffId, request, ct) ? Results.NoContent() : Results.BadRequest()).AddEndpointFilter<ValidationFilter<BlockedTimeRequest>>();
 app.MapGet("/api/v1/staff/{staffId:guid}/availability", (Guid staffId, Guid offeringId, DateOnly from, DateOnly to, IAvailabilityService service, CancellationToken ct) => service.SlotsAsync(staffId, offeringId, from, to, ct));
-app.MapGet("/api/v1/businesses", (string? search, Guid? categoryId, string? province, string? city, string? suburb, decimal? minPrice, decimal? maxPrice, int page, int pageSize, IDiscoveryService service, CancellationToken ct) => service.SearchAsync(new DiscoveryQuery(search, categoryId, province, city, suburb, minPrice, maxPrice, page == 0 ? 1 : page, pageSize == 0 ? 20 : pageSize), ct));
+app.MapGet("/api/v1/businesses", (string? search, Guid? categoryId, string? province, string? city, string? suburb, decimal? minPrice, decimal? maxPrice, double? latitude, double? longitude, double? radiusKm, int page, int pageSize, IDiscoveryService service, CancellationToken ct) => service.SearchAsync(new DiscoveryQuery(search, categoryId, province, city, suburb, minPrice, maxPrice, latitude, longitude, radiusKm, page == 0 ? 1 : page, pageSize == 0 ? 20 : pageSize), ct));
 app.MapGet("/api/v1/businesses/{id:guid}", async (Guid id, IDiscoveryService service, CancellationToken ct) => await service.DetailAsync(id, ct) is { } business ? Results.Ok(business) : Results.NotFound());
 
 var customer = app.MapGroup("/api/v1/bookings").RequireAuthorization(policy => policy.RequireRole("Customer"));
@@ -215,6 +215,15 @@ admin.MapPost("/businesses/{id:guid}/approve", async (Guid id, ClaimsPrincipal u
 admin.MapPost("/businesses/{id:guid}/reject", async (Guid id, BusinessReviewRequest request, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Rejected, request.Reason, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/businesses/{id:guid}/suspend", async (Guid id, BusinessReviewRequest request, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Suspended, request.Reason, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/businesses/{id:guid}/reactivate", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ReviewAsync(UserId(user), id, BusinessApprovalStatus.Approved, null, ct) ? Results.NoContent() : Results.NotFound());
+admin.MapPost("/businesses/{id:guid}/demo", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.SetDemoAsync(UserId(user), id, true, ct) ? Results.NoContent() : Results.NotFound());
+admin.MapPost("/businesses/{id:guid}/real", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.SetDemoAsync(UserId(user), id, false, ct) ? Results.NoContent() : Results.NotFound());
+admin.MapPost("/demo-data/seed", async (ClaimsPrincipal user, GlowBookDbContext db, CancellationToken ct) =>
+{
+    var seeded = await GlowBook.Api.DemoDataSeeder.SeedAsync(db, ct);
+    db.AuditLogs.Add(new GlowBook.Domain.Operations.AuditLog { Id = Guid.NewGuid(), ActorUserId = UserId(user), Action = "DemoDataSeeded", SubjectType = "DemoData", SubjectId = Guid.Empty, Details = $"{seeded} demo salons created or refreshed", OccurredAtUtc = DateTime.UtcNow });
+    await db.SaveChangesAsync(ct);
+    return Results.Ok(new { seeded });
+});
 admin.MapPost("/reviews/{id:guid}/hide", async (Guid id, ClaimsPrincipal user, IReviewService service, CancellationToken ct) => await service.SetHiddenAsync(UserId(user), id, true, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/reviews/{id:guid}/restore", async (Guid id, ClaimsPrincipal user, IReviewService service, CancellationToken ct) => await service.SetHiddenAsync(UserId(user), id, false, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapGet("/reviews", (IReviewService service, CancellationToken ct) => service.ForModerationAsync(ct));

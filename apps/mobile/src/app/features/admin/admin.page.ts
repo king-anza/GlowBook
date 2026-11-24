@@ -11,6 +11,7 @@ interface Business {
   id: string;
   tradingName: string;
   description: string;
+  isDemo: boolean;
   status: string;
   location: { suburb: string; city: string; province: string };
   staff: { id: string }[];
@@ -155,6 +156,55 @@ export class AdminPage {
           this.busyId.set(null);
         },
       });
+  }
+
+  async toggleDemoStatus(business: Business): Promise<void> {
+    const action = business.isDemo ? 'real' : 'demo';
+    if (
+      !(await this.confirmation.confirm(
+        `${business.isDemo ? 'Mark as a real salon' : 'Mark as a demo salon'}?`,
+        business.isDemo
+          ? 'The salon will no longer carry the Demo label. Its active or suspended status will not change.'
+          : 'The salon will carry a visible Demo label. Its active or suspended status will not change.',
+        business.isDemo ? 'Mark real' : 'Mark demo',
+      ))
+    )
+      return;
+    this.busyId.set(business.id);
+    this.http.post(`${environment.apiUrl}/api/v1/admin/businesses/${business.id}/${action}`, {}).subscribe({
+      next: () => {
+        this.message.set(`${business.tradingName} is now marked as ${action === 'demo' ? 'demo' : 'real'}.`);
+        this.busyId.set(null);
+        this.loadManagedBusinesses();
+      },
+      error: () => {
+        this.message.set('The demo classification could not be updated.');
+        this.busyId.set(null);
+      },
+    });
+  }
+
+  async seedDemoData(): Promise<void> {
+    if (
+      !(await this.confirmation.confirm(
+        'Create or refresh demo salons?',
+        'This safely creates the six Glow demonstration salons, services, portfolio images and reviews. Existing live salons are not changed.',
+        'Seed demo salons',
+      ))
+    )
+      return;
+    this.busyId.set('demo-seed');
+    this.http.post<{ seeded: number }>(`${environment.apiUrl}/api/v1/admin/demo-data/seed`, {}).subscribe({
+      next: (result) => {
+        this.message.set(`${result.seeded} demo salons were created or refreshed.`);
+        this.busyId.set(null);
+        this.refresh();
+      },
+      error: () => {
+        this.message.set('Demo data could not be created.');
+        this.busyId.set(null);
+      },
+    });
   }
 
   changeUserPage(offset: number): void {

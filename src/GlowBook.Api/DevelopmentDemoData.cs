@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlowBook.Api;
 
-internal static class DevelopmentDemoData
+internal static class DemoDataSeeder
 {
     private sealed record Studio(string Id, string Name, string Area, string Category, string Service, decimal Price, int Minutes, string Image, string Description);
 
@@ -47,24 +47,36 @@ internal static class DevelopmentDemoData
                 var existingService = await db.Services.SingleAsync(x => x.Id == serviceId, ct);
                 var existingOffering = await db.ServiceOfferings.SingleAsync(x => x.Id == offeringId, ct);
                 existingBusiness.Description = studio.Description;
+                existingBusiness.IsDemo = true;
                 existingBusiness.UpdatedAtUtc = now;
                 var existingLocation = await db.BusinessLocations.SingleAsync(x => x.Id == locationId, ct);
                 existingLocation.Suburb = studio.Area;
                 existingLocation.City = "Thohoyandou";
                 existingLocation.Province = "Limpopo";
                 existingLocation.PostalCode = "0950";
+                existingLocation.Latitude = -22.9456 + index * 0.006;
+                existingLocation.Longitude = 30.4840 + index * 0.005;
                 existingService.Name = studio.Service;
                 existingService.Description = studio.Description;
                 existingService.UpdatedAtUtc = now;
                 existingOffering.Price = studio.Price;
                 existingOffering.DurationMinutes = studio.Minutes;
                 existingOffering.UpdatedAtUtc = now;
+                var existingImage = await db.PortfolioImages.SingleOrDefaultAsync(x => x.BusinessId == businessId && x.DisplayOrder == 1, ct);
+                if (existingImage is null)
+                    db.PortfolioImages.Add(new PortfolioImage { Id = Guid.NewGuid(), BusinessId = businessId, ImageUrl = $"assets/glowbook/{studio.Image}", AltText = $"Demo portfolio image for {studio.Name}", DisplayOrder = 1, CreatedAtUtc = now });
+                else
+                {
+                    existingImage.ImageUrl = $"assets/glowbook/{studio.Image}";
+                    existingImage.AltText = $"Demo portfolio image for {studio.Name}";
+                    existingImage.Status = PortfolioImageStatus.Active;
+                }
                 seeded++;
                 continue;
             }
             db.Users.Add(new ApplicationUser { Id = ownerId, UserName = $"demo.{index}@glowbook.local", NormalizedUserName = $"DEMO.{index}@GLOWBOOK.LOCAL", Email = $"demo.{index}@glowbook.local", NormalizedEmail = $"DEMO.{index}@GLOWBOOK.LOCAL", EmailConfirmed = true, DisplayName = studio.Name, TermsAcceptedAtUtc = now, PrivacyNoticeAcceptedAtUtc = now, CreatedAtUtc = now, SecurityStamp = $"demo-{index}" });
-            db.Businesses.Add(new Business { Id = businessId, OwnerUserId = ownerId, TradingName = studio.Name, Description = studio.Description, CancellationPolicy = "Please cancel at least 24 hours before your appointment.", ApprovalStatus = BusinessApprovalStatus.Approved, ApprovedAtUtc = now, CreatedAtUtc = now, UpdatedAtUtc = now });
-            db.BusinessLocations.Add(new BusinessLocation { Id = locationId, BusinessId = businessId, Name = studio.Name, AddressLine1 = $"{12 + index} Main Road", Suburb = studio.Area, City = "Thohoyandou", Province = "Limpopo", PostalCode = "0950" });
+            db.Businesses.Add(new Business { Id = businessId, OwnerUserId = ownerId, TradingName = studio.Name, Description = studio.Description, CancellationPolicy = "Please cancel at least 24 hours before your appointment.", IsDemo = true, ApprovalStatus = BusinessApprovalStatus.Approved, ApprovedAtUtc = now, CreatedAtUtc = now, UpdatedAtUtc = now });
+            db.BusinessLocations.Add(new BusinessLocation { Id = locationId, BusinessId = businessId, Name = studio.Name, AddressLine1 = $"{12 + index} Main Road", Suburb = studio.Area, City = "Thohoyandou", Province = "Limpopo", PostalCode = "0950", Latitude = -22.9456 + index * 0.006, Longitude = 30.4840 + index * 0.005 });
             db.StaffMembers.Add(new StaffMember { Id = staffId, BusinessId = businessId, DisplayName = studio.Name.Split(' ')[0], Biography = studio.Description, CreatedAtUtc = now, UpdatedAtUtc = now });
             db.Services.Add(new Service { Id = serviceId, BusinessId = businessId, CategoryId = categoryId, Name = studio.Service, Description = studio.Description, IsActive = true, CreatedAtUtc = now, UpdatedAtUtc = now });
             db.ServiceOfferings.Add(new ServiceOffering { Id = offeringId, ServiceId = serviceId, StaffMemberId = staffId, BusinessLocationId = locationId, Price = studio.Price, DurationMinutes = studio.Minutes, BufferMinutes = 15, CreatedAtUtc = now, UpdatedAtUtc = now });
@@ -72,7 +84,7 @@ internal static class DevelopmentDemoData
             var booking = new Booking { Id = Guid.NewGuid(), CustomerUserId = customer.Id, BusinessId = businessId, BusinessLocationId = locationId, StaffMemberId = staffId, ServiceOfferingId = offeringId, StartUtc = now.AddDays(-14 - index), EndUtc = now.AddDays(-14 - index).AddMinutes(studio.Minutes), Status = BookingStatus.Completed, ServiceNameSnapshot = studio.Service, PriceSnapshot = studio.Price, DurationMinutesSnapshot = studio.Minutes, IdempotencyKey = $"demo-completed-{index}", CreatedAtUtc = now.AddDays(-21), CompletedAtUtc = now.AddDays(-14 - index) };
             db.Bookings.Add(booking);
             db.Reviews.Add(new Review { Id = Guid.NewGuid(), BookingId = booking.Id, CustomerUserId = customer.Id, BusinessId = businessId, Rating = index % 2 == 0 ? 5 : 4, Comment = "Beautiful result, welcoming service and an easy booking experience.", CreatedAtUtc = now.AddDays(-10), UpdatedAtUtc = now.AddDays(-10) });
-            db.PortfolioImages.Add(new PortfolioImage { Id = Guid.NewGuid(), BusinessId = businessId, ImageUrl = $"assets/glowbook/{studio.Image}", AltText = $"Portfolio image for {studio.Name}", DisplayOrder = 1, CreatedAtUtc = now });
+            db.PortfolioImages.Add(new PortfolioImage { Id = Guid.NewGuid(), BusinessId = businessId, ImageUrl = $"assets/glowbook/{studio.Image}", AltText = $"Demo portfolio image for {studio.Name}", DisplayOrder = 1, CreatedAtUtc = now });
             seeded++;
         }
         await db.SaveChangesAsync(ct);

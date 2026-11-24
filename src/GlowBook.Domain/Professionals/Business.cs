@@ -12,6 +12,7 @@ public sealed class Business
     public string CancellationPolicy { get; set; } = string.Empty;
     public string? PublicEmail { get; set; }
     public string? PublicPhone { get; set; }
+    public bool IsDemo { get; set; }
     public BusinessApprovalStatus ApprovalStatus { get; set; } = BusinessApprovalStatus.Draft;
     public string? ReviewReason { get; set; }
     public DateTime? SubmittedAtUtc { get; set; }
@@ -47,6 +48,8 @@ public sealed class BusinessLocation
     public string City { get; set; } = string.Empty;
     public string Province { get; set; } = string.Empty;
     public string PostalCode { get; set; } = string.Empty;
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
     public string TimeZone { get; set; } = "Africa/Johannesburg";
     public bool IsPrimary { get; set; } = true;
     public bool IsActive { get; set; } = true;

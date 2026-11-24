@@ -2,7 +2,9 @@
   <main class="page-shell discovery">
     <section class="discovery-hero" aria-labelledby="discovery-title">
       <div class="hero-copy">
-        <p class="eyebrow discovery-city">⌖ THOHOYANDOU, SOUTH AFRICA</p>
+        <p class="eyebrow discovery-city">
+          ⌖ {{ locationCoordinates() ? 'NEAR YOUR CURRENT LOCATION' : 'DISCOVER BEAUTY NEAR YOU' }}
+        </p>
         <h1 id="discovery-title">Find your <em>glow.</em></h1>
         <p>Find independent beauty pros, compare their work and prices, and book a time that suits you.</p>
       </div>
@@ -29,12 +31,24 @@
             name="city"
             label="Area"
             labelPlacement="stacked"
-            placeholder="All of Thohoyandou"
+            placeholder="City or suburb"
             [(ngModel)]="city"
           />
         </div>
         <ion-button type="submit">Find a pro <span aria-hidden="true">&nbsp;→</span></ion-button>
       </div>
+      <div class="action-row location-actions">
+        <ion-button type="button" fill="outline" [disabled]="locating()" (click)="useCurrentLocation()">
+          <ion-icon name="locate-outline" aria-hidden="true" />
+          {{ locating() ? 'Finding your location…' : 'Use my current location' }}
+        </ion-button>
+        @if (locationCoordinates()) {
+        <ion-button type="button" fill="clear" (click)="clearCurrentLocation()">Clear location</ion-button>
+        }
+      </div>
+      @if (locationMessage()) {
+      <p class="section-copy" role="status">{{ locationMessage() }}</p>
+      }
       <button class="filter-toggle" type="button" [attr.aria-expanded]="filterOpen()" (click)="toggleFilters()">
         <ion-icon name="options-outline" aria-hidden="true" />Filters
       </button>
@@ -61,6 +75,20 @@
             <ion-select-option value="Western Cape">Western Cape</ion-select-option>
           </ion-select>
           <ion-input class="field" name="suburb" label="Suburb" labelPlacement="stacked" [(ngModel)]="suburb" />
+          <ion-select
+            class="field"
+            name="radius"
+            label="Distance from current location"
+            labelPlacement="stacked"
+            [(ngModel)]="radiusKm"
+            [disabled]="!locationCoordinates()"
+          >
+            <ion-select-option [value]="5">Within 5 km</ion-select-option>
+            <ion-select-option [value]="10">Within 10 km</ion-select-option>
+            <ion-select-option [value]="25">Within 25 km</ion-select-option>
+            <ion-select-option [value]="50">Within 50 km</ion-select-option>
+            <ion-select-option [value]="100">Within 100 km</ion-select-option>
+          </ion-select>
           <ion-input
             class="field"
             name="minimum"
@@ -152,12 +180,14 @@
           <div class="studio-card__image">
             <img [src]="'assets/glowbook/' + imageFor(business) + '.webp'" alt="" loading="lazy" />
             <span class="studio-card__tag">{{ business.categories[0] || 'Beauty studio' }}</span>
-            <span class="studio-card__caption">Illustrative image</span>
+            @if (business.isDemo) { <span class="studio-card__caption">Demo salon</span> } @else {
+            <span class="studio-card__caption">Illustrative image</span> }
           </div>
           <div class="studio-card__body">
             <h3><a [routerLink]="['/businesses', business.id]">{{ business.tradingName }}</a></h3>
             <p class="studio-card__location">
-              <ion-icon name="location-outline" aria-hidden="true" />{{ business.suburb }} · Studio or mobile
+              <ion-icon name="location-outline" aria-hidden="true" />{{ business.suburb }} @if (business.distanceKm !==
+              null) { · {{ business.distanceKm | number: '1.1-1' }} km away } @else { · Studio or mobile }
             </p>
             <p
               class="studio-card__rating"

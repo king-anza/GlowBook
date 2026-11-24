@@ -583,6 +583,9 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<bool>("IsDemo")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("OwnerUserId")
                         .HasColumnType("uuid");
 
@@ -643,6 +646,12 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("boolean");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -670,7 +679,11 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("\"IsPrimary\" = true");
 
-                    b.ToTable("BusinessLocations");
+                    b.ToTable("BusinessLocations", t =>
+                        {
+                            t.HasCheckConstraint("CK_BusinessLocation_Latitude", "\"Latitude\" IS NULL OR \"Latitude\" BETWEEN -90 AND 90");
+                            t.HasCheckConstraint("CK_BusinessLocation_Longitude", "\"Longitude\" IS NULL OR \"Longitude\" BETWEEN -180 AND 180");
+                        });
                 });
 
             modelBuilder.Entity("GlowBook.Domain.Professionals.PortfolioImage", b =>

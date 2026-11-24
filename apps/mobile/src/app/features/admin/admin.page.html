@@ -18,6 +18,17 @@
       <article class="admin-stat"><strong>{{ audits().length }}</strong><span>Audit events</span></article>
     </section>
 
+    <section class="surface-card">
+      <h2 class="section-title" style="margin-top: 0">Demonstration marketplace</h2>
+      <p class="section-copy">
+        Create or refresh the six sample salons, services, reviews and Glow portfolio images used for tester
+        walkthroughs.
+      </p>
+      <ion-button [disabled]="busyId() === 'demo-seed'" (click)="seedDemoData()">
+        {{ busyId() === 'demo-seed' ? 'Preparing demo salons…' : 'Seed demo salons' }}
+      </ion-button>
+    </section>
+
     <h2 class="section-title">Professional approvals</h2>
     <p class="section-copy">Only approved businesses appear in customer discovery.</p>
     <section class="card-grid">
@@ -29,6 +40,7 @@
             <p>{{ business.location.suburb }}, {{ business.location.city }} · {{ business.location.province }}</p>
           </div>
           <span class="status-badge" [attr.data-status]="business.status">{{ business.status }}</span>
+          @if (business.isDemo) { <span class="chip">Demo</span> }
         </div>
         <p class="section-copy">{{ business.description || 'No business description supplied.' }}</p>
         <div class="chip-row"><span class="chip">{{ business.staff.length }} staff</span></div>
@@ -70,6 +82,7 @@
             <p>{{ business.location.suburb }}, {{ business.location.city }}</p>
           </div>
           <span class="status-badge" [attr.data-status]="business.status">{{ business.status }}</span>
+          <span class="chip">{{ business.isDemo ? 'Demo salon' : 'Real salon' }}</span>
         </div>
         @if (business.status !== 'Suspended') {
         <ion-item class="field"
@@ -80,14 +93,23 @@
             [(ngModel)]="rejectionReasons[business.id]"
         /></ion-item>
         }
-        <ion-button
-          size="small"
-          [color]="business.status === 'Suspended' ? 'primary' : 'danger'"
-          fill="outline"
-          [disabled]="busyId() === business.id"
-          (click)="toggleBusinessStatus(business)"
-          >{{ business.status === 'Suspended' ? 'Reactivate' : 'Suspend' }}</ion-button
-        >
+        <div class="action-row">
+          <ion-button
+            size="small"
+            [color]="business.status === 'Suspended' ? 'primary' : 'danger'"
+            fill="outline"
+            [disabled]="busyId() === business.id"
+            (click)="toggleBusinessStatus(business)"
+            >{{ business.status === 'Suspended' ? 'Reactivate' : 'Suspend' }}</ion-button
+          >
+          <ion-button
+            size="small"
+            fill="outline"
+            [disabled]="busyId() === business.id"
+            (click)="toggleDemoStatus(business)"
+            >{{ business.isDemo ? 'Mark as real salon' : 'Mark as demo salon' }}</ion-button
+          >
+        </div>
       </article>
       } @empty {
       <div class="empty-state">No approved or suspended businesses are available.</div>

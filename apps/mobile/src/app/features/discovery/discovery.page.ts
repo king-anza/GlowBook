@@ -25,11 +25,13 @@ interface BusinessSummary {
   city: string;
   suburb: string;
   province: string;
+  isDemo: boolean;
   fromPrice: number;
   categories: string[];
   averageRating: number;
   reviewCount: number;
   nextAvailableDate: string | null;
+  distanceKm: number | null;
 }
 interface Page {
   items: BusinessSummary[];
@@ -72,6 +74,7 @@ export class DiscoveryPage {
     const items = [...this.businesses()];
     if (this.sortMode === 'price') return items.sort((left, right) => left.fromPrice - right.fromPrice);
     if (this.sortMode === 'rating') return items.sort((left, right) => right.averageRating - left.averageRating);
+    if (this.locationCoordinates()) return items;
     return items.sort((left, right) => right.averageRating - left.averageRating || left.fromPrice - right.fromPrice);
   });
   readonly categories = signal<Category[]>([]);
@@ -80,6 +83,9 @@ export class DiscoveryPage {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly filterOpen = signal(false);
+  readonly locating = signal(false);
+  readonly locationMessage = signal<string | null>(null);
+  readonly locationCoordinates = signal<{ latitude: number; longitude: number } | null>(null);
   readonly pageSize = 20;
   search = '';
   categoryId = '';
@@ -88,6 +94,7 @@ export class DiscoveryPage {
   suburb = '';
   minPrice: number | null = null;
   maxPrice: number | null = null;
+  radiusKm = 25;
   sortMode: 'recommended' | 'rating' | 'price' = 'recommended';
   constructor() {
     this.http
@@ -105,6 +112,13 @@ export class DiscoveryPage {
     if (this.suburb) params = params.set('suburb', this.suburb);
     if (this.minPrice !== null) params = params.set('minPrice', this.minPrice);
     if (this.maxPrice !== null) params = params.set('maxPrice', this.maxPrice);
+    const coordinates = this.locationCoordinates();
+    if (coordinates) {
+      params = params
+        .set('latitude', coordinates.latitude)
+        .set('longitude', coordinates.longitude)
+        .set('radiusKm', this.radiusKm);
+    }
     this.http.get<Page>(`${environment.apiUrl}/api/v1/businesses`, { params }).subscribe({
       next: (result) => {
         this.businesses.set(result.items);
@@ -117,6 +131,41 @@ export class DiscoveryPage {
         this.loading.set(false);
       },
     });
+  }
+
+  useCurrentLocation(): void {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      this.locationMessage.set('Location is not supported on this device. Search by city or suburb instead.');
+      return;
+    }
+    this.locating.set(true);
+    this.locationMessage.set('Requesting your location…');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.locationCoordinates.set({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+        this.city = '';
+        this.suburb = '';
+        this.province = '';
+        this.locating.set(false);
+        this.locationMessage.set(`Showing salons within ${this.radiusKm} km of your current location.`);
+        this.load();
+      },
+      (error) => {
+        this.locating.set(false);
+        this.locationMessage.set(
+          error.code === error.PERMISSION_DENIED
+            ? 'Location permission was declined. Search by city or suburb instead.'
+            : 'We could not determine your location. Search by city or suburb instead.',
+        );
+      },
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 },
+    );
+  }
+
+  clearCurrentLocation(): void {
+    this.locationCoordinates.set(null);
+    this.locationMessage.set('Current location cleared. You can search by city or suburb.');
+    this.load();
   }
   selectCategory(categoryId: string): void {
     this.categoryId = categoryId;

@@ -9,5 +9,7 @@
 - `AddOperationsAndPrivacy`: notification queue, security audit log and marketing-consent fields.
 - `AddPortfolioImages`: maximum-position metadata, HTTPS links enforced by API validation, unique display order per business and cascade cleanup.
 - `AddPrivacyNoticeAcceptance`: separately versioned and timestamped privacy-notice acceptance on user accounts.
+- `AddBusinessLocationCoordinates`: optional latitude/longitude fields for primary salon locations, with database range constraints. Existing address-only salons remain valid and continue to appear in manual city/suburb searches; they are excluded only when a customer explicitly enables distance-based discovery.
+- `AddDemoBusinessFlag`: classifies seeded or administrator-selected salons as demo data independently of their active/suspended marketplace status.
 
 These migrations are generated and model-drift checks pass, but they have not been applied to a user or production database. Before applying, generate and inspect an idempotent SQL script, verify a backup, use least-privilege deployment credentials and follow `operations-runbook.md`.

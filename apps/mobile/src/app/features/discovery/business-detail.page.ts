@@ -21,6 +21,7 @@ interface Service {
   offerings: Offering[];
 }
 interface Business {
+  isDemo: boolean;
   tradingName: string;
   description: string;
   addressLine1: string;

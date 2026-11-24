@@ -25,8 +25,29 @@ internal sealed class DiscoveryService(GlowBookDbContext db) : IDiscoveryService
                 o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive &&
                 (!request.MinPrice.HasValue || o.Price >= request.MinPrice) &&
                 (!request.MaxPrice.HasValue || o.Price <= request.MaxPrice)));
-        var total = await query.CountAsync(ct); var ids = await query.OrderBy(x => x.TradingName).Skip((page - 1) * size).Take(size).Select(x => x.Id).ToArrayAsync(ct);
-        var businesses = await db.Businesses.AsNoTracking().Include(x => x.Locations).Where(x => ids.Contains(x.Id)).ToArrayAsync(ct);
+        var useLocation = request.Latitude is >= -90 and <= 90 && request.Longitude is >= -180 and <= 180;
+        var radiusKm = Math.Clamp(request.RadiusKm ?? 25, 1, 200);
+        var candidates = await query.Select(x => new
+        {
+            x.Id,
+            x.TradingName,
+            Location = x.Locations.Where(l => l.IsPrimary && l.IsActive).Select(l => new { l.Latitude, l.Longitude }).Single()
+        }).ToArrayAsync(ct);
+        var ranked = candidates.Select(x => new
+        {
+            x.Id,
+            x.TradingName,
+            DistanceKm = useLocation && x.Location.Latitude.HasValue && x.Location.Longitude.HasValue
+                ? DistanceKm(request.Latitude!.Value, request.Longitude!.Value, x.Location.Latitude.Value, x.Location.Longitude.Value)
+                : (double?)null
+        });
+        if (useLocation) ranked = ranked.Where(x => x.DistanceKm.HasValue && x.DistanceKm <= radiusKm);
+        var rankedArray = ranked.OrderBy(x => x.DistanceKm ?? double.MaxValue).ThenBy(x => x.TradingName).ToArray();
+        var total = rankedArray.Length;
+        var pageResults = rankedArray.Skip((page - 1) * size).Take(size).ToArray();
+        var ids = pageResults.Select(x => x.Id).ToArray();
+        var distances = pageResults.ToDictionary(x => x.Id, x => x.DistanceKm);
+        var businesses = (await db.Businesses.AsNoTracking().Include(x => x.Locations).Where(x => ids.Contains(x.Id)).ToArrayAsync(ct)).ToDictionary(x => x.Id);
         var ratings = await db.Reviews.AsNoTracking()
             .Where(x => ids.Contains(x.BusinessId) && x.ModerationStatus == ReviewModerationStatus.Active)
             .GroupBy(x => x.BusinessId)
@@ -39,8 +60,18 @@ internal sealed class DiscoveryService(GlowBookDbContext db) : IDiscoveryService
         var availabilityByBusiness = weeklyAvailability.GroupBy(x => x.BusinessId)
             .ToDictionary(x => x.Key, x => x.Select(item => item.DayOfWeek).Distinct().ToArray());
         var items = new List<BusinessSummaryDto>();
-        foreach (var business in businesses.OrderBy(x => x.TradingName)) { var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); var rating = ratings.GetValueOrDefault(business.Id); var availableDays = availabilityByBusiness.GetValueOrDefault(business.Id, []); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray(), (decimal)(rating?.Average ?? 0), rating?.Count ?? 0, NextAvailableDate(availableDays))); }
+        foreach (var id in ids) { var business = businesses[id]; var offerings = await db.ServiceOfferings.AsNoTracking().Where(o => o.Service.BusinessId == business.Id && o.IsActive && o.Service.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive).Include(o => o.Service).ThenInclude(s => s.Category).ToArrayAsync(ct); var location = business.Locations.Single(x => x.IsPrimary && x.IsActive); var rating = ratings.GetValueOrDefault(business.Id); var availableDays = availabilityByBusiness.GetValueOrDefault(business.Id, []); items.Add(new(business.Id, business.TradingName, business.Description, location.City, location.Suburb, location.Province, business.IsDemo, offerings.Min(x => x.Price), offerings.Select(x => x.Service.Category.Name).Distinct().ToArray(), (decimal)(rating?.Average ?? 0), rating?.Count ?? 0, NextAvailableDate(availableDays), distances[id])); }
         return new(items, page, size, total);
+    }
+
+    private static double DistanceKm(double fromLatitude, double fromLongitude, double toLatitude, double toLongitude)
+    {
+        const double earthRadiusKm = 6371.0088;
+        static double Radians(double degrees) => degrees * Math.PI / 180;
+        var latitudeDelta = Radians(toLatitude - fromLatitude);
+        var longitudeDelta = Radians(toLongitude - fromLongitude);
+        var a = Math.Pow(Math.Sin(latitudeDelta / 2), 2) + Math.Cos(Radians(fromLatitude)) * Math.Cos(Radians(toLatitude)) * Math.Pow(Math.Sin(longitudeDelta / 2), 2);
+        return Math.Round(earthRadiusKm * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a)), 1);
     }
 
     private static DateOnly? NextAvailableDate(IReadOnlyCollection<DayOfWeek> days)
@@ -59,6 +90,6 @@ internal sealed class DiscoveryService(GlowBookDbContext db) : IDiscoveryService
         var business = await db.Businesses.AsNoTracking().Include(x => x.Locations).Include(x => x.PortfolioImages).SingleOrDefaultAsync(x => x.Id == id && x.ApprovalStatus == BusinessApprovalStatus.Approved && x.Locations.Any(l => l.IsPrimary && l.IsActive), ct); if (business is null) return null;
         var services = await db.Services.AsNoTracking().Where(x => x.BusinessId == id && x.IsActive).Include(x => x.Category).Include(x => x.Offerings.Where(o => o.IsActive && o.StaffMember.IsActive && o.StaffMember.AcceptingBookings && o.BusinessLocation.IsActive)).ThenInclude(x => x.StaffMember).ToArrayAsync(ct);
         var location = business.Locations.Single(x => x.IsPrimary && x.IsActive);
-        return new(business.Id, business.TradingName, business.Description, business.CancellationPolicy, business.PublicEmail, business.PublicPhone, location.AddressLine1, location.AddressLine2, location.Suburb, location.City, location.Province, location.PostalCode, services.Where(x => x.Offerings.Count != 0).Select(s => new PublicServiceDto(s.Id, s.Category.Name, s.Name, s.Description, s.Offerings.Select(o => new PublicOfferingDto(o.Id, o.StaffMemberId, o.StaffMember.DisplayName, o.Price, o.DurationMinutes, o.BufferMinutes)).ToArray())).ToArray(), business.PortfolioImages.Where(x => x.Status == PortfolioImageStatus.Active).OrderBy(x => x.DisplayOrder).Select(x => new PublicPortfolioImageDto(x.Id, x.ImageUrl, x.AltText)).ToArray());
+        return new(business.Id, business.TradingName, business.Description, business.CancellationPolicy, business.PublicEmail, business.PublicPhone, business.IsDemo, location.AddressLine1, location.AddressLine2, location.Suburb, location.City, location.Province, location.PostalCode, services.Where(x => x.Offerings.Count != 0).Select(s => new PublicServiceDto(s.Id, s.Category.Name, s.Name, s.Description, s.Offerings.Select(o => new PublicOfferingDto(o.Id, o.StaffMemberId, o.StaffMember.DisplayName, o.Price, o.DurationMinutes, o.BufferMinutes)).ToArray())).ToArray(), business.PortfolioImages.Where(x => x.Status == PortfolioImageStatus.Active).OrderBy(x => x.DisplayOrder).Select(x => new PublicPortfolioImageDto(x.Id, x.ImageUrl, x.AltText)).ToArray());
     }
 }

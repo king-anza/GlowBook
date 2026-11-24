@@ -26,6 +26,7 @@ describe('AdminPage', () => {
       id: 'business-1',
       tradingName: 'Glow Studio',
       description: 'Inclusive beauty services',
+      isDemo: false,
       status: 'PendingReview',
       location: { suburb: 'Rosebank', city: 'Johannesburg', province: 'Gauteng' },
       staff: [],
