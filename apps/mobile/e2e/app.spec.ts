@@ -89,6 +89,25 @@ test('continuously cycles off-screen category filters on mobile', async ({ page 
   await expect(categories.locator('.chip-track')).toHaveCSS('animation-name', 'category-marquee');
 });
 
+test('disables non-essential motion when reduced motion is requested', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [{ id: 'hair', name: 'Hair & braids' }] }));
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+
+  await page.goto('/home');
+  await expect(page.locator('.chip-row--discover .chip-track')).toHaveCSS('animation-name', 'none');
+  await expect
+    .poll(() =>
+      page
+        .locator('html')
+        .evaluate((element) => getComputedStyle(element).getPropertyValue('--glow-motion-standard').trim()),
+    )
+    .toBe('0.01ms');
+});
+
 test('registers and requests account recovery', async ({ page }) => {
   await page.route('**/api/v1/auth/register/customer', (route) => route.fulfill({ status: 202 }));
   await page.route('**/api/v1/auth/forgot-password', (route) => route.fulfill({ status: 202 }));

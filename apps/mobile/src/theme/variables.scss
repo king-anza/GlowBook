@@ -36,4 +36,19 @@
   --glow-display-font: Georgia, 'Times New Roman', serif;
   --glow-shadow: 0 10px 28px rgba(50, 28, 78, 0.08);
   --glow-radius: 24px;
+  --glow-motion-fast: 140ms;
+  --glow-motion-standard: 220ms;
+  --glow-motion-slow: 320ms;
+  --glow-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --glow-ease-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
+  --glow-motion-distance: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --glow-motion-fast: 0.01ms;
+    --glow-motion-standard: 0.01ms;
+    --glow-motion-slow: 0.01ms;
+    --glow-motion-distance: 0px;
+  }
 }

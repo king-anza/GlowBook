@@ -54,6 +54,32 @@ ion-button {
   --border-radius: 14px;
   --box-shadow: none;
 }
+
+a,
+button,
+ion-button,
+ion-card,
+ion-item,
+ion-input,
+ion-select,
+ion-textarea,
+.chip,
+.filter-toggle {
+  transition:
+    color var(--glow-motion-fast) var(--glow-ease-standard),
+    background-color var(--glow-motion-fast) var(--glow-ease-standard),
+    border-color var(--glow-motion-fast) var(--glow-ease-standard),
+    box-shadow var(--glow-motion-standard) var(--glow-ease-standard),
+    opacity var(--glow-motion-fast) var(--glow-ease-standard),
+    transform var(--glow-motion-fast) var(--glow-ease-standard);
+}
+
+button:active:not(:disabled),
+ion-button:active:not([disabled]),
+.chip:active,
+.filter-toggle:active {
+  transform: translateY(1px);
+}
 html,
 body,
 ion-app {
@@ -289,8 +315,8 @@ ion-card-title {
 .result-card {
   cursor: pointer;
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease;
+    transform var(--glow-motion-standard) var(--glow-ease-standard),
+    box-shadow var(--glow-motion-standard) var(--glow-ease-standard);
 }
 .result-card:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--glow-plum) 35%, transparent);
@@ -743,5 +769,13 @@ ion-card-title {
     scroll-behavior: auto !important;
     transition: none !important;
     animation: none !important;
+  }
+
+  button:active:not(:disabled),
+  ion-button:active:not([disabled]),
+  .chip:active,
+  .filter-toggle:active,
+  .result-card:hover {
+    transform: none !important;
   }
 }

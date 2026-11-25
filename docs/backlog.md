@@ -85,7 +85,7 @@ This is the working checklist for improving the complete customer, professional 
 
 ### Phase UX-A — Motion and visual foundation
 
-- [ ] **UX-101: Site-wide motion tokens and reduced-motion support** — Define fast, standard and slow duration/easing tokens; respect `prefers-reduced-motion`; prohibit uncontrolled looping, parallax and layout-shifting animation.
+- [x] **UX-101: Site-wide motion tokens and reduced-motion support** — Added shared duration/easing/distance tokens, consistent interactive feedback and a global reduced-motion mode that disables looping, parallax-style and layout-shifting movement.
 - [ ] **UX-102: Navigation and content transitions** — Add restrained page fade/translate transitions, route loading continuity and back-navigation behaviour without delaying interaction.
 - [ ] **UX-103: Component micro-interactions** — Standardise button press/loading states, card hover/tap feedback, active filter indicators, date/time selection ticks, favourite-heart feedback and status colour transitions.
 - [ ] **UX-104: Loading skeleton system** — Replace generic loading text with layout-matched skeletons for discovery cards, salon details, bookings, Glow Spaces, dashboards and admin lists.
