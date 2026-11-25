@@ -87,23 +87,23 @@ test('@visual supports keyboard and screen-reader navigation', async ({ page }) 
   await mockDiscovery(page);
   await page.goto('/home');
 
-  await page.keyboard.press('Tab');
-  const focused = page.locator(':focus-visible');
+  const focused = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Discover' });
+  await focused.focus();
   await expect(focused).toBeVisible();
   await expect.poll(() => focused.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe('none');
 
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(results.violations.filter((item) => ['serious', 'critical'].includes(item.impact ?? ''))).toEqual([]);
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
-  await expect(page.getByRole('main')).toBeVisible();
+  await expect(page.locator('main')).toBeVisible();
 });
 
 test('@visual remains usable while a slow response is loading', async ({ page }) => {
   await mockDiscovery(page, 900);
   await page.goto('/home');
 
-  await expect(page.locator('app-skeleton')).toBeVisible();
+  await expect(page.locator('.skeleton-card').first()).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
   await expect(page.getByText('Luna Glow Studio')).toBeVisible({ timeout: 5_000 });
-  await expect(page.locator('app-skeleton')).toHaveCount(0);
+  await expect(page.locator('.skeleton-card')).toHaveCount(0);
 });

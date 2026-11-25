@@ -22,7 +22,12 @@ export default defineConfig({
     {
       name: 'Tablet Chrome',
       grep: /@visual/,
-      use: { ...devices['iPad Pro 11'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 834, height: 1194 },
+        hasTouch: true,
+        isMobile: true,
+      },
     },
     {
       name: 'Desktop Chrome',
