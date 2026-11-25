@@ -29,6 +29,7 @@ html {
 }
 body {
   color: var(--glow-ink);
+  font-family: var(--glow-body-font);
   letter-spacing: -0.005em;
 }
 ion-content {
@@ -47,12 +48,29 @@ ion-title {
   letter-spacing: -0.02em;
 }
 ion-button {
-  min-height: 46px;
+  min-width: var(--glow-target-min);
+  min-height: var(--glow-target-min);
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
   --border-radius: 14px;
   --box-shadow: none;
+}
+
+button,
+input[type='button'],
+input[type='submit'],
+input[type='reset'],
+.prototype-nav a,
+.prototype-account {
+  min-width: var(--glow-target-min);
+  min-height: var(--glow-target-min);
+}
+
+:where(a, button, input, select, textarea, ion-button, ion-input, ion-select, ion-textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--glow-focus);
+  outline-offset: 3px;
+  box-shadow: var(--glow-focus-ring);
 }
 
 a,
@@ -157,7 +175,7 @@ ion-card-title {
 }
 
 .page-shell {
-  width: min(100%, 1184px);
+  width: min(100%, var(--glow-content-max));
   margin: 0 auto;
   padding: 18px 18px calc(112px + env(safe-area-inset-bottom));
 }
@@ -181,7 +199,7 @@ ion-card-title {
   margin: 0;
   color: var(--glow-ink);
   font-family: var(--glow-display-font);
-  font-size: clamp(2.25rem, 7vw, 3.8rem);
+  font-size: var(--glow-text-xl);
   font-weight: 400;
   letter-spacing: -0.055em;
   line-height: 0.98;
@@ -204,9 +222,9 @@ ion-card-title {
   max-width: 38rem;
 }
 .surface-card {
-  padding: 20px;
+  padding: var(--glow-space-5);
   border: 1px solid var(--glow-line);
-  border-radius: var(--glow-radius);
+  border-radius: var(--glow-radius-lg);
   background: var(--glow-surface);
   box-shadow: var(--glow-shadow);
 }
@@ -224,7 +242,7 @@ ion-card-title {
 }
 .form-grid {
   display: grid;
-  gap: 12px;
+  gap: var(--glow-space-3);
 }
 .form-grid--two {
   grid-template-columns: 1fr;
@@ -232,12 +250,12 @@ ion-card-title {
 .field {
   --background: var(--glow-surface-soft);
   --border-color: transparent;
-  --border-radius: 16px;
+  --border-radius: var(--glow-radius-md);
   --padding-start: 14px;
   --inner-padding-end: 12px;
   margin: 0;
   border: 1px solid var(--glow-line);
-  border-radius: 16px;
+  border-radius: var(--glow-radius-md);
 }
 .field ion-input,
 .field ion-select,
@@ -248,7 +266,7 @@ ion-card-title {
 .action-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--glow-space-2);
   align-items: center;
   margin-top: 16px;
 }
@@ -319,8 +337,9 @@ ion-card-title {
     box-shadow var(--glow-motion-standard) var(--glow-ease-standard);
 }
 .result-card:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--glow-plum) 35%, transparent);
+  outline: 3px solid var(--glow-focus);
   outline-offset: 3px;
+  box-shadow: var(--glow-focus-ring);
 }
 .result-card ion-card-content {
   padding-top: 4px;
@@ -386,10 +405,13 @@ ion-card-title {
   }
 }
 .chip {
+  display: inline-flex;
+  min-height: var(--glow-target-min);
+  align-items: center;
   flex: 0 0 auto;
   padding: 8px 12px;
   border: 1px solid var(--glow-line);
-  border-radius: 999px;
+  border-radius: var(--glow-radius-pill);
   background: var(--glow-surface-soft);
   color: var(--glow-muted);
   font-size: 0.82rem;
@@ -399,8 +421,8 @@ ion-card-title {
   display: inline-flex;
   align-items: center;
   padding: 6px 10px;
-  border-radius: 999px;
-  background: #efe7fa;
+  border-radius: var(--glow-radius-pill);
+  background: var(--glow-accent-soft);
   color: #503080;
   font-size: 0.72rem;
   font-weight: 800;
@@ -410,14 +432,14 @@ ion-card-title {
 .status-badge[data-status='Confirmed'],
 .status-badge[data-status='Completed'],
 .status-badge[data-status='Approved'] {
-  background: #e2f1eb;
-  color: #2f6855;
+  background: var(--glow-success-soft);
+  color: var(--glow-success);
 }
 .status-badge[data-status='Cancelled'],
 .status-badge[data-status='Rejected'],
 .status-badge[data-status='Suspended'] {
-  background: #f8e4e6;
-  color: #9c303f;
+  background: var(--glow-danger-soft);
+  color: var(--glow-danger);
 }
 .booking-card {
   padding: 18px;
@@ -517,9 +539,12 @@ ion-card-title {
   scrollbar-width: none;
 }
 .professional-nav a {
+  display: inline-flex;
+  min-height: var(--glow-target-min);
+  align-items: center;
   flex: 0 0 auto;
   padding: 9px 13px;
-  border-radius: 999px;
+  border-radius: var(--glow-radius-pill);
   background: var(--glow-surface);
   color: var(--glow-muted);
   font-size: 0.82rem;
@@ -759,7 +784,7 @@ ion-card-title {
 @media (hover: hover) {
   .result-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 18px 44px rgba(50, 28, 78, 0.16);
+    box-shadow: var(--glow-shadow-lg);
   }
 }
 @media (prefers-reduced-motion: reduce) {

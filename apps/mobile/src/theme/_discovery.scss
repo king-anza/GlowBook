@@ -18,8 +18,8 @@
   display: grid;
   overflow: hidden;
   border-radius: var(--glow-radius);
-  background: #e8dbf1;
-  color: #27213e;
+  background: var(--glow-hero-surface);
+  color: var(--glow-hero-ink);
 }
 .hero-copy {
   position: relative;
@@ -80,7 +80,7 @@
 .search-fields ion-button {
   margin: 0;
 }
-.filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; margin: 10px 0 0 auto; padding: 0 13px; border: 1px solid var(--glow-line); border-radius: 10px; background: var(--glow-surface); color: var(--glow-plum); font: inherit; font-size: .8rem; font-weight: 750; }
+.filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: var(--glow-target-min); margin: 10px 0 0 auto; padding: 0 13px; border: 1px solid var(--glow-line); border-radius: var(--glow-radius-sm); background: var(--glow-surface); color: var(--glow-plum); font: inherit; font-size: .8rem; font-weight: 750; }
 .filter-toggle ion-icon { font-size: 1rem; }
 .discovery-title {
   margin: 0 0 10px;
@@ -90,7 +90,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 42px;
+  min-height: var(--glow-target-min);
   cursor: pointer;
 }
 .discovery .chip ion-icon { font-size: .95rem; }

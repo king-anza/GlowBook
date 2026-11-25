@@ -60,7 +60,6 @@
 .prototype-nav a,
 .prototype-account {
   display: inline-flex;
-  min-height: 40px;
   align-items: center;
   justify-content: center;
   gap: 6px;
@@ -81,7 +80,7 @@
 .prototype-account:hover,
 .prototype-account[aria-current='page'] {
   color: var(--glow-plum);
-  background: var(--glow-accent-soft);
+  background: #efe7fa;
 }
 .prototype-account span {
   display: inline;
@@ -93,7 +92,7 @@
   left: 0;
   z-index: 19;
   padding: 8px 16px;
-  background: #efe7fa;
+  background: var(--glow-accent-soft);
   color: var(--glow-plum);
   border-bottom: 1px solid var(--glow-line);
   text-align: center;

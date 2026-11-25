@@ -90,7 +90,7 @@ This is the working checklist for improving the complete customer, professional 
 - [ ] **UX-103: Component micro-interactions** — Standardise button press/loading states, card hover/tap feedback, active filter indicators, date/time selection ticks, favourite-heart feedback and status colour transitions.
 - [ ] **UX-104: Loading skeleton system** — Replace generic loading text with layout-matched skeletons for discovery cards, salon details, bookings, Glow Spaces, dashboards and admin lists.
 - [ ] **UX-105: Success, empty and error-state system** — Reusable toasts, inline errors, retry actions, confirmation moments and context-specific empty-state illustrations/copy.
-- [ ] **UX-106: Design-system consolidation** — Tokenise spacing, typography, radii, shadows, colours, focus states, 44×44 minimum targets, responsive breakpoints and reusable cards/forms/badges.
+- [x] **UX-106: Design-system consolidation** — Consolidated semantic colour, typography, spacing, radius, shadow, focus, content-width and motion tokens; standardised cards/forms/badges and enforced 44×44 minimum interactive targets.
 - [ ] **UX-107: Visual-regression and motion QA** — Screenshot coverage for mobile/tablet/desktop plus reduced-motion, keyboard, screen-reader and low-performance-device checks.
 
 ### Phase UX-B — Navigation and discovery conversion

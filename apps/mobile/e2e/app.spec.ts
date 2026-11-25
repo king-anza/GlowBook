@@ -66,6 +66,29 @@ test('keeps routed mobile content below the shared navigation bar', async ({ pag
   await expect(page.getByRole('heading', { name: 'Find your glow.' })).toBeVisible();
 });
 
+test('provides accessible touch targets and keyboard focus', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+
+  await page.goto('/home');
+  const discoverLink = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', {
+    name: 'Discover',
+  });
+  const filterButton = page.getByRole('button', { name: /filters/i });
+
+  for (const control of [discoverLink, filterButton]) {
+    const box = await control.boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  }
+
+  await discoverLink.focus();
+  await expect.poll(() => discoverLink.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('solid');
+});
+
 test('continuously cycles off-screen category filters on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route('**/api/v1/categories', (route) =>
