@@ -34,6 +34,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/pricing/pricing.page').then((m) => m.PricingPage),
   },
   {
+    path: 'spaces',
+    loadComponent: () => import('./features/spaces/spaces.page').then((m) => m.SpacesPage),
+  },
+  {
     path: 'professional/profile',
     loadComponent: () => import('./features/professional/profile.page').then((m) => m.ProfilePage),
   },
@@ -49,6 +53,10 @@ export const routes: Routes = [
     path: 'professional/bookings',
     loadComponent: () =>
       import('./features/professional/professional-bookings.page').then((m) => m.ProfessionalBookingsPage),
+  },
+  {
+    path: 'professional/spaces',
+    loadComponent: () => import('./features/spaces/manage-spaces.page').then((m) => m.ManageSpacesPage),
   },
   {
     path: 'admin',

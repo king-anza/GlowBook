@@ -5,6 +5,7 @@ using GlowBook.Domain.Availability;
 using GlowBook.Domain.Bookings;
 using GlowBook.Domain.Reviews;
 using GlowBook.Domain.Operations;
+using GlowBook.Domain.Spaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,8 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<WorkspaceOpportunity> WorkspaceOpportunities => Set<WorkspaceOpportunity>();
+    public DbSet<WorkspaceApplication> WorkspaceApplications => Set<WorkspaceApplication>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -170,6 +173,37 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
             entity.Property(x => x.Action).HasMaxLength(100).IsRequired(); entity.Property(x => x.SubjectType).HasMaxLength(50).IsRequired(); entity.Property(x => x.Details).HasMaxLength(1000);
             entity.HasIndex(x => new { x.SubjectType, x.SubjectId, x.OccurredAtUtc }); entity.HasIndex(x => x.OccurredAtUtc);
             entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ActorUserId).OnDelete(DeleteBehavior.SetNull);
+        });
+        builder.Entity<WorkspaceOpportunity>(entity =>
+        {
+            entity.Property(x => x.WorkspaceType).HasConversion<string>().HasMaxLength(40);
+            entity.Property(x => x.OpportunityType).HasConversion<string>().HasMaxLength(30);
+            entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+            entity.Property(x => x.RatePeriod).HasConversion<string>().HasMaxLength(30);
+            entity.Property(x => x.Title).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.Description).HasMaxLength(2000).IsRequired();
+            entity.Property(x => x.RequiredSkills).HasMaxLength(1000);
+            entity.Property(x => x.IncludedAmenities).HasMaxLength(1000);
+            entity.Property(x => x.HouseRules).HasMaxLength(1500);
+            entity.Property(x => x.ImageUrl).HasMaxLength(2048);
+            entity.Property(x => x.RateAmount).HasPrecision(10, 2);
+            entity.HasIndex(x => new { x.Status, x.StartDate });
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint("CK_WorkspaceOpportunity_Spaces", "\"SpacesAvailable\" BETWEEN 1 AND 50");
+                table.HasCheckConstraint("CK_WorkspaceOpportunity_Dates", "\"EndDate\" IS NULL OR \"EndDate\" >= \"StartDate\"");
+                table.HasCheckConstraint("CK_WorkspaceOpportunity_Rate", "\"RateAmount\" IS NULL OR \"RateAmount\" >= 0");
+            });
+            entity.HasOne(x => x.Business).WithMany().HasForeignKey(x => x.BusinessId).OnDelete(DeleteBehavior.Cascade);
+        });
+        builder.Entity<WorkspaceApplication>(entity =>
+        {
+            entity.Property(x => x.Message).HasMaxLength(1500).IsRequired();
+            entity.Property(x => x.PortfolioUrl).HasMaxLength(2048);
+            entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+            entity.HasIndex(x => new { x.OpportunityId, x.ApplicantUserId }).IsUnique();
+            entity.HasOne(x => x.Opportunity).WithMany(x => x.Applications).HasForeignKey(x => x.OpportunityId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ApplicantUserId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

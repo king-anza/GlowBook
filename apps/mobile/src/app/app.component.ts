@@ -5,6 +5,7 @@ import { addIcons } from 'ionicons';
 import {
   calendarClearOutline,
   calendarOutline,
+  businessOutline,
   colorPaletteOutline,
   compassOutline,
   cutOutline,
@@ -40,6 +41,7 @@ export class AppComponent {
       searchOutline,
       calendarClearOutline,
       calendarOutline,
+      businessOutline,
       colorPaletteOutline,
       compassOutline,
       cutOutline,
@@ -54,14 +56,16 @@ export class AppComponent {
     });
   }
 
-  isActive(section: 'discover' | 'bookings' | 'account' | 'studio'): boolean {
+  isActive(section: 'discover' | 'bookings' | 'spaces' | 'account' | 'studio'): boolean {
     const url = this.router.url;
     return section === 'discover'
       ? url === '/' || url.startsWith('/home') || url.startsWith('/businesses/') || url.startsWith('/book/')
       : section === 'bookings'
         ? url.startsWith('/bookings')
-        : section === 'account'
-          ? url.startsWith('/auth') || url.startsWith('/account')
-          : url.startsWith('/professional');
+        : section === 'spaces'
+          ? url.startsWith('/spaces')
+          : section === 'account'
+            ? url.startsWith('/auth') || url.startsWith('/account')
+            : url.startsWith('/professional');
   }
 }

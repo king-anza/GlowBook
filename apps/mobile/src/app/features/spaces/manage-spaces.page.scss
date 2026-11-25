@@ -1,0 +1,13 @@
+.space-form {
+  margin-bottom: 1.5rem;
+}
+.form-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 760px) {
+  .form-columns {
+    grid-template-columns: 1fr;
+  }
+}

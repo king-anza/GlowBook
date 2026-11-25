@@ -1,0 +1,147 @@
+<ion-header
+  ><ion-toolbar><ion-title>Manage Glow Spaces</ion-title></ion-toolbar></ion-header
+>
+<ion-content
+  ><main class="page-shell">
+    <nav class="professional-nav" aria-label="Professional workspace">
+      <a routerLink="/professional/profile">Profile</a><a routerLink="/professional/services">Services & staff</a
+      ><a routerLink="/professional/availability">Availability</a><a routerLink="/professional/bookings">Bookings</a
+      ><a class="active" routerLink="/professional/spaces">Glow Spaces</a>
+    </nav>
+    <section class="page-heading">
+      <p class="eyebrow">Turn empty space into income</p>
+      <h1>List chairs, rooms and opportunities.</h1>
+      <p>Keep rentals separate from employment vacancies, set clear expectations and approve every applicant.</p>
+    </section>
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    }
+    <form class="surface-card space-form" [formGroup]="form" (ngSubmit)="save()">
+      <h2>{{ editing() ? 'Edit opportunity' : 'Create an opportunity' }}</h2>
+      <div class="form-columns">
+        <ion-list lines="none" class="form-grid">
+          <ion-item class="field"
+            ><ion-select label="Opportunity type" labelPlacement="stacked" formControlName="opportunityType"
+              ><ion-select-option value="ChairRental">Independent workspace rental</ion-select-option
+              ><ion-select-option value="StaffVacancy">Staff vacancy</ion-select-option></ion-select
+            ></ion-item
+          >
+          <ion-item class="field"
+            ><ion-select label="Workspace type" labelPlacement="stacked" formControlName="workspaceType"
+              >@for (entry of labels | keyvalue; track entry.key) {<ion-select-option [value]="entry.key"
+                >{{ entry.value }}</ion-select-option
+              >}</ion-select
+            ></ion-item
+          >
+          <ion-item class="field"
+            ><ion-input label="Listing title" labelPlacement="stacked" formControlName="title" /></ion-item
+          ><ion-item class="field"
+            ><ion-textarea label="Description" labelPlacement="stacked" autoGrow="true" formControlName="description"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-textarea
+              label="Required skills"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="requiredSkills" /></ion-item
+          ><ion-item class="field"
+            ><ion-textarea
+              label="Included equipment and amenities"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="includedAmenities" /></ion-item
+          ><ion-item class="field"
+            ><ion-textarea label="House rules" labelPlacement="stacked" autoGrow="true" formControlName="houseRules"
+          /></ion-item> </ion-list
+        ><ion-list lines="none" class="form-grid">
+          <ion-item class="field"
+            ><ion-input
+              type="number"
+              label="Spaces available"
+              labelPlacement="stacked"
+              formControlName="spacesAvailable" /></ion-item
+          ><ion-item class="field"
+            ><ion-select label="Rate arrangement" labelPlacement="stacked" formControlName="ratePeriod"
+              ><ion-select-option value="Hour">Per hour</ion-select-option
+              ><ion-select-option value="Day">Per day</ion-select-option
+              ><ion-select-option value="Week">Per week</ion-select-option
+              ><ion-select-option value="Month">Per month</ion-select-option
+              ><ion-select-option value="RevenueShare">Revenue share (%)</ion-select-option
+              ><ion-select-option value="Negotiable">Negotiable</ion-select-option></ion-select
+            ></ion-item
+          ><ion-item class="field"
+            ><ion-input type="number" label="Rate or percentage" labelPlacement="stacked" formControlName="rateAmount"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input type="date" label="Start date" labelPlacement="stacked" formControlName="startDate" /></ion-item
+          ><ion-item class="field"
+            ><ion-input
+              type="date"
+              label="End date (optional)"
+              labelPlacement="stacked"
+              formControlName="endDate" /></ion-item
+          ><ion-item class="field"
+            ><ion-input label="Photo URL (HTTPS, optional)" labelPlacement="stacked" formControlName="imageUrl"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-checkbox formControlName="recurring">Recurring availability</ion-checkbox></ion-item
+          ><ion-item class="field"
+            ><ion-checkbox formControlName="bringOwnClients">Professional must bring clients</ion-checkbox></ion-item
+          ><ion-item class="field"
+            ><ion-checkbox formControlName="approvalRequired">Applications require my approval</ion-checkbox></ion-item
+          >
+        </ion-list>
+      </div>
+      <ion-button expand="block" type="submit">{{ editing() ? 'Save changes' : 'Create draft' }}</ion-button
+      >@if(editing()){<ion-button expand="block" fill="clear" type="button" (click)="cancelEdit()"
+        >Cancel edit</ion-button
+      >}
+    </form>
+    <h2 class="section-title">Your opportunities</h2>
+    <div class="card-grid">
+      @for(item of opportunities();track item.id){
+      <article class="surface-card">
+        <div class="booking-card__top">
+          <div>
+            <p class="eyebrow">{{ item.opportunityType === 'ChairRental' ? 'Workspace rental' : 'Staff vacancy' }}</p>
+            <h2>{{item.title}}</h2>
+          </div>
+          <span class="status-badge" [attr.data-status]="item.status">{{item.status}}</span>
+        </div>
+        <p>
+          {{labels[item.workspaceType]}} · {{item.spacesAvailable}} available · {{item.applicationCount}} applications
+        </p>
+        <div class="action-row">
+          <ion-button size="small" fill="outline" (click)="edit(item)">Edit</ion-button>@if(item.status !==
+          'Published'){<ion-button size="small" (click)="setStatus(item,'Published')">Publish</ion-button
+          >}@else{<ion-button size="small" fill="outline" (click)="setStatus(item,'Paused')">Pause</ion-button
+          >}<ion-button size="small" fill="clear" (click)="setStatus(item,'Filled')">Mark filled</ion-button>
+        </div>
+      </article>
+      }@empty{
+      <div class="empty-state">Create your first available chair or vacancy above.</div>
+      }
+    </div>
+    <h2 class="section-title">Applications received</h2>
+    <div class="card-grid">
+      @for(application of applications();track application.id){
+      <article class="surface-card">
+        <p class="eyebrow">{{application.status}}</p>
+        <h2>{{application.applicantName}}</h2>
+        <p>{{application.opportunityTitle}}</p>
+        <p>{{application.message}}</p>
+        @if(application.portfolioUrl){<a [href]="application.portfolioUrl" target="_blank" rel="noopener"
+          >View portfolio</a
+        >}@if(application.status === 'Pending'){
+        <div class="action-row">
+          <ion-button size="small" (click)="review(application,'Accepted')">Accept</ion-button
+          ><ion-button size="small" fill="outline" (click)="review(application,'Declined')">Decline</ion-button>
+        </div>
+        }
+      </article>
+      }@empty{
+      <div class="empty-state">Applications will appear here when professionals respond.</div>
+      }
+    </div>
+  </main></ion-content
+>

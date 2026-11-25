@@ -1,0 +1,113 @@
+<ion-header
+  ><ion-toolbar><ion-title>Glow Spaces</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell spaces-shell">
+    <section class="spaces-hero">
+      <div>
+        <p class="eyebrow">Work where you glow</p>
+        <h1>Find a chair, workspace or salon opportunity.</h1>
+        <p>Discover flexible workspaces and genuine staff vacancies from approved beauty businesses.</p>
+      </div>
+      <a class="hero-owner-link" routerLink="/professional/spaces">List an available space</a>
+    </section>
+
+    <form class="surface-card filter-row" [formGroup]="filters" (ngSubmit)="load()">
+      <ion-list lines="none">
+        <ion-item class="field"
+          ><ion-input label="City or suburb" labelPlacement="stacked" formControlName="city"
+        /></ion-item>
+        <ion-item class="field"
+          ><ion-select label="Opportunity" labelPlacement="stacked" formControlName="type"
+            ><ion-select-option value="">All opportunities</ion-select-option
+            ><ion-select-option value="ChairRental">Workspace rental</ion-select-option
+            ><ion-select-option value="StaffVacancy">Staff vacancy</ion-select-option></ion-select
+          ></ion-item
+        >
+        <ion-item class="field"
+          ><ion-select label="Workspace" labelPlacement="stacked" formControlName="workspaceType"
+            ><ion-select-option value="">All workspace types</ion-select-option>@for (entry of labels | keyvalue; track
+            entry.key) {<ion-select-option [value]="entry.key">{{ entry.value }}</ion-select-option>}</ion-select
+          ></ion-item
+        >
+      </ion-list>
+      <ion-button type="submit">Search spaces</ion-button>
+    </form>
+
+    @if (message()) {
+    <p class="notice notice--success" role="status">{{ message() }}</p>
+    } @if (error()) {
+    <p class="notice notice--error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="space-grid">
+      @for (item of opportunities(); track item.id) {
+      <article class="surface-card space-card">
+        @if (item.imageUrl) {<img [src]="item.imageUrl" [alt]="item.title" />}
+        <div class="space-card__body">
+          <div class="space-card__badges">
+            <span>{{ item.opportunityType === 'ChairRental' ? 'Workspace rental' : 'Staff vacancy' }}</span
+            ><span>{{ labels[item.workspaceType] }}</span>
+          </div>
+          <h2>{{ item.title }}</h2>
+          <p class="space-card__salon">{{ item.businessName }} · {{ item.city }}, {{ item.province }}</p>
+          <p>{{ item.description }}</p>
+          <dl>
+            <div>
+              <dt>Available</dt>
+              <dd>{{ item.spacesAvailable }} {{ item.spacesAvailable === 1 ? 'space' : 'spaces' }}</dd>
+            </div>
+            <div>
+              <dt>Starts</dt>
+              <dd>{{ item.startDate }}</dd>
+            </div>
+            <div>
+              <dt>Arrangement</dt>
+              <dd>{{ rate(item) }}</dd>
+            </div>
+          </dl>
+          @if (item.requiredSkills) {
+          <p><strong>Skills:</strong> {{ item.requiredSkills }}</p>
+          }
+          <ion-button expand="block" (click)="selected.set(item)">View and apply</ion-button>
+        </div>
+      </article>
+      } @empty {
+      <div class="empty-state">No opportunities match these filters yet. Try a wider location or workspace type.</div>
+      }
+    </div>
+
+    @if (selected(); as item) {
+    <section class="surface-card apply-card">
+      <button type="button" class="apply-card__close" (click)="selected.set(null)" aria-label="Close application">
+        ×
+      </button>
+      <p class="eyebrow">Apply to {{ item.businessName }}</p>
+      <h2>{{ item.title }}</h2>
+      @if (item.includedAmenities) {
+      <p><strong>Included:</strong> {{ item.includedAmenities }}</p>
+      } @if (item.houseRules) {
+      <p><strong>House rules:</strong> {{ item.houseRules }}</p>
+      } @if (!auth.isAuthenticated()) {
+      <p>Sign in with a professional account before applying.</p>
+      <a class="text-link" routerLink="/auth">Sign in or register</a>} @else {
+      <form [formGroup]="applicationForm" (ngSubmit)="apply(item)">
+        <ion-list lines="none"
+          ><ion-item class="field"
+            ><ion-textarea
+              label="Introduce yourself and explain why you are a good fit"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="message" /></ion-item
+          ><ion-item class="field"
+            ><ion-input
+              label="Portfolio URL (optional)"
+              labelPlacement="stacked"
+              formControlName="portfolioUrl" /></ion-item></ion-list
+        ><ion-button expand="block" type="submit">Send application</ion-button>
+      </form>
+      }
+    </section>
+    }
+  </main>
+</ion-content>

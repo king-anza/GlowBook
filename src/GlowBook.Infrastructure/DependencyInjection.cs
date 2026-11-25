@@ -21,6 +21,8 @@ using GlowBook.Application.Accounts;
 using GlowBook.Infrastructure.Accounts;
 using GlowBook.Application.Operations;
 using GlowBook.Infrastructure.Operations;
+using GlowBook.Application.Spaces;
+using GlowBook.Infrastructure.Spaces;
 
 namespace GlowBook.Infrastructure;
 
@@ -85,6 +87,7 @@ public static class DependencyInjection
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IOperationsService, OperationsService>();
+        services.AddScoped<ISpaceService, SpaceService>();
         return services;
     }
 }

@@ -21,6 +21,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using GlowBook.Application.Spaces;
+using GlowBook.Domain.Spaces;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -218,6 +220,16 @@ app.MapGet("/api/v1/reviews", (ClaimsPrincipal user, IReviewService service, Can
 app.MapGet("/api/v1/businesses/{id:guid}/reviews", (Guid id, int page, int pageSize, IReviewService service, CancellationToken ct) => service.ForBusinessAsync(id, page == 0 ? 1 : page, pageSize == 0 ? 20 : pageSize, ct));
 professional.MapGet("/bookings", (ClaimsPrincipal user, IBookingService service, CancellationToken ct) => service.ProfessionalBookingsAsync(UserId(user), ct));
 professional.MapPost("/bookings/{id:guid}/{action}", async (Guid id, string action, BookingActionRequest request, ClaimsPrincipal user, IBookingService service, CancellationToken ct) => ParseBookingAction(action) is { } target ? BookingTransitionResponse(await service.TransitionAsync(UserId(user), true, id, target, request, ct)) : BookingTransitionResponse(BookingTransitionResult.InvalidTransition));
+
+app.MapGet("/api/v1/spaces", (string? city, OpportunityType? type, WorkspaceType? workspaceType, ISpaceService service, CancellationToken ct) => service.DiscoverAsync(city, type, workspaceType, ct));
+professional.MapGet("/spaces", (ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.OwnerOpportunitiesAsync(UserId(user), ct));
+professional.MapPost("/spaces", async (OpportunityRequest request, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.SaveAsync(UserId(user), null, request, ct) is { } item ? Results.Ok(item) : Results.BadRequest()).AddEndpointFilter<ValidationFilter<OpportunityRequest>>();
+professional.MapPatch("/spaces/{id:guid}", async (Guid id, OpportunityRequest request, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.SaveAsync(UserId(user), id, request, ct) is { } item ? Results.Ok(item) : Results.BadRequest()).AddEndpointFilter<ValidationFilter<OpportunityRequest>>();
+professional.MapPost("/spaces/{id:guid}/status/{status}", async (Guid id, OpportunityStatus status, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.SetStatusAsync(UserId(user), id, status, ct) ? Results.NoContent() : Results.BadRequest());
+professional.MapPost("/spaces/{id:guid}/applications", async (Guid id, ApplicationRequest request, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.ApplyAsync(UserId(user), id, request, ct) is { } item ? Results.Ok(item) : Results.Conflict()).AddEndpointFilter<ValidationFilter<ApplicationRequest>>();
+professional.MapGet("/space-applications/received", (ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.OwnerApplicationsAsync(UserId(user), ct));
+professional.MapGet("/space-applications/mine", (ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.ApplicantApplicationsAsync(UserId(user), ct));
+professional.MapPost("/space-applications/{id:guid}/{status}", async (Guid id, ApplicationStatus status, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.ReviewApplicationAsync(UserId(user), id, status, ct) ? Results.NoContent() : Results.BadRequest());
 
 var admin = app.MapGroup("/api/v1/admin").RequireAuthorization(policy => policy.RequireRole("Admin"));
 admin.MapGet("/businesses/pending", (IProfessionalService service, CancellationToken ct) => service.PendingAsync(ct));

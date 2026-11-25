@@ -1,0 +1,109 @@
+.spaces-shell {
+  position: relative;
+}
+.spaces-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: end;
+  padding: 2.2rem;
+  margin-bottom: 1rem;
+  border-radius: 28px;
+  color: white;
+  background: linear-gradient(135deg, var(--glow-plum), #8d52c7);
+}
+.spaces-hero h1 {
+  max-width: 720px;
+  margin: 0.25rem 0;
+}
+.hero-owner-link {
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  color: var(--glow-plum);
+  background: white;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.filter-row ion-list {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 0.6rem;
+}
+.space-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.space-card {
+  overflow: hidden;
+  padding: 0;
+}
+.space-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+}
+.space-card__body {
+  padding: 1.2rem;
+}
+.space-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.space-card__badges span {
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  color: var(--glow-plum);
+  background: var(--glow-surface-soft);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.space-card__salon {
+  color: var(--glow-muted);
+}
+.space-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.space-card dt {
+  color: var(--glow-muted);
+  font-size: 0.72rem;
+}
+.space-card dd {
+  margin: 0.1rem 0 0;
+  font-weight: 800;
+}
+.apply-card {
+  position: fixed;
+  z-index: 10;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(520px, calc(100% - 2rem));
+  max-height: 82vh;
+  overflow: auto;
+  box-shadow: 0 24px 80px #28153f42;
+}
+.apply-card__close {
+  float: right;
+  border: 0;
+  background: transparent;
+  font-size: 2rem;
+  cursor: pointer;
+}
+@media (max-width: 720px) {
+  .spaces-hero {
+    align-items: start;
+    flex-direction: column;
+    padding: 1.4rem;
+  }
+  .filter-row ion-list {
+    grid-template-columns: 1fr;
+  }
+  .space-card dl {
+    grid-template-columns: 1fr 1fr;
+  }
+}
