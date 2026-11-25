@@ -6,47 +6,44 @@
           <img src="assets/glowbook/logo.png" alt="" />
           <span class="prototype-brand__lockup"><strong>Glow</strong><small>by LunaMay</small></span>
         </a>
-        <nav aria-label="Main navigation" class="prototype-nav">
-          <a
-            routerLink="/home"
-            [class.active]="isActive('discover')"
-            [attr.aria-current]="isActive('discover') ? 'page' : null"
-            ><ion-icon name="compass-outline" aria-hidden="true" />Discover</a
-          >
-          <a
-            routerLink="/bookings"
-            [class.active]="isActive('bookings')"
-            [attr.aria-current]="isActive('bookings') ? 'page' : null"
-            ><ion-icon name="calendar-outline" aria-hidden="true" />My bookings</a
-          >
-          <a
-            routerLink="/spaces"
-            [class.active]="isActive('spaces')"
-            [attr.aria-current]="isActive('spaces') ? 'page' : null"
-            ><ion-icon name="business-outline" aria-hidden="true" />Spaces</a
-          >
-          @if (workspace(); as item) {
-            <a
-              [routerLink]="item.route"
-              [class.active]="isActive('studio')"
-              [attr.aria-current]="isActive('studio') ? 'page' : null"
-              ><ion-icon [name]="item.icon" aria-hidden="true" />{{ item.label }}</a
-            >
-          }
-          <a
-            [routerLink]="auth.isAuthenticated() ? '/account/profile' : '/auth'"
-            class="prototype-account"
-            [class.active]="isActive('account')"
-            [attr.aria-label]="auth.isAuthenticated() ? 'Account' : 'Sign in or create account'"
-            [attr.aria-current]="isActive('account') ? 'page' : null"
-            ><ion-icon name="person-circle-outline" aria-hidden="true" /><span>{{
-              auth.isAuthenticated() ? 'Account' : 'Sign in'
-            }}</span></a
-          >
-        </nav>
       </div>
     </ion-toolbar>
   </ion-header>
+  <nav aria-label="Main navigation" class="prototype-nav prototype-shell">
+    <a
+      routerLink="/home"
+      [class.active]="isActive('discover')"
+      [attr.aria-current]="isActive('discover') ? 'page' : null"
+      ><ion-icon name="compass-outline" aria-hidden="true" />Discover</a
+    >
+    <a
+      routerLink="/bookings"
+      [class.active]="isActive('bookings')"
+      [attr.aria-current]="isActive('bookings') ? 'page' : null"
+      ><ion-icon name="calendar-outline" aria-hidden="true" />My bookings</a
+    >
+    <a routerLink="/spaces" [class.active]="isActive('spaces')" [attr.aria-current]="isActive('spaces') ? 'page' : null"
+      ><ion-icon name="business-outline" aria-hidden="true" />Spaces</a
+    >
+    @if (workspace(); as item) {
+      <a
+        [routerLink]="item.route"
+        [class.active]="isActive('studio')"
+        [attr.aria-current]="isActive('studio') ? 'page' : null"
+        ><ion-icon [name]="item.icon" aria-hidden="true" />{{ item.label }}</a
+      >
+    }
+    <a
+      [routerLink]="auth.isAuthenticated() ? '/account/profile' : '/auth'"
+      class="prototype-account"
+      [class.active]="isActive('account')"
+      [attr.aria-label]="auth.isAuthenticated() ? 'Account' : 'Sign in or create account'"
+      [attr.aria-current]="isActive('account') ? 'page' : null"
+      ><ion-icon name="person-circle-outline" aria-hidden="true" /><span>{{
+        auth.isAuthenticated() ? 'Account' : 'Sign in'
+      }}</span></a
+    >
+  </nav>
   @if (navigating()) {
     <div class="route-progress" role="progressbar" aria-label="Loading page"><span></span></div>
   }
