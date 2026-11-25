@@ -817,6 +817,149 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceApplication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicantUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
+
+                    b.Property<Guid>("OpportunityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PortfolioUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicantUserId");
+
+                    b.HasIndex("OpportunityId", "ApplicantUserId")
+                        .IsUnique();
+
+                    b.ToTable("WorkspaceApplications");
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceOpportunity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("ApprovalRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("BringOwnClients")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("BusinessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("HouseRules")
+                        .IsRequired()
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<string>("IncludedAmenities")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("OpportunityType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<decimal?>("RateAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("RatePeriod")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<bool>("Recurring")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RequiredSkills")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("SpacesAvailable")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("WorkspaceType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.HasIndex("Status", "StartDate");
+
+                    b.ToTable("WorkspaceOpportunities", t =>
+                        {
+                            t.HasCheckConstraint("CK_WorkspaceOpportunity_Dates", "\"EndDate\" IS NULL OR \"EndDate\" >= \"StartDate\"");
+                            t.HasCheckConstraint("CK_WorkspaceOpportunity_Rate", "\"RateAmount\" IS NULL OR \"RateAmount\" >= 0");
+                            t.HasCheckConstraint("CK_WorkspaceOpportunity_Spaces", "\"SpacesAvailable\" BETWEEN 1 AND 50");
+                        });
+                });
+
             modelBuilder.Entity("GlowBook.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1331,6 +1474,34 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                     b.Navigation("Business");
                 });
 
+            modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceApplication", b =>
+                {
+                    b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ApplicantUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GlowBook.Domain.Spaces.WorkspaceOpportunity", "Opportunity")
+                        .WithMany("Applications")
+                        .HasForeignKey("OpportunityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Opportunity");
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceOpportunity", b =>
+                {
+                    b.HasOne("GlowBook.Domain.Professionals.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+                });
+
             modelBuilder.Entity("GlowBook.Infrastructure.Identity.RefreshToken", b =>
                 {
                     b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", "User")
@@ -1410,6 +1581,11 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                     b.Navigation("PortfolioImages");
 
                     b.Navigation("Staff");
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceOpportunity", b =>
+                {
+                    b.Navigation("Applications");
                 });
 
             modelBuilder.Entity("GlowBook.Infrastructure.Identity.ApplicationUser", b =>
