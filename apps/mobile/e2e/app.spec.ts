@@ -132,6 +132,8 @@ test('continuously cycles off-screen category filters on mobile', async ({ page 
   await expect(categories.locator('.chip-track')).toHaveCSS('animation-name', 'category-marquee');
 
   const hairFilter = page.getByRole('button', { name: 'Hair & braids' });
+  await hairFilter.focus();
+  await expect(categories.locator('.chip-track')).toHaveCSS('animation-play-state', 'paused');
   await hairFilter.click();
   await expect(hairFilter).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => hairFilter.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe('none');
