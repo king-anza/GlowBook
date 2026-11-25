@@ -114,7 +114,12 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
   const businessId = '11111111-aaaa-aaaa-aaaa-111111111111';
   const staffId = '22222222-aaaa-aaaa-aaaa-222222222222';
   const offeringId = '33333333-aaaa-aaaa-aaaa-333333333333';
-  const startUtc = '2026-11-09T07:00:00Z';
+  const appointmentStart = new Date();
+  appointmentStart.setDate(appointmentStart.getDate() + 1);
+  appointmentStart.setHours(9, 0, 0, 0);
+  const appointmentEnd = new Date(appointmentStart);
+  appointmentEnd.setHours(10, 0, 0, 0);
+  const startUtc = appointmentStart.toISOString();
 
   await page.route('**/api/v1/auth/login', (route) =>
     route.fulfill({
@@ -173,7 +178,7 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
     route.fulfill({ json: { averageRating: 0, reviewCount: 0, reviews: [] } }),
   );
   await page.route('**/api/v1/staff/*/availability?**', (route) =>
-    route.fulfill({ json: [{ startUtc, endUtc: '2026-11-09T08:00:00Z' }] }),
+    route.fulfill({ json: [{ startUtc, endUtc: appointmentEnd.toISOString() }] }),
   );
   await page.route('**/api/v1/bookings', (route) =>
     route.request().method() === 'POST'
@@ -204,8 +209,8 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
     .getByRole('button', { name: /^Select / })
     .first()
     .click();
-  await expect(page.getByRole('heading', { name: 'Review your booking' })).toBeVisible();
-  await page.getByRole('button', { name: 'Request booking' }).click();
+  await expect(page.getByText('SELECTED TIME')).toBeVisible();
+  await page.getByRole('button', { name: 'Request appointment' }).click();
   const bookingsPage = page.locator('app-bookings');
   await expect(bookingsPage.getByText('Silk press')).toBeVisible();
   await expect(bookingsPage.getByText('Pending')).toBeVisible();
