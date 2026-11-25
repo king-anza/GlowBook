@@ -266,7 +266,13 @@ function businessDetail(id: string) {
         : 'braids';
   return {
     ...business,
+    isDemo: true,
+    cancellationPolicy: 'Please cancel at least 24 hours before your appointment.',
+    publicEmail: null,
+    publicPhone: null,
     addressLine1: '12 Demo Street',
+    addressLine2: null,
+    postalCode: '0950',
     services: [
       {
         id: `${business.id}-service`,
@@ -290,6 +296,15 @@ function businessDetail(id: string) {
         imageUrl: `assets/glowbook/${image}.webp`,
         altText: `${business.tradingName} sample work`,
       },
+    ],
+    staff: [{ id: `${business.id}-staff`, displayName: staffName(business), biography: business.description }],
+    openingHours: [
+      { day: 'Monday', opensAt: '09:00', closesAt: '17:00' },
+      { day: 'Tuesday', opensAt: '09:00', closesAt: '17:00' },
+      { day: 'Wednesday', opensAt: '09:00', closesAt: '17:00' },
+      { day: 'Thursday', opensAt: '09:00', closesAt: '17:00' },
+      { day: 'Friday', opensAt: '09:00', closesAt: '17:00' },
+      { day: 'Saturday', opensAt: '09:00', closesAt: '15:00' },
     ],
   };
 }

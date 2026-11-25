@@ -270,11 +270,19 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
       json: {
         tradingName: 'Glow Test Studio',
         description: 'Test studio',
+        isDemo: false,
+        cancellationPolicy: 'Cancel at least 24 hours before the appointment.',
+        publicEmail: 'studio@example.test',
+        publicPhone: null,
         addressLine1: '1 Main Road',
+        addressLine2: null,
         suburb: 'Sandton',
         city: 'Johannesburg',
         province: 'Gauteng',
+        postalCode: '2196',
         portfolioImages: [],
+        staff: [{ id: staffId, displayName: 'Lerato', biography: 'Natural hair specialist.' }],
+        openingHours: [{ day: 'Monday', opensAt: '09:00', closesAt: '17:00' }],
         services: [
           {
             id: '44444444-aaaa-aaaa-aaaa-444444444444',
@@ -317,6 +325,10 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByText('Glow Test Studio')).toBeVisible();
   await page.getByText('Glow Test Studio').click();
+  await expect(page.getByRole('heading', { name: 'Beauty professionals' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Opening hours' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open directions' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Book this studio' })).toBeVisible();
   await page.getByRole('link', { name: 'Choose a time' }).click();
   await page
     .getByRole('button', { name: /^Select / })

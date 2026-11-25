@@ -104,7 +104,7 @@ This is the working checklist for improving the complete customer, professional 
 
 ### Phase UX-C — Rich salon and professional profiles
 
-- [ ] **UX-301: Salon profile information architecture** — Hero gallery, sticky mobile booking action, services, staff, reviews, policies, hours, directions and amenities in an easily scannable layout.
+- [x] **UX-301: Salon profile information architecture** — Added a responsive hero gallery, section navigation, sticky booking action, service pricing, public staff biographies, reviews, consolidated opening hours, policies, contact-aware directions and an honest amenities-not-provided state.
 - [ ] **UX-302: Staff portfolios and next availability** — Individual biographies, tagged work, service specialities and truthful next-available appointment indicators.
 - [ ] **UX-303: Trust and verification presentation** — Verified-business/professional states, clear demo labels, report actions and explanations that do not imply unsupported guarantees.
 - [ ] **UX-304: Accessible portfolio gallery** — Swipe/cross-fade navigation, captions, alt text, lazy loading, full-screen view and reduced-motion behaviour.

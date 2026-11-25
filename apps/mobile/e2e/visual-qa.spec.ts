@@ -116,3 +116,59 @@ test('@visual remains usable while a slow response is loading', async ({ page })
   await expect(page.getByText('Luna Glow Studio')).toBeVisible({ timeout: 5_000 });
   await expect(page.locator('.skeleton-card')).toHaveCount(0);
 });
+
+test('@visual renders the salon profile information architecture', async ({ page }, testInfo) => {
+  const id = '11111111-aaaa-aaaa-aaaa-111111111111';
+  await page.route(`**/api/v1/businesses/${id}`, (route) =>
+    route.fulfill({
+      json: {
+        id,
+        tradingName: 'Luna Glow Studio',
+        description: 'Braids, natural hair and protective styling in a calm professional studio.',
+        cancellationPolicy: 'Cancel at least 24 hours before your appointment.',
+        publicEmail: 'hello@example.test',
+        publicPhone: null,
+        isDemo: false,
+        addressLine1: '12 Main Road',
+        addressLine2: null,
+        suburb: 'Walmer',
+        city: 'Gqeberha',
+        province: 'Eastern Cape',
+        postalCode: '6070',
+        portfolioImages: [{ id: 'image-1', imageUrl: 'assets/glowbook/braids.webp', altText: 'Braided hairstyle' }],
+        staff: [{ id: 'staff-1', displayName: 'Lerato', biography: 'Protective-style specialist.' }],
+        openingHours: [{ day: 'Monday', opensAt: '09:00', closesAt: '17:00' }],
+        services: [
+          {
+            id: 'service-1',
+            category: 'Hair & braids',
+            name: 'Knotless braids',
+            description: 'Lightweight braids with clean parting.',
+            offerings: [
+              { id: 'offering-1', staffId: 'staff-1', staffName: 'Lerato', price: 450, durationMinutes: 180 },
+            ],
+          },
+        ],
+      },
+    }),
+  );
+  await page.route(`**/api/v1/businesses/${id}/reviews?**`, (route) =>
+    route.fulfill({
+      json: {
+        averageRating: 4.8,
+        reviewCount: 1,
+        reviews: [{ id: 'review-1', rating: 5, comment: 'Beautiful result.' }],
+      },
+    }),
+  );
+  await page.goto(`/businesses/${id}`);
+  await expect(page.getByRole('heading', { name: 'Luna Glow Studio' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Services & prices' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Beauty professionals' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Book this studio' })).toBeVisible();
+  await attachPageScreenshot(
+    page,
+    testInfo,
+    `salon-profile-${testInfo.project.name.toLowerCase().replaceAll(' ', '-')}`,
+  );
+});

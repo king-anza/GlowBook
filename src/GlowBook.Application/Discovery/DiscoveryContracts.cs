@@ -5,7 +5,9 @@ public sealed record BusinessSummaryDto(Guid Id, string TradingName, string Desc
 public sealed record PublicOfferingDto(Guid Id, Guid StaffId, string StaffName, decimal Price, int DurationMinutes, int BufferMinutes);
 public sealed record PublicServiceDto(Guid Id, string Category, string Name, string Description, IReadOnlyCollection<PublicOfferingDto> Offerings);
 public sealed record PublicPortfolioImageDto(Guid Id, string ImageUrl, string AltText);
-public sealed record BusinessDetailDto(Guid Id, string TradingName, string Description, string CancellationPolicy, string? PublicEmail, string? PublicPhone, bool IsDemo, string AddressLine1, string? AddressLine2, string Suburb, string City, string Province, string PostalCode, IReadOnlyCollection<PublicServiceDto> Services, IReadOnlyCollection<PublicPortfolioImageDto> PortfolioImages);
+public sealed record PublicStaffDto(Guid Id, string DisplayName, string Biography);
+public sealed record PublicOpeningHoursDto(string Day, string OpensAt, string ClosesAt);
+public sealed record BusinessDetailDto(Guid Id, string TradingName, string Description, string CancellationPolicy, string? PublicEmail, string? PublicPhone, bool IsDemo, string AddressLine1, string? AddressLine2, string Suburb, string City, string Province, string PostalCode, IReadOnlyCollection<PublicServiceDto> Services, IReadOnlyCollection<PublicPortfolioImageDto> PortfolioImages, IReadOnlyCollection<PublicStaffDto> Staff, IReadOnlyCollection<PublicOpeningHoursDto> OpeningHours);
 public sealed record PagedResult<T>(IReadOnlyCollection<T> Items, int Page, int PageSize, int TotalCount);
 
 public interface IDiscoveryService

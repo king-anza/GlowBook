@@ -1,8 +1,8 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular';
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonIcon } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 import { EmptyStateComponent } from '../../core/ui/empty-state.component';
@@ -26,12 +26,19 @@ interface Business {
   isDemo: boolean;
   tradingName: string;
   description: string;
+  cancellationPolicy: string;
+  publicEmail: string | null;
+  publicPhone: string | null;
   addressLine1: string;
+  addressLine2: string | null;
   suburb: string;
   city: string;
   province: string;
+  postalCode: string;
   services: Service[];
   portfolioImages: { id: string; imageUrl: string; altText: string }[];
+  staff: { id: string; displayName: string; biography: string }[];
+  openingHours: { day: string; opensAt: string; closesAt: string }[];
 }
 interface Reviews {
   averageRating: number;
@@ -47,6 +54,7 @@ interface Reviews {
     RouterLink,
     IonButton,
     IonContent,
+    IonIcon,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -66,6 +74,15 @@ export class BusinessDetailPage {
   readonly reviewsError = signal(false);
   readonly reviewPage = signal(1);
   readonly reviewPageSize = 20;
+  readonly primaryOffering = computed(
+    () => this.business()?.services.flatMap((service) => service.offerings)[0] ?? null,
+  );
+  readonly primaryService = computed(() => {
+    const offering = this.primaryOffering();
+    return offering
+      ? (this.business()?.services.find((service) => service.offerings.some((item) => item.id === offering.id)) ?? null)
+      : null;
+  });
   constructor() {
     this.loadBusiness();
     this.loadReviews();
@@ -101,5 +118,12 @@ export class BusinessDetailPage {
   nextReviewPage(): void {
     if (this.reviewPage() * this.reviewPageSize < (this.reviews()?.reviewCount ?? 0))
       this.loadReviews(this.reviewPage() + 1);
+  }
+
+  directionsUrl(item: Business): string {
+    const address = [item.addressLine1, item.addressLine2, item.suburb, item.city, item.province, item.postalCode]
+      .filter(Boolean)
+      .join(', ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   }
 }
