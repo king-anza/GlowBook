@@ -91,7 +91,7 @@ This is the working checklist for improving the complete customer, professional 
 - [x] **UX-104: Loading skeleton system** — Added reusable, reduced-motion-safe, layout-matched skeletons for discovery cards, salon details, appointment selection, customer bookings, Glow Spaces and the admin dashboard; empty states now wait for requests to complete.
 - [x] **UX-105: Success, empty and error-state system** — Added reusable accessible feedback banners, dismissible success messages, inline errors with contextual retry actions, guided icon-based empty states and correct error-versus-success semantics across authentication, discovery, profiles, bookings and Glow Spaces; destructive confirmations remain centralized.
 - [x] **UX-106: Design-system consolidation** — Consolidated semantic colour, typography, spacing, radius, shadow, focus, content-width and motion tokens; standardised cards/forms/badges and enforced 44×44 minimum interactive targets.
-- [ ] **UX-107: Visual-regression and motion QA** — Screenshot coverage for mobile/tablet/desktop plus reduced-motion, keyboard, screen-reader and low-performance-device checks.
+- [x] **UX-107: Visual-regression and motion QA** — Added deterministic mobile/tablet/desktop and reduced-motion screenshot attachments, keyboard focus and landmark checks, serious/critical WCAG scanning, slow-response skeleton QA and retained GitHub Actions evidence; physical-device assistive-technology checks remain a release prerequisite.
 
 ### Phase UX-B — Navigation and discovery conversion
 

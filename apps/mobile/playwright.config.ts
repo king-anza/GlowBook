@@ -12,11 +12,22 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
   projects: [
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 7'] },
+    },
+    {
+      name: 'Tablet Chrome',
+      grep: /@visual/,
+      use: { ...devices['iPad Pro 11'] },
+    },
+    {
+      name: 'Desktop Chrome',
+      grep: /@visual/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1000 } },
     },
   ],
   webServer: {
