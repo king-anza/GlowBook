@@ -96,7 +96,7 @@ This is the working checklist for improving the complete customer, professional 
 ### Phase UX-B — Navigation and discovery conversion
 
 - [x] **UX-201: Responsive application navigation** — Added a safe-area-aware mobile bottom bar that returns to the desktop header, token-role-aware Studio/Admin destinations, a customer-only simplified set, semantic current-page states and compact overflow-safe labels.
-- [ ] **UX-202: Decision-ready salon cards** — Show hero image, verified/demo state, rating count, starting price, distance, service categories and earliest availability without opening every profile.
+- [x] **UX-202: Decision-ready salon cards** — Cards now show a real or clearly labelled category image, approved/demo trust state, honest rating count or new-business state, starting price, conditional distance, up to three service categories and earliest known availability with a clear fallback.
 - [ ] **UX-203: Advanced discovery controls** — Persistent filters, active-filter count, clear-all action and sorting by recommendation, distance, price, rating and earliest availability.
 - [ ] **UX-204: Location and map/list experience** — Explain location permission, show current search area, allow manual fallback and add an accessible map/list toggle without blocking discovery.
 - [ ] **UX-205: Favourites and recently viewed** — Private saved salons, recently viewed history, clear/remove controls and signed-in cross-device persistence.

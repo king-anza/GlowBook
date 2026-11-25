@@ -200,9 +200,11 @@
               [alt]="business.tradingName + (business.isDemo ? ' demo salon cover' : ' salon cover')"
               loading="lazy"
             />
-            <span class="studio-card__tag">{{ business.categories[0] || 'Beauty studio' }}</span>
-            @if (business.isDemo) { <span class="studio-card__caption">Demo salon</span> } @else {
-            <span class="studio-card__caption">Illustrative image</span> }
+            <span class="studio-card__tag" [class.studio-card__tag--demo]="business.isDemo">
+              <ion-icon [name]="business.isDemo ? 'sparkles-outline' : 'shield-checkmark-outline'" aria-hidden="true" />
+              {{ business.isDemo ? 'Demo salon' : 'Approved business' }}
+            </span>
+            @if (!hasCustomCover(business)) { <span class="studio-card__caption">Category image</span> }
           </div>
           <div class="studio-card__body">
             <h3><a [routerLink]="['/businesses', business.id]">{{ business.tradingName }}</a></h3>
@@ -210,18 +212,34 @@
               <ion-icon name="location-outline" aria-hidden="true" />{{ business.suburb }} @if (business.distanceKm !==
               null) { · {{ business.distanceKm | number: '1.1-1' }} km away } @else { · Studio or mobile }
             </p>
+            @if (business.reviewCount > 0) {
             <p
               class="studio-card__rating"
               [attr.aria-label]="business.averageRating + ' out of 5 from ' + business.reviewCount + ' reviews'"
             >
               <span aria-hidden="true">★</span> {{ business.averageRating | number: '1.1-1' }}
-              <span class="studio-card__review-count">({{ business.reviewCount }})</span>
+              <span class="studio-card__review-count"
+                >({{ business.reviewCount }} {{ business.reviewCount === 1 ? 'review' : 'reviews' }})</span
+              >
             </p>
+            } @else {
+            <p class="studio-card__rating studio-card__rating--new">New on Glow · No reviews yet</p>
+            }
+            <ul class="studio-card__categories" aria-label="Services offered">
+              @for (category of business.categories.slice(0, 3); track category) {
+              <li>{{ category }}</li>
+              }
+            </ul>
             <p class="studio-card__description">{{ business.description }}</p>
             <p class="studio-card__price">From <strong>{{ business.fromPrice | currency: 'ZAR' : 'R' }}</strong></p>
             @if (business.nextAvailableDate) {
             <p class="studio-card__availability">
-              <ion-icon name="time-outline" aria-hidden="true" />{{ business.nextAvailableDate | date: 'EEE, d MMM' }}
+              <ion-icon name="time-outline" aria-hidden="true" />Next available {{ business.nextAvailableDate | date:
+              'EEE, d MMM' }}
+            </p>
+            } @else {
+            <p class="studio-card__availability studio-card__availability--unknown">
+              <ion-icon name="time-outline" aria-hidden="true" />Check appointment times
             </p>
             }
             <div class="studio-card__actions">

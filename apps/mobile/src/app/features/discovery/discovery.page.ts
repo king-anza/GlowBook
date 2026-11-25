@@ -216,6 +216,10 @@ export class DiscoveryPage {
     return business.coverImageUrl || `assets/glowbook/${this.imageFor(business)}.webp`;
   }
 
+  hasCustomCover(business: BusinessSummary): boolean {
+    return Boolean(business.coverImageUrl);
+  }
+
   isSelected(id: string): boolean {
     return this.selected().some((business) => business.id === id);
   }

@@ -151,6 +151,16 @@
 .studio-card__tag {
   top: 10px;
   left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #285c4b;
+}
+.studio-card__tag--demo {
+  color: var(--glow-plum);
+}
+.studio-card__tag ion-icon {
+  font-size: .8rem;
 }
 .studio-card__caption {
   bottom: 9px;
@@ -200,6 +210,9 @@
   color: var(--glow-muted);
   font-weight: 500;
 }
+.studio-card__rating--new { color: var(--glow-muted); font-weight: 650; }
+.studio-card__categories { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.studio-card__categories li { padding: 3px 7px; border-radius: var(--glow-radius-pill); background: var(--glow-accent-soft); color: var(--glow-plum); font-size: .68rem; font-weight: 700; }
 .studio-card__body .studio-card__price {
   margin-top: auto;
   padding-top: 9px;
@@ -212,6 +225,7 @@
 }
 .studio-card__availability { display: flex; align-items: center; gap: 5px; margin: 0; color: #285c4b; font-size: .78rem; font-weight: 750; }
 .studio-card__availability ion-icon { font-size: .9rem; }
+.studio-card__availability--unknown { color: var(--glow-muted); }
 .studio-card__actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

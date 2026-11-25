@@ -246,7 +246,12 @@ function searchBusinesses(url: URL) {
         item.categories.some((category) => category.toLowerCase().includes(categoryId.replace('-', ' ')))) &&
       (!city || item.city.toLowerCase().includes(city)),
   );
-  return { items, page: 1, pageSize: 20, totalCount: items.length };
+  return {
+    items: items.map((item) => ({ ...item, isDemo: true, coverImageUrl: null, distanceKm: null })),
+    page: 1,
+    pageSize: 20,
+    totalCount: items.length,
+  };
 }
 
 function businessDetail(id: string) {

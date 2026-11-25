@@ -19,11 +19,14 @@ const businesses = {
       city: 'Gqeberha',
       suburb: 'Walmer',
       province: 'Eastern Cape',
+      isDemo: true,
+      coverImageUrl: null,
       fromPrice: 280,
       averageRating: 4.8,
       reviewCount: 42,
+      nextAvailableDate: '2026-12-02',
+      distanceKm: 2.4,
       categories: ['Hair & braids'],
-      portfolioImageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=80',
     },
     {
       id: '22222222-aaaa-aaaa-aaaa-222222222222',
@@ -32,11 +35,14 @@ const businesses = {
       city: 'Gqeberha',
       suburb: 'Summerstrand',
       province: 'Eastern Cape',
+      isDemo: false,
+      coverImageUrl: 'assets/glowbook/nails.webp',
       fromPrice: 190,
       averageRating: 4.6,
       reviewCount: 27,
+      nextAvailableDate: null,
+      distanceKm: null,
       categories: ['Nails'],
-      portfolioImageUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=80',
     },
   ],
 };
@@ -62,6 +68,9 @@ test('@visual renders deterministic discovery at the configured viewport', async
   await page.goto('/home');
   await expect(page.getByRole('heading', { name: 'Find your glow.' })).toBeVisible();
   await expect(page.getByText('Luna Glow Studio')).toBeVisible();
+  await expect(page.getByText('Demo salon').first()).toBeVisible();
+  await expect(page.getByText('Approved business').first()).toBeVisible();
+  await expect(page.getByText(/Next available/).first()).toBeVisible();
   await expect(page.locator('body')).not.toHaveCSS('overflow-x', 'scroll');
 
   const viewport = page.viewportSize();
