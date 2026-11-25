@@ -106,6 +106,7 @@ if (app.Environment.IsProduction())
 {
     await using var demoScope = app.Services.CreateAsyncScope();
     var demoDatabase = demoScope.ServiceProvider.GetRequiredService<GlowBookDbContext>();
+    await demoDatabase.Database.MigrateAsync();
     if (!await demoDatabase.Businesses.AnyAsync())
     {
         var seeded = await GlowBook.Api.DemoDataSeeder.SeedAsync(demoDatabase, CancellationToken.None);
