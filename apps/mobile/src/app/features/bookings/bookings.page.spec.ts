@@ -20,6 +20,7 @@ describe('BookingsPage', () => {
     }).compileComponents();
     const http = TestBed.inject(HttpTestingController);
     const page = TestBed.createComponent(BookingsPage).componentInstance;
+    expect(page.loading()).toBe(true);
     const booking = {
       id: 'booking-1',
       businessName: 'Glow Studio',
@@ -31,6 +32,7 @@ describe('BookingsPage', () => {
     };
     http.expectOne(`${environment.apiUrl}/api/v1/bookings`).flush([booking]);
     http.expectOne(`${environment.apiUrl}/api/v1/reviews`).flush([]);
+    expect(page.loading()).toBe(false);
 
     await page.cancel(booking);
 

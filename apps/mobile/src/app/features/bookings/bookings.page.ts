@@ -34,6 +34,7 @@ export class BookingsPage {
   private readonly http = inject(HttpClient);
   private readonly confirmation = inject(ConfirmationService);
   readonly bookings = signal<Booking[]>([]);
+  readonly loading = signal(true);
   readonly reviews = signal<Review[]>([]);
   readonly message = signal<string | null>(null);
   readonly busyId = signal<string | null>(null);
@@ -120,7 +121,17 @@ export class BookingsPage {
     });
   }
   private load(): void {
-    this.http.get<Booking[]>(`${environment.apiUrl}/api/v1/bookings`).subscribe((items) => this.bookings.set(items));
+    this.loading.set(true);
+    this.http.get<Booking[]>(`${environment.apiUrl}/api/v1/bookings`).subscribe({
+      next: (items) => {
+        this.bookings.set(items);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.message.set('Your bookings could not be loaded. Please try again.');
+        this.loading.set(false);
+      },
+    });
     this.loadReviews();
   }
   private loadReviews(): void {

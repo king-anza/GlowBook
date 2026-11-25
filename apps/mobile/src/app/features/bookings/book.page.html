@@ -15,9 +15,19 @@
           >}
         </div>
         } @if (loading()) {
-        <section class="surface-card booking-loading" role="status" aria-live="polite">
-          <div class="booking-loading__bar"></div>
-          <div class="booking-loading__bar"></div>
+        <section class="surface-card skeleton-layout booking-loading" role="status" aria-live="polite">
+          <div class="skeleton skeleton--label" aria-hidden="true"></div>
+          <div class="skeleton skeleton--heading" aria-hidden="true"></div>
+          <div class="skeleton-grid skeleton-grid--dates" aria-hidden="true">
+            @for (item of [1, 2, 3, 4, 5, 6, 7]; track item) {
+            <div class="skeleton skeleton--date"></div>
+            }
+          </div>
+          <div class="skeleton-grid skeleton-grid--times" aria-hidden="true">
+            @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+            <div class="skeleton skeleton--button"></div>
+            }
+          </div>
           <p>Finding the latest available times…</p>
         </section>
         } @else {

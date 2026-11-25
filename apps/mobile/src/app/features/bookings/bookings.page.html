@@ -4,6 +4,19 @@
       <h1>My bookings</h1>
       <p>Review or cancel appointments you have made with independent Thohoyandou beauty professionals.</p>
     </section>
+    @if (loading()) {
+    <section class="booking-list" aria-hidden="true">
+      @for (item of [1, 2, 3]; track item) {
+      <article class="surface-card skeleton-layout skeleton-layout--booking">
+        <div class="skeleton skeleton--title"></div>
+        <div class="skeleton skeleton--label"></div>
+        <div class="skeleton skeleton--line skeleton--short"></div>
+        <div class="skeleton skeleton--button"></div>
+      </article>
+      }
+    </section>
+    <span class="sr-only" role="status">Loading your bookings</span>
+    } @else {
     <section class="booking-list">
       @for (booking of bookings(); track booking.id) {
       <article class="surface-card booking-card">
@@ -76,7 +89,7 @@
       </div>
       }
     </section>
-    @if (message()) {
+    } @if (message()) {
     <p class="notice notice--success" role="status">{{ message() }}</p>
     }
   </main>

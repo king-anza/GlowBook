@@ -498,9 +498,31 @@ ion-card-title {
 }
 .skeleton-card,
 .skeleton-detail {
-  min-height: 210px;
   border: 1px solid var(--glow-line);
   border-radius: var(--glow-radius);
+  background: var(--glow-surface);
+}
+.skeleton-card {
+  min-height: 310px;
+}
+.skeleton-detail {
+  min-height: 520px;
+}
+.skeleton-layout {
+  display: grid;
+  align-content: start;
+  gap: var(--glow-space-3);
+  padding: var(--glow-space-4);
+}
+.skeleton-layout--booking {
+  min-height: 190px;
+}
+.skeleton-layout--space {
+  min-height: 390px;
+}
+.skeleton {
+  min-height: 16px;
+  border-radius: var(--glow-radius-sm);
   background: linear-gradient(
     100deg,
     var(--glow-surface-soft) 20%,
@@ -508,10 +530,60 @@ ion-card-title {
     var(--glow-surface-soft) 64%
   );
   background-size: 300% 100%;
-  animation: glow-shimmer 1.4s ease-in-out infinite;
+  animation: glow-shimmer 1.4s var(--glow-ease-standard) infinite;
 }
-.skeleton-detail {
-  min-height: 520px;
+.skeleton--hero {
+  min-height: clamp(210px, 40vw, 360px);
+}
+.skeleton--media {
+  min-height: 160px;
+  margin: calc(var(--glow-space-4) * -1) calc(var(--glow-space-4) * -1) 0;
+  border-radius: var(--glow-radius-lg) var(--glow-radius-lg) 0 0;
+}
+.skeleton--heading {
+  width: min(78%, 520px);
+  min-height: 42px;
+}
+.skeleton--title {
+  width: min(68%, 340px);
+  min-height: 25px;
+}
+.skeleton--label {
+  width: min(35%, 150px);
+  min-height: 13px;
+}
+.skeleton--line {
+  width: 100%;
+}
+.skeleton--short {
+  width: 62%;
+}
+.skeleton--button {
+  width: min(44%, 180px);
+  min-height: var(--glow-target-min);
+}
+.skeleton--date {
+  min-width: 64px;
+  min-height: 76px;
+}
+.skeleton--panel {
+  min-height: 150px;
+}
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--glow-space-3);
+}
+.skeleton-grid--dates {
+  grid-template-columns: repeat(7, minmax(64px, 1fr));
+  overflow: hidden;
+}
+.skeleton-grid--times {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.admin-skeleton {
+  display: grid;
+  gap: var(--glow-space-6);
 }
 @keyframes glow-shimmer {
   to {

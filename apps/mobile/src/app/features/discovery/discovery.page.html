@@ -161,9 +161,15 @@
       </div>
       } @if (loading()) {
       <div class="card-grid card-grid--three">
-        <div class="skeleton-card" aria-hidden="true"></div>
-        <div class="skeleton-card" aria-hidden="true"></div>
-        <div class="skeleton-card" aria-hidden="true"></div>
+        @for (item of [1, 2, 3]; track item) {
+        <article class="skeleton-card skeleton-layout" aria-hidden="true">
+          <div class="skeleton skeleton--media"></div>
+          <div class="skeleton skeleton--label"></div>
+          <div class="skeleton skeleton--title"></div>
+          <div class="skeleton skeleton--line"></div>
+          <div class="skeleton skeleton--line skeleton--short"></div>
+        </article>
+        }
         <span class="sr-only" role="status">Loading beauty professionals</span>
       </div>
       } @else if (error()) {

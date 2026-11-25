@@ -9,6 +9,29 @@
       <p>Review professional applications and inspect support activity from one secure workspace.</p>
     </section>
 
+    @if (loading()) {
+    <section class="admin-skeleton" aria-hidden="true">
+      <div class="admin-stats">
+        @for (item of [1, 2, 3, 4]; track item) {
+        <div class="admin-stat skeleton-layout">
+          <div class="skeleton skeleton--title"></div>
+          <div class="skeleton skeleton--label"></div>
+        </div>
+        }
+      </div>
+      <div class="card-grid">
+        @for (item of [1, 2, 3, 4]; track item) {
+        <article class="surface-card skeleton-layout">
+          <div class="skeleton skeleton--title"></div>
+          <div class="skeleton skeleton--line"></div>
+          <div class="skeleton skeleton--line skeleton--short"></div>
+          <div class="skeleton skeleton--button"></div>
+        </article>
+        }
+      </div>
+    </section>
+    <span class="sr-only" role="status">Loading the admin dashboard</span>
+    } @else {
     <section class="admin-stats" aria-label="Operations summary">
       <article class="admin-stat">
         <strong>{{ pendingBusinesses().length }}</strong><span>Awaiting review</span>
@@ -213,6 +236,6 @@
     </div>
     @if (message()) {
     <p class="notice" role="status">{{ message() }}</p>
-    }
+    } }
   </main>
 </ion-content>

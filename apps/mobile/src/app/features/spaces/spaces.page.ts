@@ -49,6 +49,7 @@ export class SpacesPage {
   private readonly fb = inject(FormBuilder);
   readonly auth = inject(AuthService);
   readonly opportunities = signal<SpaceOpportunity[]>([]);
+  readonly loading = signal(true);
   readonly selected = signal<SpaceOpportunity | null>(null);
   readonly message = signal<string | null>(null);
   readonly error = signal<string | null>(null);
@@ -68,14 +69,22 @@ export class SpacesPage {
   }
 
   load(): void {
+    this.loading.set(true);
+    this.error.set(null);
     const value = this.filters.getRawValue();
     const params: Record<string, string> = {};
     if (value.city.trim()) params['city'] = value.city.trim();
     if (value.type) params['type'] = value.type;
     if (value.workspaceType) params['workspaceType'] = value.workspaceType;
     this.http.get<SpaceOpportunity[]>(`${environment.apiUrl}/api/v1/spaces`, { params }).subscribe({
-      next: (items) => this.opportunities.set(items),
-      error: () => this.error.set('Glow Spaces could not be loaded. Please try again.'),
+      next: (items) => {
+        this.opportunities.set(items);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Glow Spaces could not be loaded. Please try again.');
+        this.loading.set(false);
+      },
     });
   }
 

@@ -38,8 +38,20 @@
     <p class="notice notice--success" role="status">{{ message() }}</p>
     } @if (error()) {
     <p class="notice notice--error" role="alert">{{ error() }}</p>
-    }
-
+    } @if (loading()) {
+    <div class="space-grid" aria-hidden="true">
+      @for (item of [1, 2, 3]; track item) {
+      <article class="surface-card skeleton-layout skeleton-layout--space">
+        <div class="skeleton skeleton--media"></div>
+        <div class="skeleton skeleton--label"></div>
+        <div class="skeleton skeleton--title"></div>
+        <div class="skeleton skeleton--line"></div>
+        <div class="skeleton skeleton--line skeleton--short"></div>
+      </article>
+      }
+    </div>
+    <span class="sr-only" role="status">Loading Glow Spaces opportunities</span>
+    } @else {
     <div class="space-grid">
       @for (item of opportunities(); track item.id) {
       <article class="surface-card space-card">
@@ -76,8 +88,7 @@
       <div class="empty-state">No opportunities match these filters yet. Try a wider location or workspace type.</div>
       }
     </div>
-
-    @if (selected(); as item) {
+    } @if (selected(); as item) {
     <section class="surface-card apply-card">
       <button type="button" class="apply-card__close" (click)="selected.set(null)" aria-label="Close application">
         ×

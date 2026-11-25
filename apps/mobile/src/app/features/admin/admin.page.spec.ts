@@ -38,6 +38,7 @@ describe('AdminPage', () => {
     http.expectOne((request) => request.url.endsWith('/api/v1/admin/audit-logs')).flush([]);
     http.expectOne(`${environment.apiUrl}/api/v1/admin/reviews`).flush([]);
     http.expectOne(`${environment.apiUrl}/api/v1/admin/portfolio-images`).flush([]);
+    expect(page.loading()).toBe(false);
 
     await page.approve(business);
 

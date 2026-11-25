@@ -91,7 +91,17 @@
       <p>{{ item.suburb }}, {{ item.city }}, {{ item.province }}</p>
     </section>
     } @else if (loading()) {
-    <div class="skeleton-detail" aria-hidden="true"></div>
+    <div class="skeleton-detail skeleton-layout" aria-hidden="true">
+      <div class="skeleton skeleton--hero"></div>
+      <div class="skeleton skeleton--label"></div>
+      <div class="skeleton skeleton--heading"></div>
+      <div class="skeleton skeleton--line"></div>
+      <div class="skeleton skeleton--line skeleton--short"></div>
+      <div class="skeleton-grid">
+        <div class="skeleton skeleton--panel"></div>
+        <div class="skeleton skeleton--panel"></div>
+      </div>
+    </div>
     <span class="sr-only" role="status">Loading studio details</span>
     } @else {
     <div class="notice notice--error" role="alert">{{ error() }}</div>

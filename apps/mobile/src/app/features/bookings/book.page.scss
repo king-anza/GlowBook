@@ -180,14 +180,6 @@
   background: var(--glow-plum);
   font-weight: 800;
 }
-.booking-loading__bar {
-  height: 42px;
-  margin-bottom: 0.7rem;
-  border-radius: 12px;
-  background: linear-gradient(90deg, #eee7f4, #faf8fc, #eee7f4);
-  background-size: 200% 100%;
-  animation: shimmer 1.3s infinite;
-}
 .booking-error {
   display: flex;
   justify-content: space-between;
@@ -195,11 +187,6 @@
 }
 .booking-empty h2 {
   margin-top: 0;
-}
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
 }
 @media (max-width: 900px) {
   .booking-layout {
