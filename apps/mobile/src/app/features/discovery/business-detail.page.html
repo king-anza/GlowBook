@@ -48,7 +48,13 @@
         </ion-card-content>
       </ion-card>
       } @empty {
-      <div class="empty-state">This studio is preparing its service menu.</div>
+      <app-empty-state
+        icon="cut-outline"
+        title="Services are coming soon"
+        description="This studio is still preparing its service menu. Check again later or explore another professional."
+        actionLabel="Explore professionals"
+        actionLink="/home"
+      />
       }
     </div>
 
@@ -66,7 +72,11 @@
         }
       </div>
       } @empty {
-      <div class="empty-state">No reviews yet. You could be the first after a completed booking.</div>
+      <app-empty-state
+        icon="star-outline"
+        title="No reviews yet"
+        description="Verified customers can leave a review after completing a booking."
+      />
       }
     </div>
     @if (reviewData.reviewCount > reviewPageSize) {
@@ -83,7 +93,13 @@
       >
     </nav>
     } } @if (reviewsError()) {
-    <p class="notice notice--error" role="status">Reviews could not be loaded right now.</p>
+    <app-feedback-banner
+      tone="error"
+      title="Reviews are unavailable"
+      message="Reviews could not be loaded right now."
+      actionLabel="Try again"
+      (action)="loadReviews()"
+    />
     }
     <section class="surface-card" style="margin-top: 28px">
       <p class="eyebrow">Visit</p>
@@ -104,7 +120,13 @@
     </div>
     <span class="sr-only" role="status">Loading studio details</span>
     } @else {
-    <div class="notice notice--error" role="alert">{{ error() }}</div>
+    <app-feedback-banner
+      tone="error"
+      title="Studio unavailable"
+      [message]="error() || 'This studio could not be loaded.'"
+      actionLabel="Try again"
+      (action)="loadBusiness()"
+    />
     }
   </main>
 </ion-content>

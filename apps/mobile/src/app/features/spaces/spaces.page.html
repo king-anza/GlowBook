@@ -35,9 +35,21 @@
     </form>
 
     @if (message()) {
-    <p class="notice notice--success" role="status">{{ message() }}</p>
+    <app-feedback-banner
+      tone="success"
+      title="Application sent"
+      [message]="message()!"
+      [dismissible]="true"
+      (dismiss)="message.set(null)"
+    />
     } @if (error()) {
-    <p class="notice notice--error" role="alert">{{ error() }}</p>
+    <app-feedback-banner
+      tone="error"
+      title="Glow Spaces is unavailable"
+      [message]="error()!"
+      actionLabel="Try again"
+      (action)="load()"
+    />
     } @if (loading()) {
     <div class="space-grid" aria-hidden="true">
       @for (item of [1, 2, 3]; track item) {
@@ -85,7 +97,13 @@
         </div>
       </article>
       } @empty {
-      <div class="empty-state">No opportunities match these filters yet. Try a wider location or workspace type.</div>
+      <app-empty-state
+        icon="search-outline"
+        title="No matching opportunities"
+        description="Try a wider location or include all workspace and opportunity types."
+        actionLabel="Clear filters"
+        (action)="clearFilters()"
+      />
       }
     </div>
     } @if (selected(); as item) {

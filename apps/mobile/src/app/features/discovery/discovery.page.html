@@ -173,9 +173,13 @@
         <span class="sr-only" role="status">Loading beauty professionals</span>
       </div>
       } @else if (error()) {
-      <div class="notice notice--error" role="alert">
-        {{ error() }} <ion-button size="small" fill="outline" (click)="load()">Try again</ion-button>
-      </div>
+      <app-feedback-banner
+        tone="error"
+        title="We could not load professionals"
+        [message]="error()!"
+        actionLabel="Try again"
+        (action)="load()"
+      />
       } @else {
       <p class="discovery-count" role="status">
         {{ totalCount() }} {{ totalCount() === 1 ? 'business' : 'businesses' }} found
@@ -231,9 +235,13 @@
           </div>
         </article>
         } @empty {
-        <div class="empty-state">
-          No approved businesses match your search yet. Try widening your location or price filters.
-        </div>
+        <app-empty-state
+          icon="search-outline"
+          title="No professionals match this search"
+          description="Try another area, service, or a wider price range."
+          actionLabel="Clear search"
+          (action)="clearSearch()"
+        />
         }
       </div>
       @if (totalCount() > pageSize) {

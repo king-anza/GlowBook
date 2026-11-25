@@ -2,11 +2,12 @@ import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 import { ConfirmationService } from '../../core/ui/confirmation.service';
+import { EmptyStateComponent } from '../../core/ui/empty-state.component';
+import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
 interface Booking {
   id: string;
@@ -28,7 +29,17 @@ interface Review {
 @Component({
   selector: 'app-bookings',
   templateUrl: './bookings.page.html',
-  imports: [DatePipe, FormsModule, RouterLink, IonContent, IonButton, IonSelect, IonSelectOption, IonTextarea],
+  imports: [
+    DatePipe,
+    FormsModule,
+    IonContent,
+    IonButton,
+    IonSelect,
+    IonSelectOption,
+    IonTextarea,
+    EmptyStateComponent,
+    FeedbackBannerComponent,
+  ],
 })
 export class BookingsPage {
   private readonly http = inject(HttpClient);
@@ -37,6 +48,7 @@ export class BookingsPage {
   readonly loading = signal(true);
   readonly reviews = signal<Review[]>([]);
   readonly message = signal<string | null>(null);
+  readonly error = signal<string | null>(null);
   readonly busyId = signal<string | null>(null);
   readonly reviewRatings: Record<string, number> = {};
   readonly reviewComments: Record<string, string> = {};
@@ -54,6 +66,7 @@ export class BookingsPage {
       return;
     this.busyId.set(booking.id);
     this.message.set(null);
+    this.error.set(null);
     this.http
       .post(`${environment.apiUrl}/api/v1/bookings/${booking.id}/cancel`, {
         reason: null,
@@ -66,7 +79,7 @@ export class BookingsPage {
           this.load();
         },
         error: () => {
-          this.message.set('The booking changed. Refresh and try again.');
+          this.error.set('The booking changed. Refresh and try again.');
           this.busyId.set(null);
         },
       });
@@ -82,7 +95,7 @@ export class BookingsPage {
           this.message.set('Thank you for your review.');
           this.loadReviews();
         },
-        error: () => this.message.set('This booking cannot be reviewed.'),
+        error: () => this.error.set('This booking cannot be reviewed.'),
       });
   }
   reviewFor(bookingId: string): Review | undefined {
@@ -100,7 +113,7 @@ export class BookingsPage {
           this.message.set('Review updated.');
           this.loadReviews();
         },
-        error: () => this.message.set('The review changed. Refresh and try again.'),
+        error: () => this.error.set('The review changed. Refresh and try again.'),
       });
   }
   async deleteReview(review: Review): Promise<void> {
@@ -117,18 +130,19 @@ export class BookingsPage {
         this.message.set('Review removed.');
         this.loadReviews();
       },
-      error: () => this.message.set('The review could not be removed.'),
+      error: () => this.error.set('The review could not be removed.'),
     });
   }
-  private load(): void {
+  load(): void {
     this.loading.set(true);
+    this.error.set(null);
     this.http.get<Booking[]>(`${environment.apiUrl}/api/v1/bookings`).subscribe({
       next: (items) => {
         this.bookings.set(items);
         this.loading.set(false);
       },
       error: () => {
-        this.message.set('Your bookings could not be loaded. Please try again.');
+        this.error.set('Your bookings could not be loaded. Please try again.');
         this.loading.set(false);
       },
     });

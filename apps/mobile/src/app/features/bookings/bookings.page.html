@@ -82,15 +82,19 @@
         }
       </article>
       } @empty {
-      <div class="empty-state bookings-empty-state">
-        <h2>No bookings yet</h2>
-        <p>Try an appointment to see how it appears here.</p>
-        <a routerLink="/home">Explore providers</a>
-      </div>
+      <app-empty-state
+        icon="calendar-outline"
+        title="No bookings yet"
+        description="Find a beauty professional and choose a service to make your first appointment."
+        actionLabel="Explore professionals"
+        actionLink="/home"
+      />
       }
     </section>
     } @if (message()) {
-    <p class="notice notice--success" role="status">{{ message() }}</p>
+    <app-feedback-banner tone="success" [message]="message()!" [dismissible]="true" (dismiss)="message.set(null)" />
+    } @if (error()) {
+    <app-feedback-banner tone="error" [message]="error()!" actionLabel="Reload" (action)="load()" />
     }
   </main>
 </ion-content>

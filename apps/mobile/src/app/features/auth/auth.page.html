@@ -71,9 +71,9 @@
           }
         </ion-list>
         @if (error()) {
-        <p class="notice notice--error" role="alert">{{ error() }}</p>
+        <app-feedback-banner tone="error" [message]="error()!" [dismissible]="true" (dismiss)="error.set(null)" />
         } @if (message()) {
-        <p class="notice notice--success" role="status">{{ message() }}</p>
+        <app-feedback-banner tone="success" [message]="message()!" [dismissible]="true" (dismiss)="message.set(null)" />
         }
         <ion-button expand="block" type="submit" [disabled]="busy()"
           >{{ mode() === 'login' ? 'Sign in' : 'Create account' }}</ion-button

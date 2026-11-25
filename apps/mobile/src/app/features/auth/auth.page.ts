@@ -18,6 +18,7 @@ import {
 } from '@ionic/angular';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
 @Component({
   selector: 'app-auth',
@@ -38,6 +39,7 @@ import { AuthService } from '../../core/auth/auth.service';
     IonCheckbox,
     IonButton,
     RouterLink,
+    FeedbackBannerComponent,
   ],
 })
 export class AuthPage {

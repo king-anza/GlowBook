@@ -17,6 +17,8 @@ import {
 } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { EmptyStateComponent } from '../../core/ui/empty-state.component';
+import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
 interface BusinessSummary {
   id: string;
@@ -64,6 +66,8 @@ interface Category {
     IonSelect,
     IonSelectOption,
     IonButton,
+    EmptyStateComponent,
+    FeedbackBannerComponent,
   ],
 })
 export class DiscoveryPage {
@@ -132,6 +136,19 @@ export class DiscoveryPage {
         this.loading.set(false);
       },
     });
+  }
+
+  clearSearch(): void {
+    this.search = '';
+    this.categoryId = '';
+    this.province = '';
+    this.city = '';
+    this.suburb = '';
+    this.minPrice = null;
+    this.maxPrice = null;
+    this.locationCoordinates.set(null);
+    this.locationMessage.set(null);
+    this.load();
   }
 
   useCurrentLocation(): void {

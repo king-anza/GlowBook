@@ -25,6 +25,22 @@ test('shows the discovery page', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Find a pro' })).toBeVisible();
 });
 
+test('offers an in-context retry after discovery fails', async ({ page }) => {
+  let attempts = 0;
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/businesses?**', (route) => {
+    attempts += 1;
+    if (attempts === 1) return route.fulfill({ status: 503, json: { title: 'Unavailable' } });
+    return route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } });
+  });
+
+  await page.goto('/home');
+  const alert = page.getByRole('alert');
+  await expect(alert).toContainText('We could not load professionals');
+  await alert.getByRole('button', { name: 'Try again' }).click();
+  await expect(page.getByRole('heading', { name: 'No professionals match this search' })).toBeVisible();
+});
+
 test('keeps form controls readable when the browser prefers dark mode', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/auth');

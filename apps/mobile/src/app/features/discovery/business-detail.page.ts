@@ -5,6 +5,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { EmptyStateComponent } from '../../core/ui/empty-state.component';
+import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
 interface Offering {
   id: string;
@@ -40,7 +42,18 @@ interface Reviews {
 @Component({
   selector: 'app-business-detail',
   templateUrl: './business-detail.page.html',
-  imports: [DecimalPipe, RouterLink, IonButton, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent],
+  imports: [
+    DecimalPipe,
+    RouterLink,
+    IonButton,
+    IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    EmptyStateComponent,
+    FeedbackBannerComponent,
+  ],
 })
 export class BusinessDetailPage {
   private readonly http = inject(HttpClient);
@@ -54,6 +67,12 @@ export class BusinessDetailPage {
   readonly reviewPage = signal(1);
   readonly reviewPageSize = 20;
   constructor() {
+    this.loadBusiness();
+    this.loadReviews();
+  }
+  loadBusiness(): void {
+    this.loading.set(true);
+    this.error.set(null);
     this.http.get<Business>(`${environment.apiUrl}/api/v1/businesses/${this.businessId}`).subscribe({
       next: (value) => {
         this.business.set(value);
@@ -64,7 +83,6 @@ export class BusinessDetailPage {
         this.loading.set(false);
       },
     });
-    this.loadReviews();
   }
   loadReviews(page = 1): void {
     this.reviewsError.set(false);

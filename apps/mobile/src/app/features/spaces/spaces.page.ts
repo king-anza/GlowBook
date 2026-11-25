@@ -19,6 +19,8 @@ import {
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
+import { EmptyStateComponent } from '../../core/ui/empty-state.component';
+import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
 import type { SpaceOpportunity, OpportunityType, WorkspaceType } from './space.models';
 import { workspaceLabels } from './space.models';
@@ -42,6 +44,8 @@ import { workspaceLabels } from './space.models';
     IonSelectOption,
     IonTextarea,
     IonButton,
+    EmptyStateComponent,
+    FeedbackBannerComponent,
   ],
 })
 export class SpacesPage {
@@ -86,6 +90,11 @@ export class SpacesPage {
         this.loading.set(false);
       },
     });
+  }
+
+  clearFilters(): void {
+    this.filters.reset({ city: '', type: '', workspaceType: '' });
+    this.load();
   }
 
   apply(item: SpaceOpportunity): void {
