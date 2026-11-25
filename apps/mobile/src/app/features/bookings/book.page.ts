@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -32,6 +32,7 @@ export class BookPage {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly fb = inject(FormBuilder);
   private readonly staffId = this.route.snapshot.paramMap.get('staffId')!;
   private readonly offeringId = this.route.snapshot.paramMap.get('offeringId')!;
@@ -147,7 +148,9 @@ export class BookPage {
       });
   }
   goBack(): void {
-    void this.router.navigateByUrl('/home');
+    const navigationId = typeof window === 'undefined' ? 0 : Number(window.history.state?.navigationId ?? 0);
+    if (navigationId > 1) this.location.back();
+    else void this.router.navigateByUrl('/home');
   }
   slotDuration(slot: Slot): number {
     return Math.round((new Date(slot.endUtc).getTime() - new Date(slot.startUtc).getTime()) / 60_000);

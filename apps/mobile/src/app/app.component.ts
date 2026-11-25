@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterLink } from '@angular/router';
 import { IonApp, IonHeader, IonIcon, IonRouterOutlet, IonToolbar } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -32,8 +33,11 @@ import { AuthService } from './core/auth/auth.service';
 })
 export class AppComponent {
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private navigationTimer: ReturnType<typeof setTimeout> | null = null;
   readonly auth = inject(AuthService);
   readonly isDemo = environment.demoMode;
+  readonly navigating = signal(false);
 
   constructor() {
     void this.auth.restoreSession();
@@ -54,6 +58,21 @@ export class AppComponent {
       personCircleOutline,
       sparklesOutline,
     });
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.clearNavigationTimer();
+        this.navigationTimer = setTimeout(() => this.navigating.set(true), 120);
+      }
+      if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
+        this.clearNavigationTimer();
+        this.navigating.set(false);
+      }
+    });
+  }
+
+  private clearNavigationTimer(): void {
+    if (this.navigationTimer !== null) clearTimeout(this.navigationTimer);
+    this.navigationTimer = null;
   }
 
   isActive(section: 'discover' | 'bookings' | 'spaces' | 'account' | 'studio'): boolean {

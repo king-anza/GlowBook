@@ -66,6 +66,20 @@ test('keeps the requested Discover, bookings, Studio and Account shell on mobile
   await expect(nav.getByRole('link', { name: 'Studio' })).toBeVisible();
 });
 
+test('preserves the previous page during browser back navigation', async ({ page }) => {
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+
+  await page.goto('/home');
+  await page.getByRole('link', { name: 'Sign in or create account' }).click();
+  await expect(page).toHaveURL(/\/auth$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/home$/);
+  await expect(page.getByRole('heading', { name: 'Find your glow.' })).toBeVisible();
+});
+
 test('keeps routed mobile content below the shared navigation bar', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));

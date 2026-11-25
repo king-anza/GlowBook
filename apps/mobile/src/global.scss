@@ -142,6 +142,32 @@ ion-router-outlet > .ion-page {
   top: calc(var(--glow-topbar-height) + var(--glow-demo-banner-height));
   height: calc(100% - var(--glow-topbar-height) - var(--glow-demo-banner-height));
 }
+.route-progress {
+  position: fixed;
+  top: var(--glow-topbar-height);
+  right: 0;
+  left: 0;
+  z-index: 22;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.route-progress span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: var(--glow-radius-pill);
+  background: var(--glow-plum);
+  animation: glow-route-progress 900ms var(--glow-ease-standard) infinite;
+}
+@keyframes glow-route-progress {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
 @media (min-width: 730px) {
   ion-app {
     --glow-topbar-height: calc(69px + var(--ion-safe-area-top, 0px));

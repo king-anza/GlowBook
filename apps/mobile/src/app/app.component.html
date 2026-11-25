@@ -32,6 +32,9 @@
       </div>
     </ion-toolbar>
   </ion-header>
+  @if (navigating()) {
+    <div class="route-progress" role="progressbar" aria-label="Loading page"><span></span></div>
+  }
   @if (isDemo) {
     <div class="demo-banner" role="status">
       Demo mode — sample data only. Bookings and account changes are simulated.
