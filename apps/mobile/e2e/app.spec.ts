@@ -329,7 +329,7 @@ test('signs in, discovers a service, and books a slot', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Opening hours' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Open directions' })).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Book this studio' })).toBeVisible();
-  await page.getByRole('link', { name: 'Choose a time' }).click();
+  await page.locator('#services').getByRole('link', { name: 'Choose a time' }).click();
   await page
     .getByRole('button', { name: /^Select / })
     .first()
