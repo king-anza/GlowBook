@@ -137,7 +137,7 @@ test('provides accessible touch targets and keyboard focus', async ({ page }) =>
   const discoverLink = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', {
     name: 'Discover',
   });
-  const filterButton = page.getByRole('button', { name: /filters/i });
+  const filterButton = page.getByRole('button', { name: 'Filters', exact: true });
 
   for (const control of [discoverLink, filterButton]) {
     const box = await control.boundingBox();
