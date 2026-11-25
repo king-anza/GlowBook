@@ -1,56 +1,143 @@
 <ion-content>
-  <main class="page-shell page-shell--narrow">
-    <section class="page-heading">
-      <p class="eyebrow">STEP 1 OF 2 · CHOOSE A TIME</p>
-      <h1>Book an appointment</h1>
-      <p>Times are shown in your local time zone.</p>
-    </section>
-    @if (selectedSlot(); as slot) {
-    <section class="surface-card booking-confirm" aria-labelledby="booking-review">
-      <p class="eyebrow">STEP 2 OF 2 · CONFIRM APPOINTMENT</p>
-      <h2 id="booking-review">Review your booking</h2>
-      <p>{{ slot.startUtc | date: 'EEEE, d MMMM' }} at {{ slot.startUtc | date: 'shortTime' }}</p>
-      <p>Your request will show as pending until the professional responds.</p>
-      <div class="action-row">
-        <ion-button fill="outline" [disabled]="submitting()" (click)="selectedSlot.set(null)">Change time</ion-button>
-        <ion-button [disabled]="submitting()" (click)="book(slot)">
-          {{ submitting() ? 'Submitting…' : 'Request booking' }}
-        </ion-button>
-      </div>
-    </section>
-    } @if (error()) {
-    <p class="notice notice--error" role="alert">{{ error() }}</p>
-    } @if (loading()) {
-    <p class="empty-state" role="status">Loading availability…</p>
-    } @else if (!selectedSlot() && (!error() || slots().length)) {
-    <section class="booking-picker" aria-label="Choose an appointment time">
-      <div class="booking-date-picker" aria-label="Available dates">
-        @for (date of availableDates(); track date) {
-        <button type="button" class="booking-date" [class.active]="selectedDate() === date" (click)="chooseDate(date)">
-          <span>{{ date | date: 'EEE' }}</span><strong>{{ date | date: 'd' }}</strong
-          ><small>{{ date | date: 'MMM' }}</small>
-        </button>
-        }
-      </div>
-      <h2>Available times</h2>
-      <div class="booking-time-grid">
-        @for (slot of slotsForSelectedDate(); track slot.startUtc) {
-        <button
-          type="button"
-          class="booking-time"
-          [disabled]="submitting()"
-          [attr.aria-label]="'Select ' + (slot.startUtc | date: 'shortTime')"
-          (click)="selectedSlot.set(slot)"
+  <main class="page-shell booking-shell">
+    <button type="button" class="booking-back" (click)="goBack()">← Back to services</button>
+    <div class="booking-layout">
+      <section class="booking-main">
+        <header class="page-heading booking-heading">
+          <p class="eyebrow">BOOK YOUR APPOINTMENT</p>
+          <h1>Choose a date and time</h1>
+          <p>All times are displayed in <strong>{{ timeZone }}</strong>.</p>
+        </header>
+        @if (error()) {
+        <div class="notice notice--error booking-error" role="alert">
+          <span>{{ error() }}</span>@if (!loading()) {<ion-button size="small" fill="clear" (click)="loadAvailability()"
+            >Try again</ion-button
+          >}
+        </div>
+        } @if (loading()) {
+        <section class="surface-card booking-loading" role="status" aria-live="polite">
+          <div class="booking-loading__bar"></div>
+          <div class="booking-loading__bar"></div>
+          <p>Finding the latest available times…</p>
+        </section>
+        } @else {
+        <section class="surface-card booking-picker" aria-label="Choose an appointment time">
+          <div class="picker-heading">
+            <div>
+              <p class="eyebrow">STEP 1</p>
+              <h2>Select a date</h2>
+            </div>
+            <span class="availability-key"><i></i> Available</span>
+          </div>
+          <div class="booking-date-picker" aria-label="Next fourteen days">
+            @for (day of calendarDays(); track day.key) {
+            <button
+              type="button"
+              class="booking-date"
+              [class.active]="selectedDate() === day.key"
+              [class.unavailable]="!day.available"
+              [disabled]="!day.available"
+              [attr.aria-label]="(day.date | date: 'EEEE, d MMMM') + (day.available ? ', ' + day.slotCount + ' times available' : ', unavailable')"
+              (click)="chooseDate(day)"
+            >
+              <span>{{ day.date | date: 'EEE' }}</span><strong>{{ day.date | date: 'd' }}</strong
+              ><small>{{ day.date | date: 'MMM' }}</small>@if(day.available){<i aria-hidden="true"></i>}
+            </button>
+            }
+          </div>
+          <div class="picker-heading time-heading">
+            <div>
+              <p class="eyebrow">STEP 2</p>
+              <h2>Choose a time</h2>
+            </div>
+            <span>{{ slotsForSelectedDate().length }} available</span>
+          </div>
+          @for (group of timeGroups(); track group.label) {
+          <section class="time-group">
+            <h3>{{ group.label }}</h3>
+            <div class="booking-time-grid">
+              @for (slot of group.slots; track slot.startUtc) {<button
+                type="button"
+                class="booking-time"
+                [class.active]="selectedSlot()?.startUtc === slot.startUtc"
+                [attr.aria-label]="'Select ' + (slot.startUtc | date: 'shortTime')"
+                (click)="chooseSlot(slot)"
+              >
+                <strong>{{ slot.startUtc | date: 'shortTime' }}</strong
+                ><small>until {{ slot.endUtc | date: 'shortTime' }}</small></button
+              >}
+            </div>
+          </section>
+          } @empty {
+          <div class="empty-state">No times remain on this day. Choose another available date.</div>
+          }
+        </section>
+        @if (!slots().length && !error()) {
+        <div class="surface-card empty-state booking-empty">
+          <h2>No appointments in the next 14 days</h2>
+          <p>This professional may be fully booked or updating their schedule.</p>
+          <ion-button fill="outline" (click)="goBack()">Choose another professional</ion-button>
+        </div>
+        } }
+      </section>
+      <aside class="surface-card booking-summary" aria-label="Booking summary">
+        <p class="eyebrow">YOUR APPOINTMENT</p>
+        <h2>{{ serviceName }}</h2>
+        <dl>
+          <div>
+            <dt>Studio</dt>
+            <dd>{{ businessName }}</dd>
+          </div>
+          <div>
+            <dt>Professional</dt>
+            <dd>{{ staffName }}</dd>
+          </div>
+          @if(durationMinutes){
+          <div>
+            <dt>Duration</dt>
+            <dd>{{ durationMinutes }} minutes</dd>
+          </div>
+          }@if(price){
+          <div>
+            <dt>Price</dt>
+            <dd>R{{ price }}</dd>
+          </div>
+          }
+        </dl>
+        @if (selectedSlot(); as slot) {
+        <div class="selected-appointment">
+          <p class="eyebrow">SELECTED TIME</p>
+          <strong>{{ slot.startUtc | date: 'EEEE, d MMMM y' }}</strong
+          ><span
+            >{{ slot.startUtc | date: 'shortTime' }}–{{ slot.endUtc | date: 'shortTime' }} · {{ slotDuration(slot) }}
+            min</span
+          >
+        </div>
+        <form [formGroup]="notesForm">
+          <ion-item class="field"
+            ><ion-textarea
+              label="Notes for the professional (optional)"
+              labelPlacement="stacked"
+              autoGrow="true"
+              maxlength="500"
+              formControlName="notes" /></ion-item
+          ><small class="character-count">{{ notesForm.controls.notes.value.length }}/500</small>
+        </form>
+        <p class="booking-policy">
+          Your request remains pending until the professional confirms it. No payment is taken at this stage.
+        </p>
+        <ion-button expand="block" [disabled]="submitting()" (click)="book(slot)"
+          >{{ submitting() ? 'Sending request…' : 'Request appointment' }}</ion-button
+        ><ion-button expand="block" fill="clear" [disabled]="submitting()" (click)="selectedSlot.set(null)"
+          >Change time</ion-button
         >
-          {{ slot.startUtc | date: 'shortTime' }}
-        </button>
-        } @empty {
-        <p class="empty-state">No available times on this date.</p>
+        } @else {
+        <div class="summary-placeholder">
+          <span>1</span>
+          <p>Select an available date and time to continue.</p>
+        </div>
         }
-      </div>
-    </section>
-    @if (!slots().length) {
-    <div class="empty-state">No available slots in the next week. Check back soon or explore another professional.</div>
-    } }
+      </aside>
+    </div>
   </main>
 </ion-content>

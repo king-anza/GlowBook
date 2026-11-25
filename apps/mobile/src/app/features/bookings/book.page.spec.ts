@@ -17,7 +17,18 @@ describe('BookPage', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ staffId: 'staff-1', offeringId: 'offering-1' }) } },
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ staffId: 'staff-1', offeringId: 'offering-1' }),
+              queryParamMap: convertToParamMap({
+                business: 'Glow Studio',
+                service: 'Silk press',
+                professional: 'Customer Test',
+                duration: '30',
+                price: '350',
+              }),
+            },
+          },
         },
       ],
     }).compileComponents();
@@ -25,10 +36,16 @@ describe('BookPage', () => {
     const router = TestBed.inject(Router);
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     const page = TestBed.createComponent(BookPage).componentInstance;
-    const slot = { startUtc: '2026-11-10T07:00:00Z', endUtc: '2026-11-10T07:30:00Z' };
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(9, 0, 0, 0);
+    const end = new Date(tomorrow);
+    end.setMinutes(end.getMinutes() + 30);
+    const dateKey = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    const slot = { startUtc: tomorrow.toISOString(), endUtc: end.toISOString() };
     http.expectOne((request) => request.url.endsWith('/api/v1/staff/staff-1/availability')).flush([slot]);
-    expect(page.availableDates()).toEqual(['2026-11-10']);
-    expect(page.selectedDate()).toBe('2026-11-10');
+    expect(page.availableDates()).toEqual([dateKey]);
+    expect(page.selectedDate()).toBe(dateKey);
     expect(page.slotsForSelectedDate()).toEqual([slot]);
 
     page.book(slot);

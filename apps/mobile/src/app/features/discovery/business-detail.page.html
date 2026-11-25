@@ -37,7 +37,10 @@
               <span class="price">R{{ offering.price }}</span><span>·</span
               ><span>{{ offering.durationMinutes }} min</span>
             </p>
-            <ion-button expand="block" [routerLink]="['/book', offering.staffId, offering.id]"
+            <ion-button
+              expand="block"
+              [routerLink]="['/book', offering.staffId, offering.id]"
+              [queryParams]="{ business: item.tradingName, service: service.name, professional: offering.staffName, duration: offering.durationMinutes, price: offering.price }"
               >Choose a time</ion-button
             >
           </div>
