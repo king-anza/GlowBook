@@ -75,8 +75,8 @@
         } @if (message()) {
         <app-feedback-banner tone="success" [message]="message()!" [dismissible]="true" (dismiss)="message.set(null)" />
         }
-        <ion-button expand="block" type="submit" [disabled]="busy()"
-          >{{ mode() === 'login' ? 'Sign in' : 'Create account' }}</ion-button
+        <ion-button expand="block" type="submit" [disabled]="busy()" [class.is-busy]="busy()" [attr.aria-busy]="busy()"
+          >{{ busy() ? 'Please wait…' : mode() === 'login' ? 'Sign in' : 'Create account' }}</ion-button
         >
       </form>
       <div class="action-row auth-links">

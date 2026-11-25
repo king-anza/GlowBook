@@ -136,7 +136,12 @@
         <p class="booking-policy">
           Your request remains pending until the professional confirms it. No payment is taken at this stage.
         </p>
-        <ion-button expand="block" [disabled]="submitting()" (click)="book(slot)"
+        <ion-button
+          expand="block"
+          [disabled]="submitting()"
+          [class.is-busy]="submitting()"
+          [attr.aria-busy]="submitting()"
+          (click)="book(slot)"
           >{{ submitting() ? 'Sending request…' : 'Request appointment' }}</ion-button
         ><ion-button expand="block" fill="clear" [disabled]="submitting()" (click)="selectedSlot.set(null)"
           >Change time</ion-button

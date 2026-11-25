@@ -103,6 +103,10 @@ test('provides accessible touch targets and keyboard focus', async ({ page }) =>
 
   await discoverLink.focus();
   await expect.poll(() => discoverLink.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('solid');
+
+  await filterButton.click();
+  await expect(filterButton).toHaveAttribute('aria-expanded', 'true');
+  await expect.poll(() => filterButton.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe('none');
 });
 
 test('continuously cycles off-screen category filters on mobile', async ({ page }) => {
@@ -126,6 +130,11 @@ test('continuously cycles off-screen category filters on mobile', async ({ page 
   await expect(categories).toBeVisible();
   await expect(categories.locator('.chip-set')).toHaveCount(2);
   await expect(categories.locator('.chip-track')).toHaveCSS('animation-name', 'category-marquee');
+
+  const hairFilter = page.getByRole('button', { name: 'Hair & braids' });
+  await hairFilter.click();
+  await expect(hairFilter).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => hairFilter.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe('none');
 });
 
 test('disables non-essential motion when reduced motion is requested', async ({ page }) => {

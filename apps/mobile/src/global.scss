@@ -98,6 +98,26 @@ ion-button:active:not([disabled]),
 .filter-toggle:active {
   transform: translateY(1px);
 }
+.is-busy {
+  cursor: wait;
+}
+.is-busy::part(native) {
+  gap: var(--glow-space-2);
+}
+.is-busy::part(native)::before {
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  content: '';
+  animation: glow-spin 700ms linear infinite;
+}
+@keyframes glow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 html,
 body,
 ion-app {
@@ -428,6 +448,18 @@ ion-card-title {
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  transition:
+    color var(--glow-motion-standard) var(--glow-ease-standard),
+    background-color var(--glow-motion-standard) var(--glow-ease-standard),
+    transform var(--glow-motion-fast) var(--glow-ease-standard);
+}
+.status-badge::before {
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  content: '';
 }
 .status-badge[data-status='Confirmed'],
 .status-badge[data-status='Completed'],
@@ -615,6 +647,13 @@ ion-card-title {
   align-items: center;
   margin-block: var(--glow-space-4);
   text-align: left;
+  animation: glow-feedback-in var(--glow-motion-standard) var(--glow-ease-standard) both;
+}
+@keyframes glow-feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--glow-motion-distance));
+  }
 }
 .feedback-banner > ion-icon {
   align-self: start;
@@ -748,6 +787,12 @@ ion-card-title {
   font: inherit;
   text-align: center;
   cursor: pointer;
+  transition:
+    color var(--glow-motion-fast) var(--glow-ease-standard),
+    background-color var(--glow-motion-fast) var(--glow-ease-standard),
+    border-color var(--glow-motion-fast) var(--glow-ease-standard),
+    box-shadow var(--glow-motion-standard) var(--glow-ease-standard),
+    transform var(--glow-motion-fast) var(--glow-ease-standard);
 }
 .booking-date span,
 .booking-date small {
@@ -771,6 +816,7 @@ ion-card-title {
   gap: 8px;
 }
 .booking-time {
+  position: relative;
   min-height: 46px;
   border: 1px solid var(--glow-line);
   border-radius: 10px;
@@ -780,6 +826,20 @@ ion-card-title {
   font-size: 0.86rem;
   font-weight: 750;
   cursor: pointer;
+  transition:
+    background-color var(--glow-motion-fast) var(--glow-ease-standard),
+    border-color var(--glow-motion-fast) var(--glow-ease-standard),
+    box-shadow var(--glow-motion-fast) var(--glow-ease-standard),
+    transform var(--glow-motion-fast) var(--glow-ease-standard);
+}
+.booking-time.active::after {
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  color: var(--glow-plum);
+  content: '✓';
+  font-size: 0.75rem;
+  font-weight: 900;
 }
 .booking-time:hover,
 .booking-time:focus-visible {

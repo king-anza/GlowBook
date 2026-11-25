@@ -36,8 +36,10 @@
           color="danger"
           fill="outline"
           [disabled]="busyId() === booking.id"
+          [class.is-busy]="busyId() === booking.id"
+          [attr.aria-busy]="busyId() === booking.id"
           (click)="cancel(booking)"
-          >Cancel booking</ion-button
+          >{{ busyId() === booking.id ? 'Cancelling…' : 'Cancel booking' }}</ion-button
         >
         } @if (booking.status === 'Completed') {
         <div class="review-panel">

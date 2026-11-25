@@ -79,6 +79,7 @@
   color: white;
   background: var(--glow-plum);
   box-shadow: 0 8px 18px #6f3caf30;
+  transform: translateY(-2px);
 }
 .booking-date.active i {
   background: white;
@@ -124,6 +125,7 @@
   border-color: var(--glow-plum);
   background: var(--glow-surface-soft);
   box-shadow: inset 0 0 0 1px var(--glow-plum);
+  transform: translateY(-1px);
 }
 .booking-summary {
   position: sticky;

@@ -38,7 +38,14 @@
         <ion-button type="submit">Find a pro <span aria-hidden="true">&nbsp;→</span></ion-button>
       </div>
       <div class="action-row location-actions">
-        <ion-button type="button" fill="outline" [disabled]="locating()" (click)="useCurrentLocation()">
+        <ion-button
+          type="button"
+          fill="outline"
+          [disabled]="locating()"
+          [class.is-busy]="locating()"
+          [attr.aria-busy]="locating()"
+          (click)="useCurrentLocation()"
+        >
           <ion-icon name="locate-outline" aria-hidden="true" />
           {{ locating() ? 'Finding your location…' : 'Use my current location' }}
         </ion-button>
