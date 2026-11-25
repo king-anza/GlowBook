@@ -48,7 +48,7 @@
               formControlName="password"
           /></ion-item>
           @if (mode() === 'register') {
-          <section class="password-requirements" aria-label="Password requirements" aria-live="polite">
+          <section class="password-requirements" aria-label="Registration requirements" aria-live="polite">
             <strong>Your password must contain:</strong>
             <ul>
               @for (requirement of passwordRequirements; track requirement.label) {
