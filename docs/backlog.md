@@ -73,6 +73,92 @@ This post-MVP roadmap turns Glow by LunaMay from a booking utility into an inspi
 
 Implement one numbered feature at a time on its own `codex/<feature-name>` branch and draft pull request. Do not merge or deploy automatically. Change `[ ]` to `[x]` only in the pull request that completes the feature and only after its acceptance criteria, API/data/mobile/admin work, security and POPIA controls, accessibility and error states, automated tests, all CI checks, documentation and realistic sample data are complete. If work is partial, leave it unchecked and add a progress note.
 
+## UI/UX transformation programme
+
+This is the working checklist for improving the complete customer, professional and administrator experience. Work through it in the listed order unless a production defect or accessibility blocker must take priority. A checked item means the experience is implemented, responsive, accessible, tested and released—not merely designed.
+
+### Completed experience foundations
+
+- [x] **UX-000: Precise authentication guidance** — Live email-format feedback, visible password requirements with met/unmet states, specific validation errors and successful-registration guidance.
+- [x] **UX-001: Robust appointment time selection** — Fourteen-day calendar, unavailable-day states, local-date handling, morning/afternoon/evening grouping, start/end times, appointment summary, notes, retry behaviour and server-side double-booking protection.
+- [x] **UX-002: Glow Spaces MVP** — Public workspace discovery, salon-owner listings, rental versus employment separation, applications, statuses, migration and production-safe database startup.
+
+### Phase UX-A — Motion and visual foundation
+
+- [ ] **UX-101: Site-wide motion tokens and reduced-motion support** — Define fast, standard and slow duration/easing tokens; respect `prefers-reduced-motion`; prohibit uncontrolled looping, parallax and layout-shifting animation.
+- [ ] **UX-102: Navigation and content transitions** — Add restrained page fade/translate transitions, route loading continuity and back-navigation behaviour without delaying interaction.
+- [ ] **UX-103: Component micro-interactions** — Standardise button press/loading states, card hover/tap feedback, active filter indicators, date/time selection ticks, favourite-heart feedback and status colour transitions.
+- [ ] **UX-104: Loading skeleton system** — Replace generic loading text with layout-matched skeletons for discovery cards, salon details, bookings, Glow Spaces, dashboards and admin lists.
+- [ ] **UX-105: Success, empty and error-state system** — Reusable toasts, inline errors, retry actions, confirmation moments and context-specific empty-state illustrations/copy.
+- [ ] **UX-106: Design-system consolidation** — Tokenise spacing, typography, radii, shadows, colours, focus states, 44×44 minimum targets, responsive breakpoints and reusable cards/forms/badges.
+- [ ] **UX-107: Visual-regression and motion QA** — Screenshot coverage for mobile/tablet/desktop plus reduced-motion, keyboard, screen-reader and low-performance-device checks.
+
+### Phase UX-B — Navigation and discovery conversion
+
+- [ ] **UX-201: Responsive application navigation** — Mobile bottom navigation, desktop header, role-aware destinations, clear active states and overflow-free professional/admin navigation.
+- [ ] **UX-202: Decision-ready salon cards** — Show hero image, verified/demo state, rating count, starting price, distance, service categories and earliest availability without opening every profile.
+- [ ] **UX-203: Advanced discovery controls** — Persistent filters, active-filter count, clear-all action and sorting by recommendation, distance, price, rating and earliest availability.
+- [ ] **UX-204: Location and map/list experience** — Explain location permission, show current search area, allow manual fallback and add an accessible map/list toggle without blocking discovery.
+- [ ] **UX-205: Favourites and recently viewed** — Private saved salons, recently viewed history, clear/remove controls and signed-in cross-device persistence.
+- [ ] **UX-206: Discovery collections** — Popular nearby, available today/weekend, highly rated and administrator-curated seasonal collections using transparent selection rules.
+
+### Phase UX-C — Rich salon and professional profiles
+
+- [ ] **UX-301: Salon profile information architecture** — Hero gallery, sticky mobile booking action, services, staff, reviews, policies, hours, directions and amenities in an easily scannable layout.
+- [ ] **UX-302: Staff portfolios and next availability** — Individual biographies, tagged work, service specialities and truthful next-available appointment indicators.
+- [ ] **UX-303: Trust and verification presentation** — Verified-business/professional states, clear demo labels, report actions and explanations that do not imply unsupported guarantees.
+- [ ] **UX-304: Accessible portfolio gallery** — Swipe/cross-fade navigation, captions, alt text, lazy loading, full-screen view and reduced-motion behaviour.
+- [ ] **UX-305: Share and save actions** — Deep links for salons, services and opportunities with useful previews and privacy-safe analytics.
+
+### Phase UX-D — Booking confidence and retention
+
+- [ ] **UX-401: Extended calendar and earliest-available actions** — Month navigation, “earliest available,” another-professional suggestions and clear salon-time-zone handling for travellers.
+- [ ] **UX-402: Rescheduling and rebooking** — Concurrency-safe reschedule flow, policy checks, audit history and one-tap rebooking of a completed service.
+- [ ] **UX-403: Waitlists and cancellation openings** — Opt-in waitlist, matching rules, expiry and fair notification of newly available appointments.
+- [ ] **UX-404: Booking progress timeline** — Requested, confirmed/rejected, reminder, completed/no-show/cancelled states with timestamps and next actions.
+- [ ] **UX-405: Reminders and calendar export** — Configurable email/push reminders and Google/Apple-compatible calendar events with correct time-zone data.
+- [ ] **UX-406: Complete pre-confirmation price clarity** — Base price, add-ons, estimated extras, deposit/cancellation terms and estimated total before submission; no payment collection yet.
+
+### Phase UX-E — Registration and professional workspace
+
+- [ ] **UX-501: Role-choice registration** — Replace the professional checkbox with clear customer versus beauty-professional choices and role-specific explanatory copy.
+- [ ] **UX-502: Guided professional onboarding** — Nine-step checklist covering verification, business, location, portfolio, staff, services, pricing, availability and approval submission.
+- [ ] **UX-503: Professional dashboard** — Today’s bookings, pending requests, staff availability, approval status, setup progress, Glow Spaces activity and meaningful quick actions.
+- [ ] **UX-504: Professional workspace navigation** — Responsive sidebar/menu with grouped sections instead of an increasingly crowded horizontal link row.
+- [ ] **UX-505: Calendar and capacity management** — Day/week views, drag-safe blocked time, staff filters, chair/workspace allocation and conflict explanations.
+- [ ] **UX-506: Useful professional insights** — Booking volume, repeat customers, cancellations, no-shows and chair utilisation with privacy-conscious aggregation.
+
+### Phase UX-F — Notifications, feedback and Glow Spaces growth
+
+- [ ] **UX-601: Notification centre** — Bell, unread count, booking/application/account/reminder events, read state and direct links to the relevant record.
+- [ ] **UX-602: Android push notifications** — Permission education, granular preferences, secure device-token lifecycle and fallbacks to email/in-app notifications.
+- [ ] **UX-603: Glow Spaces listing enrichment** — Distance, expiry, urgent state, images, saved opportunities, share/report actions and verified-party indicators.
+- [ ] **UX-604: Glow Spaces matching** — Skill/location/availability matching, opt-in alerts and understandable recommendation reasons.
+- [ ] **UX-605: Reusable professional applications** — Apply using saved profile, skills, availability and portfolio; expose contact details only after acceptance.
+- [ ] **UX-606: Application status timeline** — Submitted, viewed, accepted/declined, withdrawn and filled states with notifications and owner response tools.
+
+### Phase UX-G — Quality, safety and operations
+
+- [ ] **UX-701: Form-behaviour standard** — Live validation, optional/required labels, first-error focus, preserved input after API errors, duplicate-submit prevention and precise messages throughout.
+- [ ] **UX-702: Offline and weak-network experience** — Cached booking details, retry queues only where safe, connection status and prevention of duplicate transactional actions.
+- [ ] **UX-703: Help and guided education** — Contextual onboarding, searchable help, booking/salon/Glow Spaces explanations and accessible contact/support routes.
+- [ ] **UX-704: Admin experience redesign** — Prioritised moderation queues, search/filtering, entity histories, reasoned decisions, audit links and responsive tables/cards.
+- [ ] **UX-705: Safety and abuse controls** — Report/block flows, fake-listing review, consent-aware images, dispute intake and transparent enforcement statuses.
+- [ ] **UX-706: Experience analytics** — Privacy-conscious measurement of search success, abandonment, booking conversion, repeat usage and onboarding completion with documented retention.
+
+### Phase UX-H — Approved revenue experience
+
+- [ ] **UX-801: Promotion and featured-placement design** — Clearly labelled featured salons/opportunities, fair ranking rules, preview pricing and analytics before billing is enabled.
+- [ ] **UX-802: Subscription experience validation** — Free/Growth/Pro comparison, entitlement design and interest measurement without charging users.
+- [ ] **UX-803: Loyalty, referrals and vouchers discovery** — Transparent rules, fraud controls, expiry and accounting implications before implementation.
+- [ ] **UX-804: Deposits and payments discovery** — Provider, refund, payout, chargeback, POPIA and regulatory design; implementation remains blocked pending explicit owner approval.
+
+### UI/UX delivery order
+
+`UX-101 → UX-106 → UX-104 → UX-105 → UX-103 → UX-102 → UX-107 → UX-201 → UX-202 → UX-203 → UX-301 → UX-501 → UX-502 → UX-503 → UX-601`
+
+After those items, choose the next task using tester feedback and measured friction. Accessibility, security, privacy, production defects and data integrity always take priority over decorative animation.
+
 ## UI-000 — Prototype parity (mandatory prerequisite)
 
 - [ ] **UI-000: Match the hosted Glow by LunaMay validation prototype** — Reproduce every reachable screen, icon, image, colour, typography choice, spacing rule, responsive state and important interaction from the hosted prototype in the functional Ionic/Angular application.
