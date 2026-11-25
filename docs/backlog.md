@@ -95,7 +95,7 @@ This is the working checklist for improving the complete customer, professional 
 
 ### Phase UX-B — Navigation and discovery conversion
 
-- [ ] **UX-201: Responsive application navigation** — Mobile bottom navigation, desktop header, role-aware destinations, clear active states and overflow-free professional/admin navigation.
+- [x] **UX-201: Responsive application navigation** — Added a safe-area-aware mobile bottom bar that returns to the desktop header, token-role-aware Studio/Admin destinations, a customer-only simplified set, semantic current-page states and compact overflow-safe labels.
 - [ ] **UX-202: Decision-ready salon cards** — Show hero image, verified/demo state, rating count, starting price, distance, service categories and earliest availability without opening every profile.
 - [ ] **UX-203: Advanced discovery controls** — Persistent filters, active-filter count, clear-all action and sorting by recommendation, distance, price, rating and earliest availability.
 - [ ] **UX-204: Location and map/list experience** — Explain location permission, show current search area, allow manual fallback and add an accessible map/list toggle without blocking discovery.

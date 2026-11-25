@@ -17,6 +17,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly vault = inject(SessionVaultService);
   private readonly tokens = signal<AuthTokens | null>(null);
+  private readonly sessionRoles = signal<string[]>([]);
   private refreshRequest?: Observable<AuthTokens>;
   readonly isAuthenticated: () => boolean = () => this.tokens() !== null;
 
@@ -37,10 +38,12 @@ export class AuthService {
 
   setSession(tokens: AuthTokens): void {
     this.tokens.set(tokens);
+    this.sessionRoles.set(this.readRoles(tokens.accessToken));
     void this.vault.saveRefreshToken(tokens.refreshToken).catch(() => undefined);
   }
   clearSession(): void {
     this.tokens.set(null);
+    this.sessionRoles.set([]);
     void this.vault.clear().catch(() => undefined);
   }
   async restoreSession(): Promise<void> {
@@ -76,5 +79,31 @@ export class AuthService {
   }
   accessToken(): string | null {
     return this.tokens()?.accessToken ?? null;
+  }
+
+  roles(): readonly string[] {
+    return this.sessionRoles();
+  }
+
+  hasRole(role: string): boolean {
+    return this.sessionRoles().some((candidate) => candidate.toLowerCase() === role.toLowerCase());
+  }
+
+  private readRoles(accessToken: string): string[] {
+    try {
+      const payload = accessToken.split('.')[1];
+      if (!payload) return [];
+      const normalized = payload
+        .replaceAll('-', '+')
+        .replaceAll('_', '/')
+        .padEnd(Math.ceil(payload.length / 4) * 4, '=');
+      const decoded = JSON.parse(atob(normalized)) as Record<string, unknown>;
+      const value =
+        decoded['role'] ?? decoded['roles'] ?? decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string');
+      return typeof value === 'string' ? [value] : [];
+    } catch {
+      return [];
+    }
   }
 }

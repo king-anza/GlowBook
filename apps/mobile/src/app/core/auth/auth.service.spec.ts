@@ -73,6 +73,23 @@ describe('AuthService', () => {
     expect(vault.clear).toHaveBeenCalled();
   });
 
+  it('exposes token roles for role-aware navigation and clears them with the session', () => {
+    const payload = btoa(JSON.stringify({ role: ['Professional', 'Admin'] }))
+      .replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll('=', '');
+    service.setSession({
+      accessToken: `header.${payload}.signature`,
+      refreshToken: 'refresh',
+      accessTokenExpiresAtUtc: '2026-11-07T10:00:00Z',
+    });
+
+    expect(service.hasRole('admin')).toBe(true);
+    expect(service.roles()).toEqual(['Professional', 'Admin']);
+    service.clearSession();
+    expect(service.roles()).toEqual([]);
+  });
+
   it('restores a native session by rotating the securely stored refresh token', async () => {
     vault.loadRefreshToken.mockResolvedValue('stored-refresh');
     const restored = service.restoreSession();

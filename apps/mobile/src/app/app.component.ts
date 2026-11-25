@@ -16,6 +16,7 @@ import {
   optionsOutline,
   personCircleOutline,
   searchOutline,
+  shieldCheckmarkOutline,
   sparklesOutline,
   storefrontOutline,
   timeOutline,
@@ -43,6 +44,7 @@ export class AppComponent {
     void this.auth.restoreSession();
     addIcons({
       searchOutline,
+      shieldCheckmarkOutline,
       calendarClearOutline,
       calendarOutline,
       businessOutline,
@@ -85,6 +87,13 @@ export class AppComponent {
           ? url.startsWith('/spaces')
           : section === 'account'
             ? url.startsWith('/auth') || url.startsWith('/account')
-            : url.startsWith('/professional');
+            : url.startsWith('/professional') || url.startsWith('/admin');
+  }
+
+  workspace(): { label: string; route: string; icon: string } | null {
+    if (this.auth.hasRole('Admin')) return { label: 'Admin', route: '/admin', icon: 'shield-checkmark-outline' };
+    if (!this.auth.isAuthenticated() || this.auth.hasRole('Professional'))
+      return { label: 'Studio', route: '/professional/profile', icon: 'storefront-outline' };
+    return null;
   }
 }

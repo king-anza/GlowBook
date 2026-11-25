@@ -132,7 +132,8 @@ ion-app {
  * (including a notch/status-bar inset) before their own content begins.
  */
 ion-app {
-  --glow-topbar-height: calc(112px + var(--ion-safe-area-top, 0px));
+  --glow-topbar-height: calc(64px + var(--ion-safe-area-top, 0px));
+  --glow-bottom-nav-height: calc(63px + var(--ion-safe-area-bottom, 0px));
   --glow-demo-banner-height: 0px;
 }
 ion-app.demo-mode {
@@ -141,6 +142,23 @@ ion-app.demo-mode {
 ion-router-outlet > .ion-page {
   top: calc(var(--glow-topbar-height) + var(--glow-demo-banner-height));
   height: calc(100% - var(--glow-topbar-height) - var(--glow-demo-banner-height));
+}
+@media (max-width: 729px) {
+  .prototype-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 24;
+    padding: 5px max(6px, env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom))
+      max(6px, env(safe-area-inset-left));
+    border-top: 1px solid var(--glow-line);
+    background: rgba(252, 250, 255, 0.98);
+    box-shadow: 0 -8px 24px rgba(54, 36, 76, 0.08);
+  }
+  ion-router-outlet > .ion-page ion-content {
+    --padding-bottom: var(--glow-bottom-nav-height);
+  }
 }
 .route-progress {
   position: fixed;

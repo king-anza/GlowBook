@@ -66,6 +66,19 @@ test('keeps the requested Discover, bookings, Studio and Account shell on mobile
   await expect(nav.getByRole('link', { name: 'Studio' })).toBeVisible();
 });
 
+test('uses a bottom navigation on mobile and restores it to the desktop header', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/home');
+  const nav = page.getByRole('navigation', { name: 'Main navigation' });
+  const mobileBox = await nav.boundingBox();
+  expect(mobileBox?.y).toBeGreaterThan(700);
+  await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('aria-current', 'page');
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const desktopBox = await nav.boundingBox();
+  expect(desktopBox?.y).toBeLessThan(80);
+});
+
 test('preserves the previous page during browser back navigation', async ({ page }) => {
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/businesses?**', (route) =>
