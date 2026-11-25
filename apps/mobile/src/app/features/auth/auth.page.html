@@ -9,7 +9,7 @@
       <p>Sign in to manage bookings, or create your free account in a minute.</p>
     </section>
     <section class="surface-card auth-card">
-      <ion-segment [value]="mode()" (ionChange)="mode.set($event.detail.value === 'register' ? 'register' : 'login')">
+      <ion-segment [value]="mode()" (ionChange)="changeMode($event.detail.value === 'register' ? 'register' : 'login')">
         <ion-segment-button value="login"><ion-label>Sign in</ion-label></ion-segment-button>
         <ion-segment-button value="register"><ion-label>Register</ion-label></ion-segment-button>
       </ion-segment>
@@ -28,17 +28,37 @@
               autocomplete="email"
               formControlName="email"
           /></ion-item>
+          @if (emailHasValue) {
+          <p
+            class="field-validation"
+            [class.field-validation--met]="emailIsValid"
+            [class.field-validation--unmet]="!emailIsValid"
+            [attr.aria-live]="emailIsValid ? null : 'polite'"
+          >
+            <span aria-hidden="true">{{ emailIsValid ? '✓' : '✕' }}</span>
+            {{ emailIsValid ? 'Email address format is valid' : 'Enter an address such as name@example.com' }}
+          </p>
+          }
           <ion-item class="field"
             ><ion-input
               label="Password"
               labelPlacement="stacked"
               type="password"
-              autocomplete="current-password"
+              [autocomplete]="mode() === 'register' ? 'new-password' : 'current-password'"
               formControlName="password"
           /></ion-item>
           @if (mode() === 'register') {
-          <p class="field-hint">Use at least 10 characters, including uppercase, lowercase, a number, and a symbol.</p>
-          } @if (mode() === 'register') {
+          <section class="password-requirements" aria-label="Password requirements" aria-live="polite">
+            <strong>Your password must contain:</strong>
+            <ul>
+              @for (requirement of passwordRequirements; track requirement.label) {
+              <li [class.requirement-met]="requirement.met" [class.requirement-unmet]="!requirement.met">
+                <span aria-hidden="true">{{ requirement.met ? '✓' : '✕' }}</span>
+                {{ requirement.label }}
+              </li>
+              }
+            </ul>
+          </section>
           <ion-item class="field"
             ><ion-checkbox formControlName="professional">I am a beauty professional</ion-checkbox></ion-item
           >
@@ -52,6 +72,8 @@
         </ion-list>
         @if (error()) {
         <p class="notice notice--error" role="alert">{{ error() }}</p>
+        } @if (message()) {
+        <p class="notice notice--success" role="status">{{ message() }}</p>
         }
         <ion-button expand="block" type="submit" [disabled]="busy()"
           >{{ mode() === 'login' ? 'Sign in' : 'Create account' }}</ion-button

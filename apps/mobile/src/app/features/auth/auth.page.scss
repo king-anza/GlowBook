@@ -10,3 +10,45 @@ ion-segment-button {
   --color: var(--glow-muted);
   --color-checked: var(--glow-plum);
 }
+
+.field-validation {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  margin: -0.35rem 0 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.field-validation--met,
+.requirement-met {
+  color: #24734d;
+}
+
+.field-validation--unmet,
+.requirement-unmet {
+  color: var(--ion-color-danger);
+}
+
+.password-requirements {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--glow-line);
+  border-radius: 14px;
+  background: var(--glow-surface-soft);
+  font-size: 0.86rem;
+}
+
+.password-requirements ul {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0.65rem 0 0;
+  list-style: none;
+}
+
+.password-requirements li {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  font-weight: 650;
+}
