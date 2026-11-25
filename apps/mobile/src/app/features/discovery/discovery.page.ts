@@ -2,7 +2,7 @@ import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonContent,
@@ -72,16 +72,12 @@ interface Category {
 })
 export class DiscoveryPage {
   private readonly http = inject(HttpClient);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly selected = signal<BusinessSummary[]>([]);
   readonly comparisonOpen = signal(false);
   readonly businesses = signal<BusinessSummary[]>([]);
-  readonly sortedBusinesses = computed(() => {
-    const items = [...this.businesses()];
-    if (this.sortMode === 'price') return items.sort((left, right) => left.fromPrice - right.fromPrice);
-    if (this.sortMode === 'rating') return items.sort((left, right) => right.averageRating - left.averageRating);
-    if (this.locationCoordinates()) return items;
-    return items.sort((left, right) => right.averageRating - left.averageRating || left.fromPrice - right.fromPrice);
-  });
+  readonly sortedBusinesses = computed(() => this.businesses());
   readonly categories = signal<Category[]>([]);
   readonly currentPage = signal(1);
   readonly totalCount = signal(0);
@@ -100,17 +96,22 @@ export class DiscoveryPage {
   minPrice: number | null = null;
   maxPrice: number | null = null;
   radiusKm = 25;
-  sortMode: 'recommended' | 'rating' | 'price' = 'recommended';
+  sortMode: 'recommended' | 'distance' | 'rating' | 'price' | 'availability' = 'recommended';
   constructor() {
+    this.restoreFilters();
     this.http
       .get<Category[]>(`${environment.apiUrl}/api/v1/categories`)
       .subscribe((items) => this.categories.set(items));
-    this.load();
+    this.load(this.currentPage());
   }
   load(page = 1): void {
     this.loading.set(true);
     this.error.set(null);
-    let params = new HttpParams().set('search', this.search).set('page', page).set('pageSize', this.pageSize);
+    let params = new HttpParams()
+      .set('search', this.search)
+      .set('sort', this.sortMode)
+      .set('page', page)
+      .set('pageSize', this.pageSize);
     if (this.categoryId) params = params.set('categoryId', this.categoryId);
     if (this.province) params = params.set('province', this.province);
     if (this.city) params = params.set('city', this.city);
@@ -124,6 +125,7 @@ export class DiscoveryPage {
         .set('longitude', coordinates.longitude)
         .set('radiusKm', this.radiusKm);
     }
+    this.persistFilters(page);
     this.http.get<Page>(`${environment.apiUrl}/api/v1/businesses`, { params }).subscribe({
       next: (result) => {
         this.businesses.set(result.items);
@@ -146,6 +148,9 @@ export class DiscoveryPage {
     this.suburb = '';
     this.minPrice = null;
     this.maxPrice = null;
+    this.radiusKm = 25;
+    this.sortMode = 'recommended';
+    this.filterOpen.set(false);
     this.locationCoordinates.set(null);
     this.locationMessage.set(null);
     this.load();
@@ -194,6 +199,29 @@ export class DiscoveryPage {
     this.filterOpen.update((open) => !open);
   }
 
+  get activeFilterCount(): number {
+    return [
+      this.search.trim(),
+      this.categoryId,
+      this.province,
+      this.city.trim(),
+      this.suburb.trim(),
+      this.minPrice,
+      this.maxPrice,
+      this.locationCoordinates(),
+    ].filter((value) => value !== '' && value !== null && value !== undefined).length;
+  }
+
+  applyFilters(): void {
+    this.filterOpen.set(false);
+    this.load();
+  }
+
+  changeSort(): void {
+    if (this.sortMode === 'distance' && !this.locationCoordinates()) this.sortMode = 'recommended';
+    this.load();
+  }
+
   categoryIcon(name: string): string {
     const category = name.toLowerCase();
     if (category.includes('hair') || category.includes('braid')) return 'cut-outline';
@@ -237,5 +265,43 @@ export class DiscoveryPage {
   }
   nextPage(): void {
     if (this.currentPage() * this.pageSize < this.totalCount()) this.load(this.currentPage() + 1);
+  }
+
+  private restoreFilters(): void {
+    const params = this.route.snapshot.queryParamMap;
+    this.search = params.get('search') ?? '';
+    this.categoryId = params.get('categoryId') ?? '';
+    this.province = params.get('province') ?? '';
+    this.city = params.get('city') ?? '';
+    this.suburb = params.get('suburb') ?? '';
+    this.minPrice = this.numberParam(params.get('minPrice'));
+    this.maxPrice = this.numberParam(params.get('maxPrice'));
+    this.radiusKm = this.numberParam(params.get('radiusKm')) ?? 25;
+    const sort = params.get('sort');
+    if (sort && ['recommended', 'rating', 'price', 'availability'].includes(sort))
+      this.sortMode = sort as typeof this.sortMode;
+    this.currentPage.set(Math.max(1, this.numberParam(params.get('page')) ?? 1));
+  }
+
+  private persistFilters(page: number): void {
+    const queryParams = {
+      search: this.search.trim() || null,
+      categoryId: this.categoryId || null,
+      province: this.province || null,
+      city: this.city.trim() || null,
+      suburb: this.suburb.trim() || null,
+      minPrice: this.minPrice,
+      maxPrice: this.maxPrice,
+      radiusKm: this.locationCoordinates() ? this.radiusKm : null,
+      sort: this.sortMode === 'recommended' ? null : this.sortMode,
+      page: page > 1 ? page : null,
+    };
+    void this.router.navigate([], { relativeTo: this.route, queryParams, replaceUrl: true });
+  }
+
+  private numberParam(value: string | null): number | null {
+    if (!value) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 }

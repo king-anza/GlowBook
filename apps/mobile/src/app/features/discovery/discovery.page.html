@@ -57,9 +57,18 @@
       <p class="section-copy" role="status">{{ locationMessage() }}</p>
       }
       <button class="filter-toggle" type="button" [attr.aria-expanded]="filterOpen()" (click)="toggleFilters()">
-        <ion-icon name="options-outline" aria-hidden="true" />Filters
+        <ion-icon name="options-outline" aria-hidden="true" />Filters @if (activeFilterCount > 0) {
+        <span class="filter-count" [attr.aria-label]="activeFilterCount + ' active filters'"
+          >{{ activeFilterCount }}</span
+        >
+        }
       </button>
-      @if (filterOpen()) {
+      @if (activeFilterCount > 0) {
+      <div class="active-filter-summary" role="status">
+        <span>{{ activeFilterCount }} active {{ activeFilterCount === 1 ? 'filter' : 'filters' }}</span>
+        <button type="button" (click)="clearSearch()">Clear all</button>
+      </div>
+      } @if (filterOpen()) {
       <div class="filter-details">
         <p class="filter-details__title">Narrow your search <span>Category, area and price</span></p>
         <div class="form-grid form-grid--two filter-details__body">
@@ -113,6 +122,12 @@
             [(ngModel)]="maxPrice"
           />
         </div>
+        <div class="filter-details__actions">
+          <ion-button type="button" fill="clear" [disabled]="activeFilterCount === 0" (click)="clearSearch()"
+            >Clear all</ion-button
+          >
+          <ion-button type="button" (click)="applyFilters()">Apply filters</ion-button>
+        </div>
       </div>
       }
     </form>
@@ -125,10 +140,12 @@
         </div>
         <label class="sort-control"
           >Sort by
-          <select [(ngModel)]="sortMode" name="sort">
+          <select [(ngModel)]="sortMode" name="sort" (ngModelChange)="changeSort()">
             <option value="recommended">Recommended</option>
+            <option value="distance" [disabled]="!locationCoordinates()">Nearest to me</option>
             <option value="rating">Highest rated</option>
             <option value="price">Lowest price</option>
+            <option value="availability">Earliest available</option>
           </select>
         </label>
       </div>

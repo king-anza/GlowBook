@@ -82,6 +82,10 @@
 }
 .filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: var(--glow-target-min); margin: 10px 0 0 auto; padding: 0 13px; border: 1px solid var(--glow-line); border-radius: var(--glow-radius-sm); background: var(--glow-surface); color: var(--glow-plum); font: inherit; font-size: .8rem; font-weight: 750; }
 .filter-toggle ion-icon { font-size: 1rem; }
+.filter-count { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: var(--glow-radius-pill); background: var(--glow-plum); color: white; font-size: .7rem; }
+.active-filter-summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; padding: 7px 10px; border-radius: var(--glow-radius-sm); background: var(--glow-accent-soft); color: var(--glow-plum); font-size: .78rem; font-weight: 700; }
+.active-filter-summary button { min-height: 36px; padding: 0 8px; border: 0; background: transparent; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
+.filter-details__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
 .filter-toggle[aria-expanded='true'] {
   border-color: var(--glow-plum);
   background: var(--glow-accent-soft);

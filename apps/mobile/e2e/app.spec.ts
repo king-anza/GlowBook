@@ -41,6 +41,23 @@ test('offers an in-context retry after discovery fails', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'No professionals match this search' })).toBeVisible();
 });
 
+test('counts, clears and persists discovery filters in the URL', async ({ page }) => {
+  await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/businesses?**', (route) =>
+    route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } }),
+  );
+  await page.goto('/home');
+  await page.getByLabel('Service or style').fill('braids');
+  await page.getByLabel('Area').fill('Gqeberha');
+  await page.getByRole('button', { name: 'Find a pro' }).click();
+  await expect(page).toHaveURL(/search=braids/);
+  await expect(page).toHaveURL(/city=Gqeberha/);
+  await expect(page.getByLabel('2 active filters')).toBeVisible();
+  await page.getByRole('button', { name: 'Clear all' }).first().click();
+  await expect(page).not.toHaveURL(/search=/);
+  await expect(page.getByLabel(/active filters/)).toHaveCount(0);
+});
+
 test('keeps form controls readable when the browser prefers dark mode', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/auth');

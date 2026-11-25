@@ -97,7 +97,7 @@ This is the working checklist for improving the complete customer, professional 
 
 - [x] **UX-201: Responsive application navigation** — Added a safe-area-aware mobile bottom bar that returns to the desktop header, token-role-aware Studio/Admin destinations, a customer-only simplified set, semantic current-page states and compact overflow-safe labels.
 - [x] **UX-202: Decision-ready salon cards** — Cards now show a real or clearly labelled category image, approved/demo trust state, honest rating count or new-business state, starting price, conditional distance, up to three service categories and earliest known availability with a clear fallback.
-- [ ] **UX-203: Advanced discovery controls** — Persistent filters, active-filter count, clear-all action and sorting by recommendation, distance, price, rating and earliest availability.
+- [x] **UX-203: Advanced discovery controls** — Manual filters and sorting persist in shareable URLs, active filters expose a count and clear-all action, exact coordinates remain session-only, and the API sorts the complete result set before pagination by recommendation, distance, price, rating or earliest availability.
 - [ ] **UX-204: Location and map/list experience** — Explain location permission, show current search area, allow manual fallback and add an accessible map/list toggle without blocking discovery.
 - [ ] **UX-205: Favourites and recently viewed** — Private saved salons, recently viewed history, clear/remove controls and signed-in cross-device persistence.
 - [ ] **UX-206: Discovery collections** — Popular nearby, available today/weekend, highly rated and administrator-curated seasonal collections using transparent selection rules.
