@@ -76,7 +76,7 @@ test('keeps the requested Discover, bookings, Studio and Account shell on mobile
   const nav = page.getByRole('navigation', { name: 'Main navigation' });
   await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('href', '/home');
   await expect(nav.getByRole('link', { name: 'My bookings' })).toHaveAttribute('href', '/bookings');
-  await expect(nav.getByRole('link', { name: 'Studio' })).toHaveAttribute('href', '/professional/onboarding');
+  await expect(nav.getByRole('link', { name: 'Studio' })).toHaveAttribute('href', '/professional/dashboard');
   await expect(page.getByRole('link', { name: 'Sign in or create account' })).toHaveAttribute('href', '/auth');
   await expect(nav.getByRole('link', { name: /pricing/i })).toHaveCount(0);
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -106,6 +106,30 @@ test('guides professionals through nine persisted setup steps', async ({ page })
   await expect(page.locator('.onboarding__steps > li')).toHaveCount(9);
   await expect(page.getByRole('progressbar', { name: 'Studio setup progress' })).toHaveAttribute('aria-valuenow', '33');
   await expect(page.getByRole('button', { name: 'Submit for review' })).toBeDisabled();
+});
+
+test('shows the professional daily dashboard without inventing activity', async ({ page }) => {
+  await page.route('**/api/v1/professional/dashboard', (route) =>
+    route.fulfill({
+      json: {
+        approvalStatus: 'Draft',
+        reviewReason: null,
+        setupCompletedCount: 3,
+        setupTotalCount: 9,
+        todayBookingCount: 0,
+        pendingBookingCount: 0,
+        activeStaffCount: 1,
+        staffScheduledTodayCount: 0,
+        publishedSpaceCount: 0,
+        pendingSpaceApplicationCount: 0,
+        todayBookings: [],
+      },
+    }),
+  );
+  await page.goto('/professional/dashboard');
+  await expect(page.getByRole('heading', { name: 'Good to see you.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'No appointments today' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Studio setup/ })).toContainText('33%');
 });
 
 test('uses a bottom navigation on mobile and restores it to the desktop header', async ({ page }) => {

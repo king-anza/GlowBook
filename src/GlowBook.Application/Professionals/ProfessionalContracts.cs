@@ -24,11 +24,26 @@ public sealed record ProfessionalOnboardingDto(
     bool ApprovalSubmitted,
     string ApprovalStatus,
     string? ReviewReason);
+public sealed record ProfessionalDashboardBookingDto(Guid Id, string CustomerName, string StaffName, string ServiceName,
+    DateTime StartUtc, DateTime EndUtc, string Status);
+public sealed record ProfessionalDashboardDto(
+    string ApprovalStatus,
+    string? ReviewReason,
+    int SetupCompletedCount,
+    int SetupTotalCount,
+    int TodayBookingCount,
+    int PendingBookingCount,
+    int ActiveStaffCount,
+    int StaffScheduledTodayCount,
+    int PublishedSpaceCount,
+    int PendingSpaceApplicationCount,
+    IReadOnlyCollection<ProfessionalDashboardBookingDto> TodayBookings);
 
 public interface IProfessionalService
 {
     Task<BusinessDto?> GetAsync(Guid ownerId, CancellationToken ct);
     Task<ProfessionalOnboardingDto> OnboardingAsync(Guid ownerId, CancellationToken ct);
+    Task<ProfessionalDashboardDto> DashboardAsync(Guid ownerId, CancellationToken ct);
     Task<BusinessDto> SaveAsync(Guid ownerId, string ownerName, BusinessRequest request, CancellationToken ct);
     Task<bool> SubmitAsync(Guid ownerId, CancellationToken ct);
     Task<StaffDto?> AddStaffAsync(Guid ownerId, StaffRequest request, CancellationToken ct);

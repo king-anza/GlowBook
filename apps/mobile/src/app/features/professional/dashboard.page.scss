@@ -1,0 +1,110 @@
+.dashboard {
+  max-width: 1120px;
+}
+.dashboard__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dashboard__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+.dashboard__metrics a {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 132px;
+  padding: 1rem;
+  border: 1px solid var(--glow-line);
+  border-radius: 18px;
+  background: var(--glow-surface);
+  color: var(--glow-ink);
+}
+.dashboard__metrics span,
+.dashboard__metrics small {
+  color: var(--glow-muted);
+}
+.dashboard__metrics strong {
+  color: var(--glow-plum);
+  font-size: 2rem;
+}
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 1rem;
+}
+.section-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-heading h2,
+.dashboard__actions h2 {
+  margin: 0.2rem 0;
+}
+.dashboard__appointments {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0;
+  list-style: none;
+}
+.dashboard__appointments li {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--glow-line);
+}
+.dashboard__appointments time {
+  color: var(--glow-plum);
+  font-weight: 850;
+}
+.dashboard__appointments div {
+  display: grid;
+  gap: 0.2rem;
+}
+.dashboard__appointments div span {
+  color: var(--glow-muted);
+  font-size: 0.82rem;
+}
+.dashboard__actions {
+  align-self: start;
+}
+.dashboard__actions > a {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--glow-line);
+  color: var(--glow-ink);
+}
+.dashboard__actions > a span {
+  color: var(--glow-muted);
+  font-size: 0.82rem;
+}
+@media (max-width: 800px) {
+  .dashboard__metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .dashboard__heading {
+    align-items: flex-start;
+  }
+  .dashboard__metrics {
+    grid-template-columns: 1fr;
+  }
+  .dashboard__appointments li {
+    grid-template-columns: 52px 1fr;
+  }
+  .dashboard__appointments .status-badge {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

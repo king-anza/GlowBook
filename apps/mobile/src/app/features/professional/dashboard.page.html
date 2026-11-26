@@ -1,0 +1,105 @@
+<ion-header
+  ><ion-toolbar><ion-title>Studio dashboard</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell dashboard">
+    <nav class="professional-nav" aria-label="Professional workspace">
+      <a class="active" routerLink="/professional/dashboard">Dashboard</a
+      ><a routerLink="/professional/onboarding">Setup</a><a routerLink="/professional/profile">Profile</a
+      ><a routerLink="/professional/services">Services & staff</a
+      ><a routerLink="/professional/availability">Availability</a><a routerLink="/professional/bookings">Bookings</a>
+    </nav>
+
+    <section class="page-heading dashboard__heading">
+      <div>
+        <p class="eyebrow">Your studio today</p>
+        <h1>Good to see you.</h1>
+        <p>Focus on what needs your attention now.</p>
+      </div>
+      @if (summary()) {
+      <span class="status-badge" [attr.data-status]="summary()!.approvalStatus">{{ summary()!.approvalStatus }}</span> }
+    </section>
+
+    @if (error()) {
+    <app-feedback-banner tone="error" [message]="error()!" actionLabel="Try again" (action)="load()" /> } @if
+    (loading()) {
+    <section class="surface-card" role="status">Loading your studio day…</section>
+    } @else if (summary(); as item) { @if (item.approvalStatus === 'Rejected') {
+    <app-feedback-banner
+      tone="error"
+      title="Changes requested"
+      [message]="item.reviewReason || 'Review your setup and submit the studio again.'"
+    />
+    }
+
+    <section class="dashboard__metrics" aria-label="Studio overview">
+      <a routerLink="/professional/bookings"
+        ><span>Today’s bookings</span><strong>{{ item.todayBookingCount }}</strong
+        ><small>{{ item.pendingBookingCount }} awaiting a decision</small></a
+      >
+      <a routerLink="/professional/availability"
+        ><span>Staff coverage</span><strong>{{ item.staffScheduledTodayCount }}/{{ item.activeStaffCount }}</strong
+        ><small>active professionals scheduled today</small></a
+      >
+      <a routerLink="/professional/spaces"
+        ><span>Glow Spaces</span><strong>{{ item.publishedSpaceCount }}</strong
+        ><small>{{ item.pendingSpaceApplicationCount }} pending applications</small></a
+      >
+      <a routerLink="/professional/onboarding"
+        ><span>Studio setup</span><strong>{{ setupProgress() }}%</strong
+        ><small>{{ item.setupCompletedCount }} of {{ item.setupTotalCount }} steps complete</small></a
+      >
+    </section>
+
+    <section class="dashboard__grid">
+      <article class="surface-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Schedule</p>
+            <h2>Today’s appointments</h2>
+          </div>
+          <a routerLink="/professional/bookings">Manage bookings</a>
+        </div>
+        @if (item.todayBookings.length) {
+        <ol class="dashboard__appointments">
+          @for (booking of item.todayBookings; track booking.id) {
+          <li>
+            <time [attr.datetime]="booking.startUtc">{{ booking.startUtc | date: 'HH:mm' : '+0200' }}</time>
+            <div>
+              <strong>{{ booking.serviceName }}</strong
+              ><span>{{ booking.customerName }} with {{ booking.staffName }}</span>
+            </div>
+            <span class="status-badge" [attr.data-status]="booking.status">{{ booking.status }}</span>
+          </li>
+          }
+        </ol>
+        } @else {
+        <app-empty-state
+          title="No appointments today"
+          description="Use this time to update services, availability or your portfolio."
+          actionLabel="Review availability"
+          actionLink="/professional/availability"
+        />
+        }
+      </article>
+
+      <aside class="surface-card dashboard__actions">
+        <p class="eyebrow">Quick actions</p>
+        <h2>Keep your studio moving</h2>
+        <a routerLink="/professional/bookings"
+          ><strong>Review requests</strong><span>Confirm or reject pending appointments.</span></a
+        >
+        <a routerLink="/professional/availability"
+          ><strong>Update availability</strong><span>Publish hours or block time away.</span></a
+        >
+        <a routerLink="/professional/services"
+          ><strong>Add a service or staff member</strong><span>Keep your bookable menu accurate.</span></a
+        >
+        <a routerLink="/professional/spaces"
+          ><strong>Manage Glow Spaces</strong><span>Fill chairs and respond to applicants.</span></a
+        >
+      </aside>
+    </section>
+    }
+  </main>
+</ion-content>

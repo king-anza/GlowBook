@@ -47,6 +47,56 @@ internal sealed class ProfessionalService(GlowBookDbContext db) : IProfessionalS
             pricingComplete, availabilityComplete, approvalSubmitted, business.ApprovalStatus.ToString(), business.ReviewReason);
     }
 
+    public async Task<ProfessionalDashboardDto> DashboardAsync(Guid ownerId, CancellationToken ct)
+    {
+        var onboarding = await OnboardingAsync(ownerId, ct);
+        var completed = new[] { onboarding.AccountVerified, onboarding.BusinessComplete, onboarding.LocationComplete,
+            onboarding.PortfolioComplete, onboarding.StaffComplete, onboarding.ServicesComplete,
+            onboarding.PricingComplete, onboarding.AvailabilityComplete, onboarding.ApprovalSubmitted }.Count(x => x);
+        var business = await db.Businesses.AsNoTracking().SingleOrDefaultAsync(x => x.OwnerUserId == ownerId, ct);
+        if (business is null)
+            return new(onboarding.ApprovalStatus, onboarding.ReviewReason, completed, 9, 0, 0, 0, 0, 0, 0, []);
+
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Africa/Johannesburg");
+        var localToday = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone));
+        var dayStartUtc = TimeZoneInfo.ConvertTimeToUtc(localToday.ToDateTime(TimeOnly.MinValue), timeZone);
+        var dayEndUtc = TimeZoneInfo.ConvertTimeToUtc(localToday.AddDays(1).ToDateTime(TimeOnly.MinValue), timeZone);
+        var todayBookings = await db.Bookings.AsNoTracking()
+            .Where(x => x.BusinessId == business.Id && x.StartUtc >= dayStartUtc && x.StartUtc < dayEndUtc
+                && x.Status != GlowBook.Domain.Bookings.BookingStatus.Cancelled
+                && x.Status != GlowBook.Domain.Bookings.BookingStatus.Rejected)
+            .OrderBy(x => x.StartUtc)
+            .Select(x => new ProfessionalDashboardBookingDto(x.Id,
+                db.Users.Where(user => user.Id == x.CustomerUserId).Select(user => user.DisplayName).FirstOrDefault() ?? "Customer",
+                x.StaffMember.DisplayName,
+                x.ServiceNameSnapshot, x.StartUtc, x.EndUtc, x.Status.ToString()))
+            .ToArrayAsync(ct);
+        var pendingBookings = await db.Bookings.CountAsync(x => x.BusinessId == business.Id
+            && x.Status == GlowBook.Domain.Bookings.BookingStatus.Pending, ct);
+        var activeStaffIds = await db.StaffMembers.AsNoTracking()
+            .Where(x => x.BusinessId == business.Id && x.IsActive && x.AcceptingBookings)
+            .Select(x => x.Id).ToArrayAsync(ct);
+        var weeklyStaffIds = await db.WeeklyAvailabilities.AsNoTracking()
+            .Where(x => activeStaffIds.Contains(x.StaffMemberId) && x.IsActive && x.DayOfWeek == localToday.DayOfWeek)
+            .Select(x => x.StaffMemberId).Distinct().ToArrayAsync(ct);
+        var addedStaffIds = await db.AvailabilityExceptions.AsNoTracking()
+            .Where(x => activeStaffIds.Contains(x.StaffMemberId) && x.Date == localToday
+                && x.Type == GlowBook.Domain.Availability.AvailabilityExceptionType.AddedAvailability)
+            .Select(x => x.StaffMemberId).Distinct().ToArrayAsync(ct);
+        var unavailableStaffIds = await db.AvailabilityExceptions.AsNoTracking()
+            .Where(x => activeStaffIds.Contains(x.StaffMemberId) && x.Date == localToday
+                && x.Type == GlowBook.Domain.Availability.AvailabilityExceptionType.Unavailable
+                && x.StartTime == null && x.EndTime == null)
+            .Select(x => x.StaffMemberId).Distinct().ToArrayAsync(ct);
+        var scheduledToday = weeklyStaffIds.Concat(addedStaffIds).Distinct().Except(unavailableStaffIds).Count();
+        var publishedSpaces = await db.WorkspaceOpportunities.CountAsync(x => x.BusinessId == business.Id
+            && x.Status == GlowBook.Domain.Spaces.OpportunityStatus.Published, ct);
+        var pendingApplications = await db.WorkspaceApplications.CountAsync(x => x.Opportunity.BusinessId == business.Id
+            && x.Status == GlowBook.Domain.Spaces.ApplicationStatus.Pending, ct);
+        return new(onboarding.ApprovalStatus, onboarding.ReviewReason, completed, 9, todayBookings.Length,
+            pendingBookings, activeStaffIds.Length, scheduledToday, publishedSpaces, pendingApplications, todayBookings);
+    }
+
     public async Task<BusinessDto> SaveAsync(Guid ownerId, string ownerName, BusinessRequest request, CancellationToken ct)
     {
         var business = await Query().SingleOrDefaultAsync(x => x.OwnerUserId == ownerId, ct);
