@@ -35,8 +35,15 @@ export interface SpaceOpportunity {
   bringOwnClients: boolean;
   approvalRequired: boolean;
   imageUrl: string | null;
+  imageUrls: string[];
   applicationCount: number;
   createdAtUtc: string;
+  isVerifiedParty: boolean;
+  isDemo: boolean;
+  isExpired: boolean;
+  isUrgent: boolean;
+  distanceKm: number | null;
+  isSaved: boolean;
 }
 
 export interface SpaceApplication {

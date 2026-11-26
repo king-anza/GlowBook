@@ -41,4 +41,24 @@ describe('SpacesPage', () => {
     expect(page.error()).toContain('could not be loaded');
     http.verify();
   });
+
+  it('persists a saved opportunity and updates the card state', async () => {
+    await TestBed.configureTestingModule({
+      imports: [SpacesPage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    }).compileComponents();
+    const http = TestBed.inject(HttpTestingController);
+    const page = TestBed.createComponent(SpacesPage).componentInstance;
+    http.expectOne(`${environment.apiUrl}/api/v1/spaces`).flush([]);
+    const opportunity = { id: 'space-1', isSaved: false } as never;
+    page.opportunities.set([opportunity]);
+
+    page.toggleSaved(opportunity);
+    const save = http.expectOne(`${environment.apiUrl}/api/v1/professional/spaces/space-1/saved`);
+    expect(save.request.method).toBe('PUT');
+    save.flush(null);
+
+    expect(page.opportunities()[0].isSaved).toBe(true);
+    http.verify();
+  });
 });

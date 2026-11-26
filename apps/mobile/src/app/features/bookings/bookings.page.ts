@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { IonButton, IonContent, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
@@ -44,6 +45,8 @@ interface Review {
 export class BookingsPage {
   private readonly http = inject(HttpClient);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly route = inject(ActivatedRoute);
+  readonly highlightedId = this.route.snapshot.queryParamMap.get('booking');
   readonly bookings = signal<Booking[]>([]);
   readonly loading = signal(true);
   readonly reviews = signal<Review[]>([]);

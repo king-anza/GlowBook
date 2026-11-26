@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.Configure<ResendOptions>(configuration.GetSection(ResendOptions.SectionName));
         services.Configure<PublicAppOptions>(configuration.GetSection(PublicAppOptions.SectionName));
         services.Configure<AdminBootstrapOptions>(configuration.GetSection(AdminBootstrapOptions.SectionName));
+        services.Configure<FirebaseOptions>(configuration.GetSection(FirebaseOptions.SectionName));
         services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
@@ -87,6 +88,10 @@ public static class DependencyInjection
         services.AddScoped<IReviewService, ReviewService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IOperationsService, OperationsService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddHttpClient<IPushNotificationSender, FirebasePushNotificationSender>();
+        services.AddHostedService<PushNotificationDispatcher>();
+        services.AddHostedService<AppointmentReminderService>();
         services.AddScoped<ISpaceService, SpaceService>();
         return services;
     }

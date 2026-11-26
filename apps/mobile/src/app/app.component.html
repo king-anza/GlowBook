@@ -6,6 +6,21 @@
           <img src="assets/glowbook/logo.png" alt="" />
           <span class="prototype-brand__lockup"><strong>Glow</strong><small>by LunaMay</small></span>
         </a>
+        @if (auth.isAuthenticated()) {
+          <a
+            routerLink="/notifications"
+            class="notification-bell"
+            aria-label="Notifications"
+            [attr.aria-current]="router.url.startsWith('/notifications') ? 'page' : null"
+          >
+            <ion-icon name="notifications-outline" aria-hidden="true" />
+            @if (notifications.unreadCount()) {
+              <span [attr.aria-label]="notifications.unreadCount() + ' unread notifications'">{{
+                notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount()
+              }}</span>
+            }
+          </a>
+        }
       </div>
     </ion-toolbar>
   </ion-header>

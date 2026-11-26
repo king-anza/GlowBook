@@ -513,6 +513,11 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ActionUrl")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<int>("AttemptCount")
                         .HasColumnType("integer");
 
@@ -524,7 +529,21 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<DateTime?>("ProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("PushDeliveredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("PushProcessedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ReadAtUtc")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("RecipientUserId")
@@ -543,13 +562,93 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RecipientUserId", "CreatedAtUtc");
 
                     b.HasIndex("Status", "CreatedAtUtc");
 
+                    b.HasIndex("RecipientUserId", "EventType", "SubjectId")
+                        .IsUnique()
+                        .HasFilter("\"EventType\" = 'BookingReminder'");
+
                     b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Operations.NotificationPreference", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AccountPush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ApplicationPush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("BookingPush")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("EmailFallback")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ReminderPush")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("NotificationPreferences");
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Operations.PushDevice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("LastSeenAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ProtectedToken")
+                        .IsRequired()
+                        .HasMaxLength(6000)
+                        .HasColumnType("character varying(6000)");
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "RevokedAtUtc");
+
+                    b.ToTable("PushDevices");
                 });
 
             modelBuilder.Entity("GlowBook.Domain.Professionals.Business", b =>
@@ -822,6 +921,26 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GlowBook.Domain.Spaces.SavedWorkspaceOpportunity", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OpportunityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "OpportunityId");
+
+                    b.HasIndex("OpportunityId");
+
+                    b.HasIndex("UserId", "CreatedAtUtc");
+
+                    b.ToTable("SavedWorkspaceOpportunities");
+                });
+
             modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceApplication", b =>
                 {
                     b.Property<Guid>("Id")
@@ -900,6 +1019,10 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("character varying(2048)");
 
+                    b.PrimitiveCollection<string[]>("ImageUrls")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("IncludedAmenities")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -965,6 +1088,41 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("CK_WorkspaceOpportunity_Spaces", "\"SpacesAvailable\" BETWEEN 1 AND 50");
                         });
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceOpportunityReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("OpportunityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("ReporterUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporterUserId");
+
+                    b.HasIndex("OpportunityId", "ReporterUserId")
+                        .IsUnique();
+
+                    b.ToTable("WorkspaceOpportunityReports");
                 });
 
             modelBuilder.Entity("GlowBook.Infrastructure.Identity.ApplicationUser", b =>
@@ -1414,6 +1572,24 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("GlowBook.Domain.Operations.NotificationPreference", b =>
+                {
+                    b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", null)
+                        .WithOne()
+                        .HasForeignKey("GlowBook.Domain.Operations.NotificationPreference", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Operations.PushDevice", b =>
+                {
+                    b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("GlowBook.Domain.Professionals.Business", b =>
                 {
                     b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", null)
@@ -1481,6 +1657,23 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                     b.Navigation("Business");
                 });
 
+            modelBuilder.Entity("GlowBook.Domain.Spaces.SavedWorkspaceOpportunity", b =>
+                {
+                    b.HasOne("GlowBook.Domain.Spaces.WorkspaceOpportunity", "Opportunity")
+                        .WithMany("Saves")
+                        .HasForeignKey("OpportunityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Opportunity");
+                });
+
             modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceApplication", b =>
                 {
                     b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", null)
@@ -1507,6 +1700,23 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Business");
+                });
+
+            modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceOpportunityReport", b =>
+                {
+                    b.HasOne("GlowBook.Domain.Spaces.WorkspaceOpportunity", "Opportunity")
+                        .WithMany()
+                        .HasForeignKey("OpportunityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GlowBook.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ReporterUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Opportunity");
                 });
 
             modelBuilder.Entity("GlowBook.Infrastructure.Identity.RefreshToken", b =>
@@ -1593,6 +1803,8 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("GlowBook.Domain.Spaces.WorkspaceOpportunity", b =>
                 {
                     b.Navigation("Applications");
+
+                    b.Navigation("Saves");
                 });
 
             modelBuilder.Entity("GlowBook.Infrastructure.Identity.ApplicationUser", b =>

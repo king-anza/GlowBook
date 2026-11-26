@@ -11,7 +11,7 @@
     </section>
     <section class="card-grid">
       @for (booking of bookings(); track booking.id) {
-      <article class="surface-card booking-card">
+      <article class="surface-card booking-card" [class.notification-target]="highlightedId === booking.id">
         <div class="booking-card__top">
           <div>
             <h2>{{ booking.serviceName }}</h2>

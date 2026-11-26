@@ -30,9 +30,13 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
     public DbSet<BookingStatusHistory> BookingStatusHistory => Set<BookingStatusHistory>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+    public DbSet<PushDevice> PushDevices => Set<PushDevice>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<WorkspaceOpportunity> WorkspaceOpportunities => Set<WorkspaceOpportunity>();
     public DbSet<WorkspaceApplication> WorkspaceApplications => Set<WorkspaceApplication>();
+    public DbSet<SavedWorkspaceOpportunity> SavedWorkspaceOpportunities => Set<SavedWorkspaceOpportunity>();
+    public DbSet<WorkspaceOpportunityReport> WorkspaceOpportunityReports => Set<WorkspaceOpportunityReport>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -166,8 +170,21 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
         builder.Entity<Notification>(entity =>
         {
             entity.Property(x => x.EventType).HasMaxLength(100).IsRequired(); entity.Property(x => x.SubjectType).HasMaxLength(50).IsRequired(); entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+            entity.Property(x => x.Title).HasMaxLength(150).IsRequired(); entity.Property(x => x.Message).HasMaxLength(500).IsRequired(); entity.Property(x => x.ActionUrl).HasMaxLength(300).IsRequired();
             entity.HasIndex(x => new { x.Status, x.CreatedAtUtc }); entity.HasIndex(x => new { x.RecipientUserId, x.CreatedAtUtc });
+            entity.HasIndex(x => new { x.RecipientUserId, x.EventType, x.SubjectId }).IsUnique().HasFilter("\"EventType\" = 'BookingReminder'");
             entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.RecipientUserId).OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<NotificationPreference>(entity =>
+        {
+            entity.HasKey(x => x.UserId);
+            entity.HasOne<ApplicationUser>().WithOne().HasForeignKey<NotificationPreference>(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+        builder.Entity<PushDevice>(entity =>
+        {
+            entity.Property(x => x.TokenHash).HasMaxLength(64).IsRequired(); entity.Property(x => x.ProtectedToken).HasMaxLength(6000).IsRequired(); entity.Property(x => x.Platform).HasMaxLength(20).IsRequired();
+            entity.HasIndex(x => x.TokenHash).IsUnique(); entity.HasIndex(x => new { x.UserId, x.RevokedAtUtc });
+            entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
         builder.Entity<AuditLog>(entity =>
         {
@@ -187,6 +204,7 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
             entity.Property(x => x.IncludedAmenities).HasMaxLength(1000);
             entity.Property(x => x.HouseRules).HasMaxLength(1500);
             entity.Property(x => x.ImageUrl).HasMaxLength(2048);
+            entity.Property(x => x.ImageUrls).HasColumnType("text[]");
             entity.Property(x => x.RateAmount).HasPrecision(10, 2);
             entity.HasIndex(x => new { x.Status, x.StartDate });
             entity.ToTable(table =>
@@ -205,6 +223,20 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
             entity.HasIndex(x => new { x.OpportunityId, x.ApplicantUserId }).IsUnique();
             entity.HasOne(x => x.Opportunity).WithMany(x => x.Applications).HasForeignKey(x => x.OpportunityId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ApplicantUserId).OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<SavedWorkspaceOpportunity>(entity =>
+        {
+            entity.HasKey(x => new { x.UserId, x.OpportunityId });
+            entity.HasIndex(x => new { x.UserId, x.CreatedAtUtc });
+            entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Opportunity).WithMany(x => x.Saves).HasForeignKey(x => x.OpportunityId).OnDelete(DeleteBehavior.Cascade);
+        });
+        builder.Entity<WorkspaceOpportunityReport>(entity =>
+        {
+            entity.Property(x => x.Reason).HasConversion<string>().HasMaxLength(30); entity.Property(x => x.Details).HasMaxLength(1000);
+            entity.HasIndex(x => new { x.OpportunityId, x.ReporterUserId }).IsUnique();
+            entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ReporterUserId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(x => x.Opportunity).WithMany().HasForeignKey(x => x.OpportunityId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

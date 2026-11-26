@@ -30,6 +30,7 @@ describe('ManageSpacesPage', () => {
     expect(create.request.method).toBe('POST');
     expect(create.request.body.opportunityType).toBe('ChairRental');
     expect(create.request.body.rateAmount).toBe(250);
+    expect(create.request.body.imageUrls).toEqual([]);
     create.flush({});
     http.expectOne(`${environment.apiUrl}/api/v1/professional/spaces`).flush([]);
     http.expectOne(`${environment.apiUrl}/api/v1/professional/space-applications/received`).flush([]);

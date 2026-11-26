@@ -234,7 +234,9 @@ app.MapGet("/api/v1/businesses/{id:guid}/reviews", (Guid id, int page, int pageS
 professional.MapGet("/bookings", (ClaimsPrincipal user, IBookingService service, CancellationToken ct) => service.ProfessionalBookingsAsync(UserId(user), ct));
 professional.MapPost("/bookings/{id:guid}/{action}", async (Guid id, string action, BookingActionRequest request, ClaimsPrincipal user, IBookingService service, CancellationToken ct) => ParseBookingAction(action) is { } target ? BookingTransitionResponse(await service.TransitionAsync(UserId(user), true, id, target, request, ct)) : BookingTransitionResponse(BookingTransitionResult.InvalidTransition));
 
-app.MapGet("/api/v1/spaces", (string? city, OpportunityType? type, WorkspaceType? workspaceType, ISpaceService service, CancellationToken ct) => service.DiscoverAsync(city, type, workspaceType, ct));
+app.MapGet("/api/v1/spaces", (string? city, OpportunityType? type, WorkspaceType? workspaceType, double? latitude, double? longitude,
+    ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.DiscoverAsync(city, type, workspaceType, latitude, longitude,
+        user.Identity?.IsAuthenticated == true ? UserId(user) : null, ct));
 professional.MapGet("/spaces", (ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.OwnerOpportunitiesAsync(UserId(user), ct));
 professional.MapPost("/spaces", async (OpportunityRequest request, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.SaveAsync(UserId(user), null, request, ct) is { } item ? Results.Ok(item) : Results.BadRequest()).AddEndpointFilter<ValidationFilter<OpportunityRequest>>();
 professional.MapPatch("/spaces/{id:guid}", async (Guid id, OpportunityRequest request, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.SaveAsync(UserId(user), id, request, ct) is { } item ? Results.Ok(item) : Results.BadRequest()).AddEndpointFilter<ValidationFilter<OpportunityRequest>>();
@@ -243,6 +245,19 @@ professional.MapPost("/spaces/{id:guid}/applications", async (Guid id, Applicati
 professional.MapGet("/space-applications/received", (ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.OwnerApplicationsAsync(UserId(user), ct));
 professional.MapGet("/space-applications/mine", (ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.ApplicantApplicationsAsync(UserId(user), ct));
 professional.MapPost("/space-applications/{id:guid}/{status}", async (Guid id, ApplicationStatus status, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.ReviewApplicationAsync(UserId(user), id, status, ct) ? Results.NoContent() : Results.BadRequest());
+professional.MapGet("/spaces/saved", (ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => service.SavedAsync(UserId(user), ct));
+professional.MapPut("/spaces/{id:guid}/saved", async (Guid id, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.SaveOpportunityAsync(UserId(user), id, ct) ? Results.NoContent() : Results.NotFound());
+professional.MapDelete("/spaces/{id:guid}/saved", async (Guid id, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.RemoveSavedOpportunityAsync(UserId(user), id, ct) ? Results.NoContent() : Results.NotFound());
+professional.MapPost("/spaces/{id:guid}/reports", async (Guid id, OpportunityReportRequest request, ClaimsPrincipal user, ISpaceService service, CancellationToken ct) => await service.ReportAsync(UserId(user), id, request, ct) ? Results.Accepted() : Results.Conflict()).AddEndpointFilter<ValidationFilter<OpportunityReportRequest>>();
+
+var notifications = app.MapGroup("/api/v1/notifications").RequireAuthorization();
+notifications.MapGet("/", (int? page, int? pageSize, ClaimsPrincipal user, INotificationService service, CancellationToken ct) => service.ListAsync(UserId(user), page ?? 1, pageSize ?? 30, ct));
+notifications.MapPost("/{id:guid}/read", async (Guid id, ClaimsPrincipal user, INotificationService service, CancellationToken ct) => await service.MarkReadAsync(UserId(user), id, ct) ? Results.NoContent() : Results.NotFound());
+notifications.MapPost("/read-all", async (ClaimsPrincipal user, INotificationService service, CancellationToken ct) => { await service.MarkAllReadAsync(UserId(user), ct); return Results.NoContent(); });
+notifications.MapGet("/preferences", (ClaimsPrincipal user, INotificationService service, CancellationToken ct) => service.PreferencesAsync(UserId(user), ct));
+notifications.MapPut("/preferences", (UpdateNotificationPreferenceRequest request, ClaimsPrincipal user, INotificationService service, CancellationToken ct) => service.UpdatePreferencesAsync(UserId(user), request, ct));
+notifications.MapPost("/devices", (RegisterPushDeviceRequest request, ClaimsPrincipal user, INotificationService service, CancellationToken ct) => service.RegisterDeviceAsync(UserId(user), request, ct)).AddEndpointFilter<ValidationFilter<RegisterPushDeviceRequest>>();
+notifications.MapDelete("/devices/{id:guid}", async (Guid id, ClaimsPrincipal user, INotificationService service, CancellationToken ct) => await service.RevokeDeviceAsync(UserId(user), id, ct) ? Results.NoContent() : Results.NotFound());
 
 var admin = app.MapGroup("/api/v1/admin").RequireAuthorization(policy => policy.RequireRole("Admin"));
 admin.MapGet("/businesses/pending", (IProfessionalService service, CancellationToken ct) => service.PendingAsync(ct));
@@ -266,6 +281,7 @@ admin.MapGet("/reviews", (IReviewService service, CancellationToken ct) => servi
 admin.MapGet("/users", (int page, int pageSize, IOperationsService service, CancellationToken ct) => service.UsersAsync(page == 0 ? 1 : page, pageSize == 0 ? 50 : pageSize, ct));
 admin.MapGet("/audit-logs", (int page, int pageSize, IOperationsService service, CancellationToken ct) => service.AuditAsync(page == 0 ? 1 : page, pageSize == 0 ? 50 : pageSize, ct));
 admin.MapGet("/bookings", (IBookingService service, CancellationToken ct) => service.AdminBookingsAsync(ct));
+admin.MapGet("/space-reports", (ISpaceService service, CancellationToken ct) => service.ReportsAsync(ct));
 admin.MapPost("/portfolio-images/{id:guid}/hide", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ModeratePortfolioImageAsync(UserId(user), id, true, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapPost("/portfolio-images/{id:guid}/restore", async (Guid id, ClaimsPrincipal user, IProfessionalService service, CancellationToken ct) => await service.ModeratePortfolioImageAsync(UserId(user), id, false, ct) ? Results.NoContent() : Results.NotFound());
 admin.MapGet("/portfolio-images", (IProfessionalService service, CancellationToken ct) => service.PortfolioModerationAsync(ct));

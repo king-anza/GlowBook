@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterLink } from '@angular/router';
 import { IonApp, IonHeader, IonIcon, IonRouterOutlet, IonToolbar } from '@ionic/angular';
@@ -13,6 +13,7 @@ import {
   eyeOutline,
   handLeftOutline,
   locationOutline,
+  notificationsOutline,
   optionsOutline,
   personCircleOutline,
   searchOutline,
@@ -25,6 +26,7 @@ import {
 import { environment } from '../environments/environment';
 
 import { AuthService } from './core/auth/auth.service';
+import { NotificationService } from './core/notifications/notification.service';
 
 @Component({
   selector: 'app-root',
@@ -33,10 +35,11 @@ import { AuthService } from './core/auth/auth.service';
   imports: [RouterLink, IonApp, IonRouterOutlet, IonHeader, IonToolbar, IonIcon],
 })
 export class AppComponent {
-  private readonly router = inject(Router);
+  readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private navigationTimer: ReturnType<typeof setTimeout> | null = null;
   readonly auth = inject(AuthService);
+  readonly notifications = inject(NotificationService);
   readonly isDemo = environment.demoMode;
   readonly navigating = signal(false);
 
@@ -54,11 +57,18 @@ export class AppComponent {
       eyeOutline,
       handLeftOutline,
       locationOutline,
+      notificationsOutline,
       optionsOutline,
       storefrontOutline,
       timeOutline,
       personCircleOutline,
       sparklesOutline,
+    });
+    effect(() => {
+      if (this.auth.isAuthenticated()) {
+        this.notifications.refresh();
+        void this.notifications.syncAndroidPushIfPermitted().catch(() => undefined);
+      } else this.notifications.clear();
     });
     this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((event) => {
       if (event instanceof NavigationStart) {
@@ -68,6 +78,7 @@ export class AppComponent {
       if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
         this.clearNavigationTimer();
         this.navigating.set(false);
+        if (event instanceof NavigationEnd && this.auth.isAuthenticated()) this.notifications.refresh();
       }
     });
   }

@@ -7,6 +7,8 @@ using GlowBook.Application.Catalogue;
 using GlowBook.Application.Identity;
 using GlowBook.Application.Professionals;
 using GlowBook.Application.Reviews;
+using GlowBook.Application.Operations;
+using GlowBook.Application.Spaces;
 using GlowBook.Domain.Bookings;
 using GlowBook.Infrastructure.Identity;
 using GlowBook.Infrastructure.Persistence;
@@ -47,7 +49,7 @@ public sealed class MvpJourneyTests
         var business = await PostAsync<BusinessDto>(client, "/api/v1/professional/business", new
         {
             tradingName = "Glow API Studio", description = "Integration test studio", cancellationPolicy = "Cancel anytime", publicEmail = "studio@example.test", publicPhone = (string?)null,
-            location = new { addressLine1 = "1 Main Road", addressLine2 = (string?)null, suburb = "Sandton", city = "Johannesburg", province = "Gauteng", postalCode = "2196" }, concurrencyToken = (Guid?)null
+            location = new { addressLine1 = "1 Main Road", addressLine2 = (string?)null, suburb = "Sandton", city = "Johannesburg", province = "Gauteng", postalCode = "2196", latitude = -26.1076, longitude = 28.0567 }, concurrencyToken = (Guid?)null
         });
         var staffId = Assert.Single(business.Staff).Id;
         var assignedWorkspaceResponse = await client.PatchAsJsonAsync($"/api/v1/professional/staff/{staffId}", new
@@ -75,6 +77,54 @@ public sealed class MvpJourneyTests
 
         Authorize(client, adminToken);
         await SuccessAsync(client.PostAsJsonAsync($"/api/v1/admin/businesses/{business.Id}/approve", new { }));
+
+        Authorize(client, professionalToken);
+        var opportunity = await PostAsync<OpportunityDto>(client, "/api/v1/professional/spaces", new
+        {
+            workspaceType = "StylingChair", opportunityType = "ChairRental", title = "Sunny styling chair",
+            description = "An equipped chair for an independent stylist.", requiredSkills = "Hair styling",
+            includedAmenities = "Wash basin and Wi-Fi", houseRules = "Keep shared areas tidy", spacesAvailable = 1,
+            rateAmount = 300m, ratePeriod = "Day", startDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3)),
+            endDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)), recurring = false, bringOwnClients = true,
+            approvalRequired = true, imageUrl = (string?)null,
+            imageUrls = new[] { "https://example.test/chair-one.jpg", "https://example.test/chair-two.jpg" }
+        });
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/spaces/{opportunity.Id}/status/Published", new { }));
+
+        client.DefaultRequestHeaders.Authorization = null;
+        var opportunities = await client.GetFromJsonAsync<List<OpportunityDto>>("/api/v1/spaces?latitude=-26.10&longitude=28.05");
+        var discoveredOpportunity = Assert.Single(opportunities!);
+        Assert.True(discoveredOpportunity.IsVerifiedParty);
+        Assert.True(discoveredOpportunity.IsUrgent);
+        Assert.NotNull(discoveredOpportunity.DistanceKm);
+        Assert.Equal(2, discoveredOpportunity.ImageUrls.Count);
+
+        Authorize(client, intruderToken);
+        await SuccessAsync(client.PutAsJsonAsync($"/api/v1/professional/spaces/{opportunity.Id}/saved", new { }));
+        var saved = await client.GetFromJsonAsync<List<OpportunityDto>>("/api/v1/professional/spaces/saved");
+        Assert.True(Assert.Single(saved!).IsSaved);
+        var application = await PostAsync<ApplicationDto>(client, $"/api/v1/professional/spaces/{opportunity.Id}/applications", new { message = "I am an experienced stylist seeking a welcoming workspace.", portfolioUrl = "https://example.test/portfolio" });
+        Assert.Equal(System.Net.HttpStatusCode.Accepted, (await client.PostAsJsonAsync($"/api/v1/professional/spaces/{opportunity.Id}/reports", new { reason = "Misleading", details = "Please verify the stated equipment." })).StatusCode);
+
+        Authorize(client, adminToken);
+        var spaceReports = await client.GetFromJsonAsync<List<OpportunityReportDto>>("/api/v1/admin/space-reports");
+        Assert.Equal("Sunny styling chair", Assert.Single(spaceReports!).OpportunityTitle);
+
+        Authorize(client, professionalToken);
+        var ownerNotifications = await client.GetFromJsonAsync<NotificationPage>("/api/v1/notifications");
+        var applicationNotice = Assert.Single(ownerNotifications!.Items, x => x.EventType == "ApplicationReceived");
+        Assert.Equal($"/professional/spaces?application={application.Id}", applicationNotice.ActionUrl);
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/notifications/{applicationNotice.Id}/read", new { }));
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/space-applications/{application.Id}/Accepted", new { }));
+
+        Authorize(client, intruderToken);
+        var applicantNotifications = await client.GetFromJsonAsync<NotificationPage>("/api/v1/notifications");
+        Assert.Contains(applicantNotifications!.Items, x => x.EventType == "ApplicationAccepted" && x.ActionUrl == $"/spaces?opportunity={opportunity.Id}");
+        var preferences = await client.PutAsJsonAsync("/api/v1/notifications/preferences", new { bookingPush = false, applicationPush = true, accountPush = false, reminderPush = true, emailFallback = true });
+        await SuccessAsync(Task.FromResult(preferences));
+        var registeredDevice = await PostAsync<PushDeviceDto>(client, "/api/v1/notifications/devices", new { token = "integration-device-token", platform = "android" });
+        Assert.Equal("android", registeredDevice.Platform);
+        await SuccessAsync(Task.FromResult(await client.DeleteAsync($"/api/v1/notifications/devices/{registeredDevice.Id}")));
 
         client.DefaultRequestHeaders.Authorization = null;
         var discovered = await client.GetFromJsonAsync<PagedBusinesses>($"/api/v1/businesses?search=Glow%20API&categoryId={categoryId}&province=Gauteng&page=1&pageSize=20");

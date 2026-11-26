@@ -80,6 +80,13 @@
             ><ion-input label="Photo URL (HTTPS, optional)" labelPlacement="stacked" formControlName="imageUrl"
           /></ion-item>
           <ion-item class="field"
+            ><ion-textarea
+              label="Gallery image URLs (up to 5 HTTPS links, one per line)"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="imageUrls"
+          /></ion-item>
+          <ion-item class="field"
             ><ion-checkbox formControlName="recurring">Recurring availability</ion-checkbox></ion-item
           ><ion-item class="field"
             ><ion-checkbox formControlName="bringOwnClients">Professional must bring clients</ion-checkbox></ion-item
@@ -121,7 +128,7 @@
     <h2 class="section-title">Applications received</h2>
     <div class="card-grid">
       @for(application of applications();track application.id){
-      <article class="surface-card">
+      <article class="surface-card" [class.notification-target]="highlightedApplicationId === application.id">
         <p class="eyebrow">{{application.status}}</p>
         <h2>{{application.applicantName}}</h2>
         <p>{{application.opportunityTitle}}</p>

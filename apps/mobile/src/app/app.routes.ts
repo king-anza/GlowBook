@@ -38,6 +38,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/spaces/spaces.page').then((m) => m.SpacesPage),
   },
   {
+    path: 'notifications',
+    loadComponent: () => import('./features/notifications/notifications.page').then((m) => m.NotificationsPage),
+  },
+  {
     path: 'professional/dashboard',
     loadComponent: () => import('./features/professional/dashboard.page').then((m) => m.DashboardPage),
   },

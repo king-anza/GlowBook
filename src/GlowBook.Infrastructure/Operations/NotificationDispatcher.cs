@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GlowBook.Infrastructure.Operations;
 
-internal sealed class NotificationDispatcher(IServiceScopeFactory scopes, IEmailClient email, ILogger<NotificationDispatcher> logger) : BackgroundService
+internal sealed class NotificationDispatcher(IServiceScopeFactory scopes, IEmailClient email, IPushNotificationSender push, ILogger<NotificationDispatcher> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -29,7 +29,11 @@ internal sealed class NotificationDispatcher(IServiceScopeFactory scopes, IEmail
                 item.AttemptCount++;
                 try
                 {
-                    if (!string.IsNullOrWhiteSpace(recipient) && await email.SendAsync(recipient, "Glow by LunaMay booking update", $"Booking event: {item.EventType}\nBooking reference: {item.SubjectId}\n\nFind it. Book it. Glow.", ct))
+                    var preference = await db.NotificationPreferences.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == item.RecipientUserId, ct);
+                    var hasPush = push.IsConfigured && await db.PushDevices.AnyAsync(x => x.UserId == item.RecipientUserId && x.RevokedAtUtc == null, ct);
+                    if (hasPush && item.PushProcessedAtUtc is null) { item.AttemptCount--; continue; }
+                    var shouldEmail = preference is null || preference.EmailFallback && (!hasPush || item.PushDeliveredAtUtc is null);
+                    if (!shouldEmail || !string.IsNullOrWhiteSpace(recipient) && await email.SendAsync(recipient, item.Title, $"{item.Message}\n\nOpen Glow by LunaMay to view the details.\n\nFind it. Book it. Glow.", ct))
                     {
                         item.Status = NotificationStatus.Sent;
                         item.ProcessedAtUtc = DateTime.UtcNow;

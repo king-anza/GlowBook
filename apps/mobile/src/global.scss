@@ -1284,3 +1284,8 @@ ion-card-title {
     transform: none !important;
   }
 }
+/* Direct notification links visibly identify the relevant record without relying on motion. */
+.notification-target {
+  outline: 3px solid var(--glow-plum);
+  outline-offset: 3px;
+}

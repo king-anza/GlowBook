@@ -1,9 +1,16 @@
+using System.Text.Json.Serialization;
+
 namespace GlowBook.Domain.Spaces;
 
+[JsonConverter(typeof(JsonStringEnumConverter<WorkspaceType>))]
 public enum WorkspaceType { StylingChair, BarberChair, NailStation, MakeupStation, TreatmentRoom, MassageRoom, TattooStation, EntireStudio, Other }
+[JsonConverter(typeof(JsonStringEnumConverter<OpportunityType>))]
 public enum OpportunityType { ChairRental, StaffVacancy }
+[JsonConverter(typeof(JsonStringEnumConverter<OpportunityStatus>))]
 public enum OpportunityStatus { Draft, Published, Filled, Paused, Closed }
+[JsonConverter(typeof(JsonStringEnumConverter<RatePeriod>))]
 public enum RatePeriod { Hour, Day, Week, Month, RevenueShare, Negotiable }
+[JsonConverter(typeof(JsonStringEnumConverter<ApplicationStatus>))]
 public enum ApplicationStatus { Pending, Accepted, Declined, Withdrawn }
 
 public sealed class WorkspaceOpportunity
@@ -27,10 +34,12 @@ public sealed class WorkspaceOpportunity
     public bool BringOwnClients { get; set; }
     public bool ApprovalRequired { get; set; } = true;
     public string? ImageUrl { get; set; }
+    public string[] ImageUrls { get; set; } = [];
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
     public GlowBook.Domain.Professionals.Business Business { get; set; } = null!;
     public ICollection<WorkspaceApplication> Applications { get; set; } = [];
+    public ICollection<SavedWorkspaceOpportunity> Saves { get; set; } = [];
 }
 
 public sealed class WorkspaceApplication
@@ -43,5 +52,27 @@ public sealed class WorkspaceApplication
     public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
+    public WorkspaceOpportunity Opportunity { get; set; } = null!;
+}
+
+public sealed class SavedWorkspaceOpportunity
+{
+    public Guid UserId { get; set; }
+    public Guid OpportunityId { get; set; }
+    public DateTime CreatedAtUtc { get; set; }
+    public WorkspaceOpportunity Opportunity { get; set; } = null!;
+}
+
+[JsonConverter(typeof(JsonStringEnumConverter<OpportunityReportReason>))]
+public enum OpportunityReportReason { Misleading, SafetyConcern, Discrimination, Spam, Other }
+
+public sealed class WorkspaceOpportunityReport
+{
+    public Guid Id { get; set; }
+    public Guid OpportunityId { get; set; }
+    public Guid ReporterUserId { get; set; }
+    public OpportunityReportReason Reason { get; set; }
+    public string Details { get; set; } = string.Empty;
+    public DateTime CreatedAtUtc { get; set; }
     public WorkspaceOpportunity Opportunity { get; set; } = null!;
 }

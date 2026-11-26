@@ -215,6 +215,22 @@
       }
     </section>
 
+    <h2 class="section-title">Glow Spaces safety reports</h2>
+    <section class="card-grid">
+      @for (report of spaceReports(); track report.id) {
+      <article class="surface-card">
+        <div class="admin-row__top">
+          <h3>{{ report.opportunityTitle }}</h3>
+          <span class="chip">{{ report.reason }}</span>
+        </div>
+        <p>{{ report.businessName }} · {{ report.createdAtUtc | date: 'medium' }}</p>
+        <p class="section-copy">{{ report.details || 'No additional details supplied.' }}</p>
+      </article>
+      } @empty {
+      <div class="empty-state">No Glow Spaces reports have been submitted.</div>
+      }
+    </section>
+
     <h2 class="section-title">Security audit activity</h2>
     <section class="surface-card admin-list">
       @for (audit of audits(); track audit.id) {

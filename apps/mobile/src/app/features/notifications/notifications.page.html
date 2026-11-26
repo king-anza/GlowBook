@@ -1,0 +1,75 @@
+<ion-header
+  ><ion-toolbar><ion-title>Notifications</ion-title></ion-toolbar></ion-header
+>
+<ion-content
+  ><main class="page-shell notification-shell">
+    <section class="notification-heading">
+      <div>
+        <p class="eyebrow">Your updates</p>
+        <h1>Notification centre</h1>
+        <p>Booking, application and account updates stay together and link to the relevant record.</p>
+      </div>
+      @if (notifications.unreadCount()) {
+      <ion-button fill="clear" (click)="notifications.markAllRead()">Mark all read</ion-button> }
+    </section>
+    @if (status()) {
+    <app-feedback-banner
+      tone="info"
+      title="Notification settings"
+      [message]="status()!"
+      [dismissible]="true"
+      (dismiss)="status.set(null)"
+    />
+    }
+    <section class="notification-layout">
+      <div class="notification-list" aria-live="polite">
+        @for (item of notifications.items(); track item.id) {
+        <button
+          type="button"
+          class="surface-card notification-item"
+          [class.unread]="!item.readAtUtc"
+          (click)="notifications.open(item)"
+        >
+          <span class="notification-dot" aria-hidden="true"></span
+          ><span
+            ><strong>{{ item.title }}</strong><small>{{ item.message }}</small
+            ><time>{{ item.createdAtUtc | date: 'medium' }}</time></span
+          >
+        </button>
+        } @empty {
+        <div class="surface-card empty-notifications">
+          <h2>You’re all caught up</h2>
+          <p>New booking, application and account updates will appear here.</p>
+        </div>
+        }
+      </div>
+      <aside class="surface-card preference-card">
+        <p class="eyebrow">Android push</p>
+        <h2>Choose useful alerts</h2>
+        <p>
+          We ask for device permission only after you choose Enable. If push is unavailable, in-app alerts and your
+          selected email fallback continue.
+        </p>
+        <ion-button expand="block" (click)="enablePush()">Enable Android push</ion-button>
+        <ion-button expand="block" fill="clear" color="medium" (click)="disconnectPush()"
+          >Disconnect this device</ion-button
+        >
+        <form [formGroup]="settings" (ngSubmit)="save()">
+          <ion-list lines="none">
+            <ion-item><ion-checkbox formControlName="bookingPush">Booking updates</ion-checkbox></ion-item>
+            <ion-item><ion-checkbox formControlName="applicationPush">Glow Spaces applications</ion-checkbox></ion-item>
+            <ion-item><ion-checkbox formControlName="accountPush">Account and approval updates</ion-checkbox></ion-item>
+            <ion-item><ion-checkbox formControlName="reminderPush">Appointment reminders</ion-checkbox></ion-item>
+            <ion-item
+              ><ion-checkbox formControlName="emailFallback">Use email when push is unavailable</ion-checkbox></ion-item
+            > </ion-list
+          ><ion-button type="submit" fill="outline" expand="block">Save preferences</ion-button>
+        </form>
+        <small
+          >Device tokens are encrypted at rest, never shown in the app, and revoked when a device is
+          disconnected.</small
+        >
+      </aside>
+    </section>
+  </main></ion-content
+>

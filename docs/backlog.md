@@ -130,9 +130,9 @@ This is the working checklist for improving the complete customer, professional 
 
 ### Phase UX-F — Notifications, feedback and Glow Spaces growth
 
-- [ ] **UX-601: Notification centre** — Bell, unread count, booking/application/account/reminder events, read state and direct links to the relevant record.
-- [ ] **UX-602: Android push notifications** — Permission education, granular preferences, secure device-token lifecycle and fallbacks to email/in-app notifications.
-- [ ] **UX-603: Glow Spaces listing enrichment** — Distance, expiry, urgent state, images, saved opportunities, share/report actions and verified-party indicators.
+- [x] **UX-601: Notification centre** — Bell, unread count, booking/application/account/reminder events, read state and direct links to the relevant record.
+- [x] **UX-602: Android push notifications** — Permission education, granular preferences, secure device-token lifecycle and fallbacks to email/in-app notifications.
+- [x] **UX-603: Glow Spaces listing enrichment** — Distance, expiry, urgent state, images, saved opportunities, share/report actions and verified-party indicators.
 - [ ] **UX-604: Glow Spaces matching** — Skill/location/availability matching, opt-in alerts and understandable recommendation reasons.
 - [ ] **UX-605: Reusable professional applications** — Apply using saved profile, skills, availability and portfolio; expose contact details only after acceptance.
 - [ ] **UX-606: Application status timeline** — Submitted, viewed, accepted/declined, withdrawn and filled states with notifications and owner response tools.

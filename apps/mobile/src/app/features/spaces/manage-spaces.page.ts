@@ -2,6 +2,7 @@ import { KeyValuePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   IonButton,
   IonCheckbox,
@@ -47,6 +48,8 @@ import { type OpportunityStatus, type SpaceApplication, type SpaceOpportunity, w
 export class ManageSpacesPage {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  readonly highlightedApplicationId = this.route.snapshot.queryParamMap.get('application');
   readonly opportunities = signal<SpaceOpportunity[]>([]);
   readonly applications = signal<SpaceApplication[]>([]);
   readonly message = signal<string | null>(null);
@@ -69,6 +72,7 @@ export class ManageSpacesPage {
     bringOwnClients: [false],
     approvalRequired: [true],
     imageUrl: ['', Validators.pattern(/^$|^https:\/\/.+/)],
+    imageUrls: ['', Validators.maxLength(10244)],
   });
 
   constructor() {
@@ -90,6 +94,10 @@ export class ManageSpacesPage {
       ...raw,
       endDate: raw.endDate || null,
       imageUrl: raw.imageUrl || null,
+      imageUrls: raw.imageUrls
+        .split('\n')
+        .map((value) => value.trim())
+        .filter(Boolean),
       rateAmount: raw.ratePeriod === 'Negotiable' ? null : raw.rateAmount,
     };
     const request = item
@@ -110,6 +118,7 @@ export class ManageSpacesPage {
       ...item,
       endDate: item.endDate ?? '',
       imageUrl: item.imageUrl ?? '',
+      imageUrls: item.imageUrls.join('\n'),
       rateAmount: item.rateAmount ?? 0,
     });
   }

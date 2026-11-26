@@ -205,6 +205,124 @@ test('uses responsive studio navigation and shows calendar capacity and private 
   await expect(page.getByText('Shown once at least 3 customers')).toBeVisible();
 });
 
+test('opens an unread notification at the relevant booking record', async ({ page }) => {
+  const payload = Buffer.from(JSON.stringify({ role: 'Customer' })).toString('base64url');
+  await page.route('**/api/v1/auth/login', (route) =>
+    route.fulfill({
+      json: {
+        accessToken: `header.${payload}.signature`,
+        refreshToken: 'notification-refresh',
+        accessTokenExpiresAtUtc: '2026-11-27T08:00:00Z',
+      },
+    }),
+  );
+  await page.route('**/api/v1/notifications', (route) =>
+    route.fulfill({
+      json: {
+        unreadCount: 1,
+        items: [
+          {
+            id: 'note-1',
+            eventType: 'BookingConfirmed',
+            title: 'Booking confirmed',
+            message: 'Your booking was confirmed.',
+            actionUrl: '/bookings?booking=booking-1',
+            createdAtUtc: '2026-11-26T08:00:00Z',
+            readAtUtc: null,
+          },
+        ],
+      },
+    }),
+  );
+  await page.route('**/api/v1/notifications/preferences', (route) =>
+    route.fulfill({
+      json: {
+        bookingPush: true,
+        applicationPush: true,
+        accountPush: true,
+        reminderPush: true,
+        emailFallback: true,
+        pushAvailable: false,
+      },
+    }),
+  );
+  await page.route('**/api/v1/notifications/note-1/read', (route) => route.fulfill({ status: 204 }));
+  await page.route('**/api/v1/bookings', (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: 'booking-1',
+          businessName: 'Glow Studio',
+          serviceName: 'Silk press',
+          staffName: 'Lerato',
+          startUtc: '2026-11-27T08:00:00Z',
+          status: 'Confirmed',
+          concurrencyToken: 'v1',
+        },
+      ],
+    }),
+  );
+  await page.route('**/api/v1/reviews', (route) => route.fulfill({ json: [] }));
+
+  await page.goto('/auth');
+  await page.getByLabel('Email').fill('customer@example.test');
+  await page.getByLabel('Password').fill('ValidPass!1');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('link', { name: 'Notifications' }).click();
+  await expect(page.getByRole('heading', { name: 'Notification centre' })).toBeVisible();
+  await page.getByRole('button', { name: /Booking confirmed/ }).click();
+  await expect(page).toHaveURL(/bookings\?booking=booking-1/);
+  await expect(page.locator('.notification-target')).toContainText('Silk press');
+});
+
+test('shows enriched Glow Spaces trust, urgency, distance and gallery details', async ({ page }) => {
+  await page.route('**/api/v1/spaces', (route) =>
+    route.fulfill({
+      json: [
+        {
+          id: 'space-1',
+          businessId: 'business-1',
+          businessName: 'Glow Studio',
+          city: 'Gqeberha',
+          province: 'Eastern Cape',
+          workspaceType: 'StylingChair',
+          opportunityType: 'ChairRental',
+          status: 'Published',
+          title: 'Sunny styling chair',
+          description: 'A welcoming chair for an independent stylist.',
+          requiredSkills: 'Hair styling',
+          includedAmenities: 'Wi-Fi',
+          houseRules: 'Keep shared areas tidy',
+          spacesAvailable: 1,
+          rateAmount: 300,
+          ratePeriod: 'Day',
+          startDate: '2026-11-28',
+          endDate: '2026-12-20',
+          recurring: false,
+          bringOwnClients: true,
+          approvalRequired: true,
+          imageUrl: null,
+          imageUrls: ['assets/glowbook/braids.webp', 'assets/glowbook/nails.webp'],
+          applicationCount: 0,
+          createdAtUtc: '2026-11-26T08:00:00Z',
+          isVerifiedParty: true,
+          isDemo: false,
+          isExpired: false,
+          isUrgent: true,
+          distanceKm: 2.4,
+          isSaved: false,
+        },
+      ],
+    }),
+  );
+  await page.goto('/spaces');
+  await expect(page.getByRole('heading', { name: 'Sunny styling chair' })).toBeVisible();
+  await expect(page.getByText('Approved business')).toBeVisible();
+  await expect(page.getByText('Starting or closing soon')).toBeVisible();
+  await expect(page.getByText('Approximately 2.4 km away')).toBeVisible();
+  await expect(page.getByLabel('Opportunity photos').locator('img')).toHaveCount(1);
+});
+
 test('uses a bottom navigation on mobile and restores it to the desktop header', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/home');
@@ -678,6 +796,7 @@ test('administrator reviews a pending professional from the operations centre', 
   await page.route('**/api/v1/admin/audit-logs?**', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/reviews', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/portfolio-images', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/admin/space-reports', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/admin/businesses/business-1/approve', (route) => route.fulfill({ status: 204 }));
   await page.route('**/api/v1/me/data', (route) =>
     route.fulfill({

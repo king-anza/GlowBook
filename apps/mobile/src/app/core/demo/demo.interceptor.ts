@@ -144,6 +144,17 @@ let account = {
   termsVersion: '1.0',
   privacyNoticeVersion: '1.0',
 };
+let demoNotifications = [
+  {
+    id: 'demo-notification',
+    eventType: 'BookingConfirmed',
+    title: 'Booking confirmed',
+    message: 'Nomsa Braid Studio confirmed your booking.',
+    actionUrl: '/bookings',
+    createdAtUtc: new Date().toISOString(),
+    readAtUtc: null as string | null,
+  },
+];
 
 export const demoInterceptor: HttpInterceptorFn = (request, next) => {
   if (!environment.demoMode || !request.url.includes('/api/v1/')) return next(request);
@@ -178,6 +189,34 @@ export const demoInterceptor: HttpInterceptorFn = (request, next) => {
     return response(account);
   }
   if (path === '/api/v1/me' && method === 'DELETE') return response(null, 204);
+
+  if (path === '/api/v1/notifications' && method === 'GET')
+    return response({
+      items: demoNotifications,
+      unreadCount: demoNotifications.filter((item) => !item.readAtUtc).length,
+    });
+  if (path === '/api/v1/notifications/read-all' && method === 'POST') {
+    demoNotifications = demoNotifications.map((item) => ({ ...item, readAtUtc: new Date().toISOString() }));
+    return response(null, 204);
+  }
+  if (path.startsWith('/api/v1/notifications/') && path.endsWith('/read') && method === 'POST') {
+    const id = path.split('/')[4];
+    demoNotifications = demoNotifications.map((item) =>
+      item.id === id ? { ...item, readAtUtc: new Date().toISOString() } : item,
+    );
+    return response(null, 204);
+  }
+  if (path === '/api/v1/notifications/preferences' && method === 'GET')
+    return response({
+      bookingPush: true,
+      applicationPush: true,
+      accountPush: true,
+      reminderPush: true,
+      emailFallback: true,
+      pushAvailable: false,
+    });
+  if (path === '/api/v1/notifications/preferences' && method === 'PUT')
+    return response({ ...(request.body as object), pushAvailable: false });
 
   if (path === '/api/v1/bookings' && method === 'GET') return response(bookings);
   if (path === '/api/v1/bookings' && method === 'POST') {

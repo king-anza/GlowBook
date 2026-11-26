@@ -60,6 +60,14 @@ interface ModerationImage {
   status: string;
   createdAtUtc: string;
 }
+interface SpaceReport {
+  id: string;
+  opportunityTitle: string;
+  businessName: string;
+  reason: string;
+  details: string;
+  createdAtUtc: string;
+}
 
 @Component({
   selector: 'app-admin',
@@ -76,6 +84,7 @@ export class AdminPage {
   readonly audits = signal<AuditLog[]>([]);
   readonly reviews = signal<ModerationReview[]>([]);
   readonly portfolioImages = signal<ModerationImage[]>([]);
+  readonly spaceReports = signal<SpaceReport[]>([]);
   readonly busyId = signal<string | null>(null);
   readonly message = signal<string | null>(null);
   readonly loading = signal(true);
@@ -96,6 +105,7 @@ export class AdminPage {
     this.loadBookings();
     this.loadAudits(this.auditPage());
     this.loadModeration();
+    this.loadSpaceReports();
   }
 
   async approve(business: Business): Promise<void> {
@@ -314,6 +324,13 @@ export class AdminPage {
     this.http.get<ModerationImage[]>(`${environment.apiUrl}/api/v1/admin/portfolio-images`).subscribe({
       next: (items) => this.portfolioImages.set(items),
       error: () => this.message.set('Portfolio moderation could not be loaded.'),
+    });
+  }
+
+  private loadSpaceReports(): void {
+    this.http.get<SpaceReport[]>(`${environment.apiUrl}/api/v1/admin/space-reports`).subscribe({
+      next: (items) => this.spaceReports.set(items),
+      error: () => this.message.set('Glow Spaces safety reports could not be loaded.'),
     });
   }
 

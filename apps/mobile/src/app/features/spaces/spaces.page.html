@@ -31,7 +31,16 @@
           ></ion-item
         >
       </ion-list>
-      <ion-button type="submit">Search spaces</ion-button>
+      <div class="filter-actions">
+        <ion-button type="submit">Search spaces</ion-button
+        ><ion-button type="button" fill="outline" (click)="useLocation()">Use my location</ion-button> @if
+        (auth.hasRole('Professional')) {
+        <ion-button type="button" fill="outline" (click)="toggleSavedView()"
+          >{{ showingSaved() ? 'Show all' : 'View saved' }}</ion-button
+        >
+        }
+      </div>
+      <small>Location permission is optional. Coordinates are used for this search only and are not stored.</small>
     </form>
 
     @if (message()) {
@@ -66,15 +75,21 @@
     } @else {
     <div class="space-grid">
       @for (item of opportunities(); track item.id) {
-      <article class="surface-card space-card">
-        @if (item.imageUrl) {<img [src]="item.imageUrl" [alt]="item.title" />}
+      <article class="surface-card space-card" [class.notification-target]="highlightedId === item.id">
+        @if (item.imageUrls[0] || item.imageUrl) {<img [src]="item.imageUrls[0] || item.imageUrl" [alt]="item.title" />}
         <div class="space-card__body">
           <div class="space-card__badges">
             <span>{{ item.opportunityType === 'ChairRental' ? 'Workspace rental' : 'Staff vacancy' }}</span
-            ><span>{{ labels[item.workspaceType] }}</span>
+            ><span>{{ labels[item.workspaceType] }}</span> @if (item.isVerifiedParty) {
+            <span class="verified">Approved business</span> } @if (item.isDemo) { <span>Demo listing</span> } @if
+            (item.isUrgent) { <span class="urgent">Starting or closing soon</span> } @if (item.isExpired) {
+            <span>Expired</span> }
           </div>
           <h2>{{ item.title }}</h2>
           <p class="space-card__salon">{{ item.businessName }} · {{ item.city }}, {{ item.province }}</p>
+          @if (item.distanceKm !== null) {
+          <p class="distance">Approximately {{ item.distanceKm }} km away</p>
+          }
           <p>{{ item.description }}</p>
           <dl>
             <div>
@@ -92,8 +107,22 @@
           </dl>
           @if (item.requiredSkills) {
           <p><strong>Skills:</strong> {{ item.requiredSkills }}</p>
+          } @if (item.imageUrls.length > 1) {
+          <div class="space-gallery" aria-label="Opportunity photos">
+            @for (image of item.imageUrls.slice(1); track image) {
+            <img [src]="image" [alt]="item.title + ' workspace photo'" loading="lazy" /> }
+          </div>
           }
-          <ion-button expand="block" (click)="selected.set(item)">View and apply</ion-button>
+          <ion-button expand="block" [disabled]="item.isExpired" (click)="selected.set(item)"
+            >{{ item.isExpired ? 'Opportunity expired' : 'View and apply' }}</ion-button
+          >
+          <div class="card-actions">
+            <ion-button fill="clear" size="small" (click)="share(item)">Share</ion-button> @if
+            (auth.hasRole('Professional')) {
+            <ion-button fill="clear" size="small" (click)="toggleSaved(item)"
+              >{{ item.isSaved ? 'Saved' : 'Save' }}</ion-button
+            ><ion-button fill="clear" size="small" color="medium" (click)="reporting.set(item)">Report</ion-button> }
+          </div>
         </div>
       </article>
       } @empty {
@@ -136,6 +165,35 @@
         ><ion-button expand="block" type="submit">Send application</ion-button>
       </form>
       }
+    </section>
+    } @if (reporting(); as item) {
+    <section class="surface-card apply-card">
+      <button type="button" class="apply-card__close" (click)="reporting.set(null)" aria-label="Close report">×</button>
+      <p class="eyebrow">Safety report</p>
+      <h2>Report “{{ item.title }}”</h2>
+      <p>
+        Reports are private and reviewed by Glow by LunaMay. For immediate danger, contact local emergency services.
+      </p>
+      <form [formGroup]="reportForm" (ngSubmit)="report(item)">
+        <ion-list lines="none">
+          <ion-item class="field"
+            ><ion-select label="Reason" labelPlacement="stacked" formControlName="reason"
+              ><ion-select-option value="Misleading">Misleading information</ion-select-option
+              ><ion-select-option value="SafetyConcern">Safety concern</ion-select-option
+              ><ion-select-option value="Discrimination">Discrimination</ion-select-option
+              ><ion-select-option value="Spam">Spam</ion-select-option
+              ><ion-select-option value="Other">Other</ion-select-option></ion-select
+            ></ion-item
+          >
+          <ion-item class="field"
+            ><ion-textarea
+              label="Details (optional)"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="details"
+          /></ion-item> </ion-list
+        ><ion-button expand="block" type="submit">Send report</ion-button>
+      </form>
     </section>
     }
   </main>

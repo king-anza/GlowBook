@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { IonButton, IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
@@ -25,6 +26,8 @@ interface Booking {
 export class ProfessionalBookingsPage {
   private readonly http = inject(HttpClient);
   private readonly confirmation = inject(ConfirmationService);
+  private readonly route = inject(ActivatedRoute);
+  readonly highlightedId = this.route.snapshot.queryParamMap.get('booking');
   readonly bookings = signal<Booking[]>([]);
   readonly message = signal<string | null>(null);
   readonly busyId = signal<string | null>(null);
