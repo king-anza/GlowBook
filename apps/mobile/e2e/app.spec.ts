@@ -76,11 +76,36 @@ test('keeps the requested Discover, bookings, Studio and Account shell on mobile
   const nav = page.getByRole('navigation', { name: 'Main navigation' });
   await expect(nav.getByRole('link', { name: 'Discover' })).toHaveAttribute('href', '/home');
   await expect(nav.getByRole('link', { name: 'My bookings' })).toHaveAttribute('href', '/bookings');
-  await expect(nav.getByRole('link', { name: 'Studio' })).toHaveAttribute('href', '/professional/profile');
+  await expect(nav.getByRole('link', { name: 'Studio' })).toHaveAttribute('href', '/professional/onboarding');
   await expect(page.getByRole('link', { name: 'Sign in or create account' })).toHaveAttribute('href', '/auth');
   await expect(nav.getByRole('link', { name: /pricing/i })).toHaveCount(0);
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect(nav.getByRole('link', { name: 'Studio' })).toBeVisible();
+});
+
+test('guides professionals through nine persisted setup steps', async ({ page }) => {
+  await page.route('**/api/v1/professional/onboarding', (route) =>
+    route.fulfill({
+      json: {
+        accountVerified: true,
+        businessComplete: true,
+        locationComplete: true,
+        portfolioComplete: false,
+        staffComplete: false,
+        servicesComplete: false,
+        pricingComplete: false,
+        availabilityComplete: false,
+        approvalSubmitted: false,
+        approvalStatus: 'Draft',
+        reviewReason: null,
+      },
+    }),
+  );
+  await page.goto('/professional/onboarding');
+  await expect(page.getByRole('heading', { name: 'Let’s get your studio ready to glow.' })).toBeVisible();
+  await expect(page.locator('.onboarding__steps > li')).toHaveCount(9);
+  await expect(page.getByRole('progressbar', { name: 'Studio setup progress' })).toHaveAttribute('aria-valuenow', '33');
+  await expect(page.getByRole('button', { name: 'Submit for review' })).toBeDisabled();
 });
 
 test('uses a bottom navigation on mobile and restores it to the desktop header', async ({ page }) => {

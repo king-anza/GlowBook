@@ -1,0 +1,69 @@
+<ion-header
+  ><ion-toolbar><ion-title>Studio setup</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell onboarding">
+    <nav class="professional-nav" aria-label="Professional workspace">
+      <a class="active" routerLink="/professional/onboarding">Setup</a><a routerLink="/professional/profile">Profile</a
+      ><a routerLink="/professional/services">Services & staff</a
+      ><a routerLink="/professional/availability">Availability</a><a routerLink="/professional/bookings">Bookings</a>
+    </nav>
+
+    <section class="onboarding__hero">
+      <div>
+        <p class="eyebrow">Professional onboarding</p>
+        <h1>Let’s get your studio ready to glow.</h1>
+        <p>Complete each step once. Your progress is calculated from information already saved to Glow.</p>
+      </div>
+      <div class="onboarding__score" role="status" aria-live="polite">
+        <strong>{{ progress() }}%</strong><span>{{ completedCount() }} of {{ steps().length }} complete</span>
+      </div>
+    </section>
+
+    <div
+      class="onboarding__progress"
+      role="progressbar"
+      aria-label="Studio setup progress"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="progress()"
+    >
+      <span [style.width.%]="progress()"></span>
+    </div>
+
+    @if (error()) {
+    <app-feedback-banner tone="error" [message]="error()!" actionLabel="Try again" (action)="load()" />
+    } @if (message()) { <app-feedback-banner tone="success" [message]="message()!" /> } @if (summary()?.approvalStatus
+    === 'Rejected') {
+    <section class="notice notice--error" role="alert">
+      <strong>Changes requested</strong>
+      <p>{{ summary()?.reviewReason || 'Review the setup steps, update your studio and submit again.' }}</p>
+    </section>
+    } @if (loading()) {
+    <section class="surface-card" role="status">Checking your studio setup…</section>
+    } @else {
+    <ol class="onboarding__steps">
+      @for (step of steps(); track step.title; let number = $index) {
+      <li [class.is-complete]="step.complete">
+        <span class="onboarding__number" aria-hidden="true">{{ step.complete ? '✓' : number + 1 }}</span>
+        <div>
+          <h2>{{ step.title }}</h2>
+          <p>{{ step.description }}</p>
+        </div>
+        @if (step.route) {
+        <a class="onboarding__action" [routerLink]="step.route">{{ step.complete ? 'Review' : step.action }}</a>
+        } @else if (!step.complete) {
+        <ion-button size="small" [disabled]="!readyToSubmit() || submitting()" (click)="submitForReview()">
+          {{ submitting() ? 'Submitting…' : step.action }}
+        </ion-button>
+        } @else {
+        <span class="status-badge" [attr.data-status]="summary()?.approvalStatus">{{ summary()?.approvalStatus }}</span>
+        }
+      </li>
+      }
+    </ol>
+    @if (!readyToSubmit()) {
+    <p class="onboarding__hint">Complete the first eight steps to unlock approval submission.</p>
+    } }
+  </main>
+</ion-content>

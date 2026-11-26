@@ -93,7 +93,7 @@ export class AppComponent {
   workspace(): { label: string; route: string; icon: string } | null {
     if (this.auth.hasRole('Admin')) return { label: 'Admin', route: '/admin', icon: 'shield-checkmark-outline' };
     if (!this.auth.isAuthenticated() || this.auth.hasRole('Professional'))
-      return { label: 'Studio', route: '/professional/profile', icon: 'storefront-outline' };
+      return { label: 'Studio', route: '/professional/onboarding', icon: 'storefront-outline' };
     return null;
   }
 }

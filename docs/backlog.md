@@ -122,7 +122,7 @@ This is the working checklist for improving the complete customer, professional 
 ### Phase UX-E — Registration and professional workspace
 
 - [x] **UX-501: Role-choice registration** — Replaced the ambiguous professional checkbox with accessible Customer and Beauty professional choice cards, role-specific benefits, an explicit selected state and role-specific submission labels and endpoint coverage.
-- [ ] **UX-502: Guided professional onboarding** — Nine-step checklist covering verification, business, location, portfolio, staff, services, pricing, availability and approval submission.
+- [x] **UX-502: Guided professional onboarding** — Added a server-backed nine-step checklist covering verification, business, location, portfolio, staff, services, pricing, availability and approval submission, including persisted progress, readiness gating and review feedback.
 - [ ] **UX-503: Professional dashboard** — Today’s bookings, pending requests, staff availability, approval status, setup progress, Glow Spaces activity and meaningful quick actions.
 - [ ] **UX-504: Professional workspace navigation** — Responsive sidebar/menu with grouped sections instead of an increasingly crowded horizontal link row.
 - [ ] **UX-505: Calendar and capacity management** — Day/week views, drag-safe blocked time, staff filters, chair/workspace allocation and conflict explanations.

@@ -560,6 +560,142 @@ ion-card-title {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.onboarding {
+  max-width: 980px;
+}
+.onboarding__hero {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--glow-plum), #8b4ed0);
+  color: white;
+}
+.onboarding__hero h1 {
+  margin: 0.25rem 0 0.5rem;
+  color: inherit;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+}
+.onboarding__hero p {
+  max-width: 620px;
+  margin: 0;
+  line-height: 1.55;
+}
+.onboarding__hero .eyebrow {
+  color: #f2e7ff;
+}
+.onboarding__score {
+  display: grid;
+  flex: 0 0 130px;
+  place-items: center;
+  padding: 1rem;
+  border: 1px solid #ffffff55;
+  border-radius: 18px;
+  background: #ffffff18;
+  text-align: center;
+}
+.onboarding__score strong {
+  font-size: 2rem;
+}
+.onboarding__score span {
+  font-size: 0.78rem;
+}
+.onboarding__progress {
+  height: 10px;
+  margin: 1rem 0 1.25rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--glow-accent-soft);
+}
+.onboarding__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--glow-plum);
+  transition: width 240ms ease;
+}
+.onboarding__steps {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+.onboarding__steps li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--glow-line);
+  border-radius: 18px;
+  background: var(--glow-surface);
+}
+.onboarding__steps h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+}
+.onboarding__steps p {
+  margin: 0;
+  color: var(--glow-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.onboarding__number {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--glow-accent-soft);
+  color: var(--glow-plum);
+  font-weight: 850;
+}
+.onboarding__steps .is-complete {
+  border-color: #8ac6a5;
+}
+.is-complete .onboarding__number {
+  background: #e5f6ec;
+  color: #24734d;
+}
+.onboarding__action {
+  min-height: 44px;
+  padding: 0.75rem;
+  color: var(--glow-plum);
+  font-weight: 800;
+}
+.onboarding__hint {
+  padding: 1rem;
+  border-radius: 14px;
+  background: var(--glow-accent-soft);
+  color: var(--glow-muted);
+  text-align: center;
+}
+@media (max-width: 620px) {
+  .onboarding__hero {
+    display: grid;
+  }
+  .onboarding__score {
+    width: 100%;
+  }
+  .onboarding__steps li {
+    grid-template-columns: 38px 1fr;
+  }
+  .onboarding__action,
+  .onboarding__steps ion-button,
+  .onboarding__steps .status-badge {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onboarding__progress span {
+    transition: none;
+  }
+}
 .chip {
   display: inline-flex;
   min-height: var(--glow-target-min);

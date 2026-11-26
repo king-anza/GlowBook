@@ -12,10 +12,23 @@ public sealed record StaffDto(Guid Id, string DisplayName, string Biography, boo
 public sealed record PortfolioImageRequest([property: Required, Url, RegularExpression("^https://.*", ErrorMessage = "Image URL must use HTTPS.")] string ImageUrl, [property: Required, MaxLength(200)] string AltText, [property: Range(0, 9)] int DisplayOrder);
 public sealed record PortfolioImageDto(Guid Id, string ImageUrl, string AltText, int DisplayOrder, PortfolioImageStatus Status);
 public sealed record AdminPortfolioImageDto(Guid Id, string BusinessName, string ImageUrl, string AltText, PortfolioImageStatus Status, DateTime CreatedAtUtc);
+public sealed record ProfessionalOnboardingDto(
+    bool AccountVerified,
+    bool BusinessComplete,
+    bool LocationComplete,
+    bool PortfolioComplete,
+    bool StaffComplete,
+    bool ServicesComplete,
+    bool PricingComplete,
+    bool AvailabilityComplete,
+    bool ApprovalSubmitted,
+    string ApprovalStatus,
+    string? ReviewReason);
 
 public interface IProfessionalService
 {
     Task<BusinessDto?> GetAsync(Guid ownerId, CancellationToken ct);
+    Task<ProfessionalOnboardingDto> OnboardingAsync(Guid ownerId, CancellationToken ct);
     Task<BusinessDto> SaveAsync(Guid ownerId, string ownerName, BusinessRequest request, CancellationToken ct);
     Task<bool> SubmitAsync(Guid ownerId, CancellationToken ct);
     Task<StaffDto?> AddStaffAsync(Guid ownerId, StaffRequest request, CancellationToken ct);

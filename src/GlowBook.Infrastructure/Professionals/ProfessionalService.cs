@@ -10,6 +10,43 @@ internal sealed class ProfessionalService(GlowBookDbContext db) : IProfessionalS
 {
     public async Task<BusinessDto?> GetAsync(Guid ownerId, CancellationToken ct) => Map(await Query().SingleOrDefaultAsync(x => x.OwnerUserId == ownerId, ct));
 
+    public async Task<ProfessionalOnboardingDto> OnboardingAsync(Guid ownerId, CancellationToken ct)
+    {
+        var accountVerified = await db.Users.AnyAsync(x => x.Id == ownerId && x.EmailConfirmed && x.AccountStatus == "Active", ct);
+        var business = await db.Businesses.AsNoTracking()
+            .Include(x => x.Locations)
+            .Include(x => x.Staff)
+            .SingleOrDefaultAsync(x => x.OwnerUserId == ownerId, ct);
+        if (business is null)
+            return new(accountVerified, false, false, false, false, false, false, false, false, "NotStarted", null);
+
+        var location = business.Locations.SingleOrDefault(x => x.IsPrimary && x.IsActive);
+        var businessComplete = !string.IsNullOrWhiteSpace(business.TradingName)
+            && !string.IsNullOrWhiteSpace(business.Description)
+            && !string.IsNullOrWhiteSpace(business.CancellationPolicy)
+            && (!string.IsNullOrWhiteSpace(business.PublicEmail) || !string.IsNullOrWhiteSpace(business.PublicPhone));
+        var locationComplete = location is not null
+            && !string.IsNullOrWhiteSpace(location.AddressLine1)
+            && !string.IsNullOrWhiteSpace(location.Suburb)
+            && !string.IsNullOrWhiteSpace(location.City)
+            && !string.IsNullOrWhiteSpace(location.Province)
+            && !string.IsNullOrWhiteSpace(location.PostalCode);
+        var portfolioComplete = await db.PortfolioImages.AnyAsync(x => x.BusinessId == business.Id && x.Status == PortfolioImageStatus.Active, ct);
+        var activeStaffIds = business.Staff.Where(x => x.IsActive && x.AcceptingBookings).Select(x => x.Id).ToArray();
+        var staffComplete = activeStaffIds.Length > 0;
+        var servicesComplete = await db.Services.AnyAsync(x => x.BusinessId == business.Id && x.IsActive, ct);
+        var pricingComplete = await db.ServiceOfferings.AnyAsync(x => x.Service.BusinessId == business.Id && x.Service.IsActive && x.IsActive, ct);
+        var scheduledStaffIds = await db.WeeklyAvailabilities.AsNoTracking()
+            .Where(x => activeStaffIds.Contains(x.StaffMemberId) && x.IsActive)
+            .Select(x => x.StaffMemberId)
+            .Distinct()
+            .ToArrayAsync(ct);
+        var availabilityComplete = staffComplete && activeStaffIds.All(scheduledStaffIds.Contains);
+        var approvalSubmitted = business.ApprovalStatus is BusinessApprovalStatus.PendingReview or BusinessApprovalStatus.Approved;
+        return new(accountVerified, businessComplete, locationComplete, portfolioComplete, staffComplete, servicesComplete,
+            pricingComplete, availabilityComplete, approvalSubmitted, business.ApprovalStatus.ToString(), business.ReviewReason);
+    }
+
     public async Task<BusinessDto> SaveAsync(Guid ownerId, string ownerName, BusinessRequest request, CancellationToken ct)
     {
         var business = await Query().SingleOrDefaultAsync(x => x.OwnerUserId == ownerId, ct);
@@ -29,7 +66,10 @@ internal sealed class ProfessionalService(GlowBookDbContext db) : IProfessionalS
 
     public async Task<bool> SubmitAsync(Guid ownerId, CancellationToken ct)
     {
-        if (!await db.Users.AnyAsync(x => x.Id == ownerId && x.EmailConfirmed && x.AccountStatus == "Active", ct)) return false;
+        var onboarding = await OnboardingAsync(ownerId, ct);
+        if (!onboarding.AccountVerified || !onboarding.BusinessComplete || !onboarding.LocationComplete
+            || !onboarding.PortfolioComplete || !onboarding.StaffComplete || !onboarding.ServicesComplete
+            || !onboarding.PricingComplete || !onboarding.AvailabilityComplete) return false;
         var business = await Query().SingleOrDefaultAsync(x => x.OwnerUserId == ownerId, ct);
         if (business is null || string.IsNullOrWhiteSpace(business.TradingName) || business.Locations.Count == 0) return false;
         business.ApprovalStatus = BusinessApprovalStatus.PendingReview; business.SubmittedAtUtc = DateTime.UtcNow; business.ReviewReason = null;
