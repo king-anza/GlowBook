@@ -95,7 +95,7 @@ internal sealed class ProfessionalService(GlowBookDbContext db) : IProfessionalS
         var publishedSpaces = await db.WorkspaceOpportunities.CountAsync(x => x.BusinessId == business.Id
             && x.Status == GlowBook.Domain.Spaces.OpportunityStatus.Published, ct);
         var pendingApplications = await db.WorkspaceApplications.CountAsync(x => x.Opportunity.BusinessId == business.Id
-            && x.Status == GlowBook.Domain.Spaces.ApplicationStatus.Pending, ct);
+            && (x.Status == GlowBook.Domain.Spaces.ApplicationStatus.Submitted || x.Status == GlowBook.Domain.Spaces.ApplicationStatus.Viewed), ct);
         return new(onboarding.ApprovalStatus, onboarding.ReviewReason, completed, 9, todayBookings.Length,
             pendingBookings, activeStaffIds.Length, scheduledToday, publishedSpaces, pendingApplications, todayBookings);
     }

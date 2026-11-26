@@ -37,13 +37,85 @@
         (auth.hasRole('Professional')) {
         <ion-button type="button" fill="outline" (click)="toggleSavedView()"
           >{{ showingSaved() ? 'Show all' : 'View saved' }}</ion-button
+        ><ion-button type="button" fill="outline" (click)="toggleMatchesView()"
+          >{{ showingMatches() ? 'Show all' : 'Matches for me' }}</ion-button
         >
         }
       </div>
       <small>Location permission is optional. Coordinates are used for this search only and are not stored.</small>
     </form>
 
-    @if (message()) {
+    @if (auth.hasRole('Professional')) {
+    <section class="surface-card profile-card">
+      <div class="profile-card__heading">
+        <div>
+          <p class="eyebrow">Reusable application profile</p>
+          <h2>Apply once your work profile is ready.</h2>
+        </div>
+        @if (profile() && !editingProfile()) {<ion-button fill="outline" size="small" (click)="editingProfile.set(true)"
+          >Edit profile</ion-button
+        >}
+      </div>
+      @if (profile(); as savedProfile) { @if (!editingProfile()) {
+      <p>{{ savedProfile.summary }}</p>
+      <p><strong>Skills:</strong> {{ savedProfile.skills }}</p>
+      <p><strong>Availability:</strong> {{ savedProfile.availability }}</p>
+      <small
+        >{{ savedProfile.matchingAlertsEnabled ? 'Match alerts are on.' : 'Match alerts are off.' }} Contact details
+        stay private until an application is accepted.</small
+      >
+      } } @if (!profile() || editingProfile()) {
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <ion-list lines="none" class="profile-grid">
+          <ion-item class="field"
+            ><ion-textarea
+              label="Professional summary"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="summary"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-textarea
+              label="Skills (separate with commas)"
+              labelPlacement="stacked"
+              autoGrow="true"
+              formControlName="skills"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input label="Availability" labelPlacement="stacked" formControlName="availability"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input
+              type="date"
+              label="Available from (optional)"
+              labelPlacement="stacked"
+              formControlName="availableFrom"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input label="Portfolio URL (optional)" labelPlacement="stacked" formControlName="portfolioUrl"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-input
+              label="Preferred cities (comma-separated)"
+              labelPlacement="stacked"
+              formControlName="preferredCities"
+          /></ion-item>
+          <ion-item class="field"
+            ><ion-checkbox formControlName="chairRental">Workspace rentals</ion-checkbox></ion-item
+          >
+          <ion-item class="field"><ion-checkbox formControlName="staffVacancy">Staff vacancies</ion-checkbox></ion-item>
+          <ion-item class="field"
+            ><ion-checkbox formControlName="matchingAlertsEnabled"
+              >Notify me about strong new matches</ion-checkbox
+            ></ion-item
+          >
+        </ion-list>
+        <ion-button type="submit">Save application profile</ion-button>
+        @if (profile()) {<ion-button type="button" fill="clear" (click)="editingProfile.set(false)">Cancel</ion-button>}
+      </form>
+      }
+    </section>
+    } @if (message()) {
     <app-feedback-banner
       tone="success"
       title="Application sent"
@@ -107,6 +179,15 @@
           </dl>
           @if (item.requiredSkills) {
           <p><strong>Skills:</strong> {{ item.requiredSkills }}</p>
+          } @if (matches()[item.id]; as match) {
+          <div class="match-explanation">
+            <strong>{{ match.matchScore }}% profile match</strong>
+            <ul>
+              @for (reason of match.matchReasons; track reason) {
+              <li>{{ reason }}</li>
+              }
+            </ul>
+          </div>
           } @if (item.imageUrls.length > 1) {
           <div class="space-gallery" aria-label="Opportunity photos">
             @for (image of item.imageUrls.slice(1); track image) {
@@ -148,7 +229,12 @@
       <p><strong>House rules:</strong> {{ item.houseRules }}</p>
       } @if (!auth.isAuthenticated()) {
       <p>Sign in with a professional account before applying.</p>
-      <a class="text-link" routerLink="/auth">Sign in or register</a>} @else {
+      <a class="text-link" routerLink="/auth">Sign in or register</a>} @else { @if (!profile()) {
+      <p>
+        Create your reusable professional profile above before applying. It shares your skills, availability and
+        portfolio without exposing contact details.
+      </p>
+      } @else {
       <form [formGroup]="applicationForm" (ngSubmit)="apply(item)">
         <ion-list lines="none"
           ><ion-item class="field"
@@ -156,15 +242,10 @@
               label="Introduce yourself and explain why you are a good fit"
               labelPlacement="stacked"
               autoGrow="true"
-              formControlName="message" /></ion-item
-          ><ion-item class="field"
-            ><ion-input
-              label="Portfolio URL (optional)"
-              labelPlacement="stacked"
-              formControlName="portfolioUrl" /></ion-item></ion-list
+              formControlName="message" /></ion-item></ion-list
         ><ion-button expand="block" type="submit">Send application</ion-button>
       </form>
-      }
+      } }
     </section>
     } @if (reporting(); as item) {
     <section class="surface-card apply-card">
@@ -194,6 +275,32 @@
           /></ion-item> </ion-list
         ><ion-button expand="block" type="submit">Send report</ion-button>
       </form>
+    </section>
+    } @if (auth.hasRole('Professional') && myApplications().length) {
+    <section class="applications-section">
+      <p class="eyebrow">Your applications</p>
+      <h2>Application status</h2>
+      <div class="space-grid">
+        @for (application of myApplications(); track application.id) {
+        <article
+          class="surface-card application-card"
+          [class.notification-target]="route.snapshot.queryParamMap.get('application') === application.id"
+        >
+          <div class="booking-card__top">
+            <h3>{{ application.opportunityTitle }}</h3>
+            <span class="status-badge" [attr.data-status]="application.status">{{ application.status }}</span>
+          </div>
+          <ol class="status-timeline">
+            @for (event of application.timeline; track event.changedAtUtc) {
+            <li><strong>{{ event.status }}</strong><time>{{ event.changedAtUtc | date:'medium' }}</time></li>
+            }
+          </ol>
+          @if (application.status === 'Submitted' || application.status === 'Viewed') {
+          <ion-button fill="outline" size="small" (click)="withdraw(application)">Withdraw application</ion-button>
+          }
+        </article>
+        }
+      </div>
     </section>
     }
   </main>

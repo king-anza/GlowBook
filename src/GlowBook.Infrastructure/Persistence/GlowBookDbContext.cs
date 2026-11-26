@@ -35,6 +35,8 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<WorkspaceOpportunity> WorkspaceOpportunities => Set<WorkspaceOpportunity>();
     public DbSet<WorkspaceApplication> WorkspaceApplications => Set<WorkspaceApplication>();
+    public DbSet<WorkspaceApplicantProfile> WorkspaceApplicantProfiles => Set<WorkspaceApplicantProfile>();
+    public DbSet<WorkspaceApplicationStatusHistory> WorkspaceApplicationStatusHistory => Set<WorkspaceApplicationStatusHistory>();
     public DbSet<SavedWorkspaceOpportunity> SavedWorkspaceOpportunities => Set<SavedWorkspaceOpportunity>();
     public DbSet<WorkspaceOpportunityReport> WorkspaceOpportunityReports => Set<WorkspaceOpportunityReport>();
 
@@ -172,7 +174,7 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
             entity.Property(x => x.EventType).HasMaxLength(100).IsRequired(); entity.Property(x => x.SubjectType).HasMaxLength(50).IsRequired(); entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
             entity.Property(x => x.Title).HasMaxLength(150).IsRequired(); entity.Property(x => x.Message).HasMaxLength(500).IsRequired(); entity.Property(x => x.ActionUrl).HasMaxLength(300).IsRequired();
             entity.HasIndex(x => new { x.Status, x.CreatedAtUtc }); entity.HasIndex(x => new { x.RecipientUserId, x.CreatedAtUtc });
-            entity.HasIndex(x => new { x.RecipientUserId, x.EventType, x.SubjectId }).IsUnique().HasFilter("\"EventType\" = 'BookingReminder'");
+            entity.HasIndex(x => new { x.RecipientUserId, x.EventType, x.SubjectId }).IsUnique().HasFilter("\"EventType\" IN ('BookingReminder', 'SpaceMatch')");
             entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.RecipientUserId).OnDelete(DeleteBehavior.Restrict);
         });
         builder.Entity<NotificationPreference>(entity =>
@@ -218,11 +220,39 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
         builder.Entity<WorkspaceApplication>(entity =>
         {
             entity.Property(x => x.Message).HasMaxLength(1500).IsRequired();
+            entity.Property(x => x.ProfileSummary).HasMaxLength(1000);
+            entity.Property(x => x.Skills).HasMaxLength(1000);
+            entity.Property(x => x.Availability).HasMaxLength(500);
             entity.Property(x => x.PortfolioUrl).HasMaxLength(2048);
             entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
             entity.HasIndex(x => new { x.OpportunityId, x.ApplicantUserId }).IsUnique();
             entity.HasOne(x => x.Opportunity).WithMany(x => x.Applications).HasForeignKey(x => x.OpportunityId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ApplicantUserId).OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<WorkspaceApplicantProfile>(entity =>
+        {
+            entity.HasKey(x => x.UserId);
+            entity.Property(x => x.Summary).HasMaxLength(1000).IsRequired();
+            entity.Property(x => x.Skills).HasMaxLength(1000).IsRequired();
+            entity.Property(x => x.Availability).HasMaxLength(500).IsRequired();
+            entity.Property(x => x.PortfolioUrl).HasMaxLength(2048);
+            entity.Property(x => x.PreferredCities).HasColumnType("text[]");
+            entity.Property(x => x.PreferredOpportunityTypes).HasConversion(
+                value => string.Join(',', value.Select(x => x.ToString())),
+                value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Enum.Parse<OpportunityType>).ToArray())
+                .Metadata.SetValueComparer(new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<OpportunityType[]>(
+                    (left, right) => left != null && right != null && left.SequenceEqual(right),
+                    value => value.Aggregate(0, (hash, item) => HashCode.Combine(hash, item.GetHashCode())),
+                    value => value.ToArray()));
+            entity.Property(x => x.PreferredOpportunityTypes).HasMaxLength(100);
+            entity.HasOne<ApplicationUser>().WithOne().HasForeignKey<WorkspaceApplicantProfile>(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+        builder.Entity<WorkspaceApplicationStatusHistory>(entity =>
+        {
+            entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+            entity.HasIndex(x => new { x.ApplicationId, x.ChangedAtUtc });
+            entity.HasOne(x => x.Application).WithMany(x => x.StatusHistory).HasForeignKey(x => x.ApplicationId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.ChangedByUserId).OnDelete(DeleteBehavior.SetNull);
         });
         builder.Entity<SavedWorkspaceOpportunity>(entity =>
         {

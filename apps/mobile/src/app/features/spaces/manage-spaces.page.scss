@@ -6,6 +6,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
+.application-detail{position:fixed;z-index:10;right:1rem;bottom:1rem;width:min(540px,calc(100% - 2rem));max-height:82vh;overflow:auto;box-shadow:0 24px 80px #28153f42}.detail-close{float:right;border:0;background:transparent;font-size:2rem;cursor:pointer}.application-timeline{padding-left:1.2rem}.application-timeline li{margin:.5rem 0}
 @media (max-width: 760px) {
   .form-columns {
     grid-template-columns: 1fr;

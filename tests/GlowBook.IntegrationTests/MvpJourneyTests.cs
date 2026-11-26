@@ -100,10 +100,24 @@ public sealed class MvpJourneyTests
         Assert.Equal(2, discoveredOpportunity.ImageUrls.Count);
 
         Authorize(client, intruderToken);
+        var spaceProfile = await client.PutAsJsonAsync("/api/v1/professional/space-profile", new
+        {
+            summary = "Independent stylist building a loyal client base.", skills = "Hair styling, braiding",
+            availability = "Weekdays and Saturdays", availableFrom = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            portfolioUrl = "https://example.test/portfolio", preferredCities = new[] { "Johannesburg" },
+            preferredOpportunityTypes = new[] { "ChairRental" }, matchingAlertsEnabled = true
+        });
+        await SuccessAsync(Task.FromResult(spaceProfile));
+        var matches = await client.GetFromJsonAsync<List<MatchedOpportunityDto>>("/api/v1/professional/spaces/matches");
+        Assert.Contains(matches!, x => x.Opportunity.Id == opportunity.Id && x.MatchReasons.Count > 0);
         await SuccessAsync(client.PutAsJsonAsync($"/api/v1/professional/spaces/{opportunity.Id}/saved", new { }));
         var saved = await client.GetFromJsonAsync<List<OpportunityDto>>("/api/v1/professional/spaces/saved");
         Assert.True(Assert.Single(saved!).IsSaved);
         var application = await PostAsync<ApplicationDto>(client, $"/api/v1/professional/spaces/{opportunity.Id}/applications", new { message = "I am an experienced stylist seeking a welcoming workspace.", portfolioUrl = "https://example.test/portfolio" });
+        Assert.Equal(GlowBook.Domain.Spaces.ApplicationStatus.Submitted, application.Status);
+        Assert.Null(application.ApplicantEmail);
+        Assert.Equal("Hair styling, braiding", application.Skills);
+        Assert.Single(application.Timeline);
         Assert.Equal(System.Net.HttpStatusCode.Accepted, (await client.PostAsJsonAsync($"/api/v1/professional/spaces/{opportunity.Id}/reports", new { reason = "Misleading", details = "Please verify the stated equipment." })).StatusCode);
 
         Authorize(client, adminToken);
@@ -115,7 +129,14 @@ public sealed class MvpJourneyTests
         var applicationNotice = Assert.Single(ownerNotifications!.Items, x => x.EventType == "ApplicationReceived");
         Assert.Equal($"/professional/spaces?application={application.Id}", applicationNotice.ActionUrl);
         await SuccessAsync(client.PostAsJsonAsync($"/api/v1/notifications/{applicationNotice.Id}/read", new { }));
+        await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/space-applications/{application.Id}/viewed", new { }));
         await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/space-applications/{application.Id}/Accepted", new { }));
+        var acceptedApplicationsResponse = await client.GetAsync("/api/v1/professional/space-applications/received");
+        await SuccessAsync(Task.FromResult(acceptedApplicationsResponse));
+        var acceptedApplications = await acceptedApplicationsResponse.Content.ReadFromJsonAsync<List<ApplicationDto>>();
+        var acceptedApplication = Assert.Single(acceptedApplications!, x => x.Id == application.Id);
+        Assert.Equal("intruder@example.test", acceptedApplication.ApplicantEmail);
+        Assert.Equal(3, acceptedApplication.Timeline.Count);
 
         Authorize(client, intruderToken);
         var applicantNotifications = await client.GetFromJsonAsync<NotificationPage>("/api/v1/notifications");

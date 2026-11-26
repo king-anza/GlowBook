@@ -52,11 +52,36 @@ export interface SpaceApplication {
   opportunityTitle: string;
   applicantUserId: string;
   applicantName: string;
-  applicantEmail: string;
+  applicantEmail: string | null;
   message: string;
+  profileSummary: string;
+  skills: string;
+  availability: string;
   portfolioUrl: string | null;
-  status: 'Pending' | 'Accepted' | 'Declined' | 'Withdrawn';
+  status: ApplicationStatus;
   createdAtUtc: string;
+  updatedAtUtc: string;
+  timeline: { status: ApplicationStatus; changedAtUtc: string }[];
+}
+
+export type ApplicationStatus = 'Submitted' | 'Viewed' | 'Accepted' | 'Declined' | 'Withdrawn' | 'Filled';
+
+export interface SpaceApplicantProfile {
+  summary: string;
+  skills: string;
+  availability: string;
+  availableFrom: string | null;
+  portfolioUrl: string | null;
+  preferredCities: string[];
+  preferredOpportunityTypes: OpportunityType[];
+  matchingAlertsEnabled: boolean;
+  updatedAtUtc: string;
+}
+
+export interface MatchedOpportunity {
+  opportunity: SpaceOpportunity;
+  matchScore: number;
+  matchReasons: string[];
 }
 
 export const workspaceLabels: Record<WorkspaceType, string> = {

@@ -132,10 +132,9 @@
         <p class="eyebrow">{{application.status}}</p>
         <h2>{{application.applicantName}}</h2>
         <p>{{application.opportunityTitle}}</p>
-        <p>{{application.message}}</p>
-        @if(application.portfolioUrl){<a [href]="application.portfolioUrl" target="_blank" rel="noopener"
-          >View portfolio</a
-        >}@if(application.status === 'Pending'){
+        <p>{{application.skills}}</p>
+        <ion-button size="small" fill="outline" (click)="viewApplication(application)">View application</ion-button>
+        @if(application.status === 'Submitted' || application.status === 'Viewed'){
         <div class="action-row">
           <ion-button size="small" (click)="review(application,'Accepted')">Accept</ion-button
           ><ion-button size="small" fill="outline" (click)="review(application,'Declined')">Decline</ion-button>
@@ -146,5 +145,37 @@
       <div class="empty-state">Applications will appear here when professionals respond.</div>
       }
     </div>
+    @if(selectedApplication(); as application){
+    <section class="surface-card application-detail">
+      <button type="button" class="detail-close" aria-label="Close application" (click)="selectedApplication.set(null)">
+        ×
+      </button>
+      <p class="eyebrow">{{application.status}} application</p>
+      <h2>{{application.applicantName}}</h2>
+      <p>{{application.profileSummary}}</p>
+      <p><strong>Skills:</strong> {{application.skills}}</p>
+      <p><strong>Availability:</strong> {{application.availability}}</p>
+      <p>{{application.message}}</p>
+      @if(application.portfolioUrl){<a [href]="application.portfolioUrl" target="_blank" rel="noopener"
+        >View portfolio</a
+      >} @if(application.applicantEmail){
+      <p>
+        <strong>Contact after acceptance:</strong>
+        <a [href]="'mailto:' + application.applicantEmail">{{application.applicantEmail}}</a>
+      </p>
+      }
+      <ol class="application-timeline">
+        @for(event of application.timeline; track event.changedAtUtc){
+        <li><strong>{{event.status}}</strong> {{event.changedAtUtc}}</li>
+        }
+      </ol>
+      @if(application.status === 'Submitted' || application.status === 'Viewed'){
+      <div class="action-row">
+        <ion-button size="small" (click)="review(application,'Accepted')">Accept</ion-button
+        ><ion-button size="small" fill="outline" (click)="review(application,'Declined')">Decline</ion-button>
+      </div>
+      }
+    </section>
+    }
   </main></ion-content
 >

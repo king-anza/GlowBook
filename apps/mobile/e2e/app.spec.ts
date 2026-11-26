@@ -323,6 +323,89 @@ test('shows enriched Glow Spaces trust, urgency, distance and gallery details', 
   await expect(page.getByLabel('Opportunity photos').locator('img')).toHaveCount(1);
 });
 
+test('saves a reusable profile and explains professional space matches', async ({ page }) => {
+  const payload = Buffer.from(JSON.stringify({ role: 'Professional' })).toString('base64url');
+  await page.route('**/api/v1/auth/login', (route) =>
+    route.fulfill({
+      json: {
+        accessToken: `header.${payload}.signature`,
+        refreshToken: 'refresh',
+        accessTokenExpiresAtUtc: '2026-11-27T08:00:00Z',
+      },
+    }),
+  );
+  let profile: object | null = null;
+  await page.route('**/api/v1/professional/space-profile', async (route) => {
+    if (route.request().method() === 'PUT') {
+      profile = { ...(await route.request().postDataJSON()), updatedAtUtc: '2026-11-26T08:00:00Z' };
+      return route.fulfill({ json: profile });
+    }
+    return route.fulfill({ json: profile });
+  });
+  await page.route('**/api/v1/professional/space-applications/mine', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/spaces', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/professional/spaces/matches', (route) =>
+    route.fulfill({
+      json: [
+        {
+          opportunity: {
+            id: 'match-1',
+            businessId: 'business-1',
+            businessName: 'Glow Studio',
+            city: 'Gqeberha',
+            province: 'Eastern Cape',
+            workspaceType: 'StylingChair',
+            opportunityType: 'ChairRental',
+            status: 'Published',
+            title: 'Matched styling chair',
+            description: 'A chair that fits your profile.',
+            requiredSkills: 'Braiding',
+            includedAmenities: '',
+            houseRules: '',
+            spacesAvailable: 1,
+            rateAmount: 300,
+            ratePeriod: 'Day',
+            startDate: '2026-12-01',
+            endDate: null,
+            recurring: false,
+            bringOwnClients: true,
+            approvalRequired: true,
+            imageUrl: null,
+            imageUrls: [],
+            applicationCount: 0,
+            createdAtUtc: '2026-11-26T08:00:00Z',
+            isVerifiedParty: true,
+            isDemo: false,
+            isExpired: false,
+            isUrgent: true,
+            distanceKm: null,
+            isSaved: false,
+          },
+          matchScore: 85,
+          matchReasons: ['1 requested skill match', 'In your preferred city, Gqeberha'],
+        },
+      ],
+    }),
+  );
+
+  await page.goto('/auth');
+  await page.getByLabel('Email').fill('professional@example.test');
+  await page.getByLabel('Password').fill('ValidPass!1');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.waitForURL(/\/home/);
+  await page.getByRole('link', { name: 'Spaces' }).click();
+  await page.getByLabel('Professional summary').fill('Independent stylist with five years of experience.');
+  await page.getByLabel('Skills (separate with commas)').fill('Braiding, hair styling');
+  await page.getByLabel('Availability').fill('Weekdays');
+  await page.getByLabel('Preferred cities (comma-separated)').fill('Gqeberha');
+  await page.getByRole('button', { name: 'Save application profile' }).click();
+  await expect(page.getByText('Contact details stay private until an application is accepted.')).toBeVisible();
+  await page.getByRole('button', { name: 'Matches for me' }).click();
+  await expect(page.getByRole('heading', { name: 'Matched styling chair' })).toBeVisible();
+  await expect(page.getByText('85% profile match')).toBeVisible();
+  await expect(page.getByText('1 requested skill match')).toBeVisible();
+});
+
 test('uses a bottom navigation on mobile and restores it to the desktop header', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/home');

@@ -52,6 +52,7 @@ export class ManageSpacesPage {
   readonly highlightedApplicationId = this.route.snapshot.queryParamMap.get('application');
   readonly opportunities = signal<SpaceOpportunity[]>([]);
   readonly applications = signal<SpaceApplication[]>([]);
+  readonly selectedApplication = signal<SpaceApplication | null>(null);
   readonly message = signal<string | null>(null);
   readonly editing = signal<SpaceOpportunity | null>(null);
   readonly labels = workspaceLabels;
@@ -153,6 +154,15 @@ export class ManageSpacesPage {
           this.message.set(`Application ${status.toLowerCase()}.`);
           this.load();
         },
+      });
+  }
+  viewApplication(application: SpaceApplication): void {
+    this.selectedApplication.set(application);
+    if (application.status !== 'Submitted') return;
+    this.http
+      .post(`${environment.apiUrl}/api/v1/professional/space-applications/${application.id}/viewed`, {})
+      .subscribe({
+        next: () => this.load(),
       });
   }
 }

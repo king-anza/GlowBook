@@ -37,4 +37,26 @@ describe('ManageSpacesPage', () => {
     expect(page.message()).toContain('Draft');
     http.verify();
   });
+
+  it('records when an owner views a submitted application', async () => {
+    await TestBed.configureTestingModule({
+      imports: [ManageSpacesPage],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    }).compileComponents();
+    const http = TestBed.inject(HttpTestingController);
+    const page = TestBed.createComponent(ManageSpacesPage).componentInstance;
+    http.expectOne(`${environment.apiUrl}/api/v1/professional/spaces`).flush([]);
+    http.expectOne(`${environment.apiUrl}/api/v1/professional/space-applications/received`).flush([]);
+    const application = { id: 'application-1', status: 'Submitted' } as never;
+
+    page.viewApplication(application);
+
+    const viewed = http.expectOne(`${environment.apiUrl}/api/v1/professional/space-applications/application-1/viewed`);
+    expect(viewed.request.method).toBe('POST');
+    viewed.flush(null);
+    http.expectOne(`${environment.apiUrl}/api/v1/professional/spaces`).flush([]);
+    http.expectOne(`${environment.apiUrl}/api/v1/professional/space-applications/received`).flush([]);
+    expect(page.selectedApplication()).toBe(application);
+    http.verify();
+  });
 });

@@ -11,7 +11,7 @@ public enum OpportunityStatus { Draft, Published, Filled, Paused, Closed }
 [JsonConverter(typeof(JsonStringEnumConverter<RatePeriod>))]
 public enum RatePeriod { Hour, Day, Week, Month, RevenueShare, Negotiable }
 [JsonConverter(typeof(JsonStringEnumConverter<ApplicationStatus>))]
-public enum ApplicationStatus { Pending, Accepted, Declined, Withdrawn }
+public enum ApplicationStatus { Submitted, Viewed, Accepted, Declined, Withdrawn, Filled }
 
 public sealed class WorkspaceOpportunity
 {
@@ -48,11 +48,39 @@ public sealed class WorkspaceApplication
     public Guid OpportunityId { get; set; }
     public Guid ApplicantUserId { get; set; }
     public string Message { get; set; } = string.Empty;
+    public string ProfileSummary { get; set; } = string.Empty;
+    public string Skills { get; set; } = string.Empty;
+    public string Availability { get; set; } = string.Empty;
     public string PortfolioUrl { get; set; } = string.Empty;
-    public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
+    public ApplicationStatus Status { get; set; } = ApplicationStatus.Submitted;
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
     public WorkspaceOpportunity Opportunity { get; set; } = null!;
+    public ICollection<WorkspaceApplicationStatusHistory> StatusHistory { get; set; } = [];
+}
+
+public sealed class WorkspaceApplicantProfile
+{
+    public Guid UserId { get; set; }
+    public string Summary { get; set; } = string.Empty;
+    public string Skills { get; set; } = string.Empty;
+    public string Availability { get; set; } = string.Empty;
+    public DateOnly? AvailableFrom { get; set; }
+    public string PortfolioUrl { get; set; } = string.Empty;
+    public string[] PreferredCities { get; set; } = [];
+    public OpportunityType[] PreferredOpportunityTypes { get; set; } = [];
+    public bool MatchingAlertsEnabled { get; set; }
+    public DateTime UpdatedAtUtc { get; set; }
+}
+
+public sealed class WorkspaceApplicationStatusHistory
+{
+    public Guid Id { get; set; }
+    public Guid ApplicationId { get; set; }
+    public ApplicationStatus Status { get; set; }
+    public Guid? ChangedByUserId { get; set; }
+    public DateTime ChangedAtUtc { get; set; }
+    public WorkspaceApplication Application { get; set; } = null!;
 }
 
 public sealed class SavedWorkspaceOpportunity

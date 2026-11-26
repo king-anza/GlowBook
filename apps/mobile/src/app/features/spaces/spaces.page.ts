@@ -1,10 +1,11 @@
-import { KeyValuePipe } from '@angular/common';
+import { DatePipe, KeyValuePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   IonButton,
+  IonCheckbox,
   IonContent,
   IonHeader,
   IonInput,
@@ -22,7 +23,14 @@ import { AuthService } from '../../core/auth/auth.service';
 import { EmptyStateComponent } from '../../core/ui/empty-state.component';
 import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
-import type { SpaceOpportunity, OpportunityType, WorkspaceType } from './space.models';
+import type {
+  MatchedOpportunity,
+  SpaceApplicantProfile,
+  SpaceApplication,
+  SpaceOpportunity,
+  OpportunityType,
+  WorkspaceType,
+} from './space.models';
 import { workspaceLabels } from './space.models';
 
 @Component({
@@ -32,6 +40,7 @@ import { workspaceLabels } from './space.models';
   imports: [
     ReactiveFormsModule,
     KeyValuePipe,
+    DatePipe,
     RouterLink,
     IonHeader,
     IonToolbar,
@@ -44,6 +53,7 @@ import { workspaceLabels } from './space.models';
     IonSelectOption,
     IonTextarea,
     IonButton,
+    IonCheckbox,
     EmptyStateComponent,
     FeedbackBannerComponent,
   ],
@@ -51,14 +61,19 @@ import { workspaceLabels } from './space.models';
 export class SpacesPage {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
-  private readonly route = inject(ActivatedRoute);
+  readonly route = inject(ActivatedRoute);
   readonly highlightedId = this.route.snapshot.queryParamMap.get('opportunity');
   readonly auth = inject(AuthService);
   readonly opportunities = signal<SpaceOpportunity[]>([]);
+  readonly matches = signal<Record<string, MatchedOpportunity>>({});
+  readonly myApplications = signal<SpaceApplication[]>([]);
+  readonly profile = signal<SpaceApplicantProfile | null>(null);
+  readonly editingProfile = signal(false);
   readonly loading = signal(true);
   readonly selected = signal<SpaceOpportunity | null>(null);
   readonly reporting = signal<SpaceOpportunity | null>(null);
   readonly showingSaved = signal(false);
+  readonly showingMatches = signal(false);
   readonly message = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly labels = workspaceLabels;
@@ -71,6 +86,17 @@ export class SpacesPage {
     message: ['', [Validators.required, Validators.minLength(20), Validators.maxLength(1500)]],
     portfolioUrl: ['', Validators.pattern(/^$|^https:\/\/.+/)],
   });
+  readonly profileForm = this.fb.nonNullable.group({
+    summary: ['', [Validators.required, Validators.maxLength(1000)]],
+    skills: ['', [Validators.required, Validators.maxLength(1000)]],
+    availability: ['', [Validators.required, Validators.maxLength(500)]],
+    availableFrom: [''],
+    portfolioUrl: ['', Validators.pattern(/^$|^https:\/\/.+/)],
+    preferredCities: ['', Validators.maxLength(500)],
+    chairRental: [true],
+    staffVacancy: [true],
+    matchingAlertsEnabled: [false],
+  });
   readonly reportForm = this.fb.nonNullable.group({
     reason: ['Misleading'],
     details: ['', Validators.maxLength(1000)],
@@ -79,6 +105,27 @@ export class SpacesPage {
 
   constructor() {
     this.load();
+    if (this.auth.hasRole('Professional')) this.loadWorkspace();
+  }
+
+  private loadWorkspace(): void {
+    this.http.get<SpaceApplicantProfile | null>(`${environment.apiUrl}/api/v1/professional/space-profile`).subscribe({
+      next: (profile) => {
+        this.profile.set(profile);
+        if (profile)
+          this.profileForm.patchValue({
+            ...profile,
+            availableFrom: profile.availableFrom ?? '',
+            portfolioUrl: profile.portfolioUrl ?? '',
+            preferredCities: profile.preferredCities.join(', '),
+            chairRental: profile.preferredOpportunityTypes.includes('ChairRental'),
+            staffVacancy: profile.preferredOpportunityTypes.includes('StaffVacancy'),
+          });
+      },
+    });
+    this.http
+      .get<SpaceApplication[]>(`${environment.apiUrl}/api/v1/professional/space-applications/mine`)
+      .subscribe({ next: (items) => this.myApplications.set(items) });
   }
 
   load(): void {
@@ -93,25 +140,71 @@ export class SpacesPage {
       params['latitude'] = String(this.coordinates.latitude);
       params['longitude'] = String(this.coordinates.longitude);
     }
-    const url = this.showingSaved()
-      ? `${environment.apiUrl}/api/v1/professional/spaces/saved`
-      : `${environment.apiUrl}/api/v1/spaces`;
-    this.http.get<SpaceOpportunity[]>(url, { params: this.showingSaved() ? {} : params }).subscribe({
-      next: (items) => {
-        this.opportunities.set(items);
-        if (this.highlightedId) this.selected.set(items.find((item) => item.id === this.highlightedId) ?? null);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Glow Spaces could not be loaded. Please try again.');
-        this.loading.set(false);
-      },
-    });
+    const url = this.showingMatches()
+      ? `${environment.apiUrl}/api/v1/professional/spaces/matches`
+      : this.showingSaved()
+        ? `${environment.apiUrl}/api/v1/professional/spaces/saved`
+        : `${environment.apiUrl}/api/v1/spaces`;
+    this.http
+      .get<SpaceOpportunity[] | MatchedOpportunity[]>(url, {
+        params: this.showingSaved() || this.showingMatches() ? {} : params,
+      })
+      .subscribe({
+        next: (response) => {
+          const matched = this.showingMatches() ? (response as MatchedOpportunity[]) : [];
+          const items = this.showingMatches() ? matched.map((x) => x.opportunity) : (response as SpaceOpportunity[]);
+          this.matches.set(Object.fromEntries(matched.map((x) => [x.opportunity.id, x])));
+          this.opportunities.set(items);
+          if (this.highlightedId) this.selected.set(items.find((item) => item.id === this.highlightedId) ?? null);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.error.set('Glow Spaces could not be loaded. Please try again.');
+          this.loading.set(false);
+        },
+      });
   }
 
   toggleSavedView(): void {
+    this.showingMatches.set(false);
     this.showingSaved.update((value) => !value);
     this.load();
+  }
+
+  toggleMatchesView(): void {
+    this.showingSaved.set(false);
+    this.showingMatches.update((value) => !value);
+    this.load();
+  }
+
+  saveProfile(): void {
+    if (this.profileForm.invalid) return this.profileForm.markAllAsTouched();
+    const raw = this.profileForm.getRawValue();
+    const preferredOpportunityTypes: OpportunityType[] = [];
+    if (raw.chairRental) preferredOpportunityTypes.push('ChairRental');
+    if (raw.staffVacancy) preferredOpportunityTypes.push('StaffVacancy');
+    this.http
+      .put<SpaceApplicantProfile>(`${environment.apiUrl}/api/v1/professional/space-profile`, {
+        summary: raw.summary,
+        skills: raw.skills,
+        availability: raw.availability,
+        availableFrom: raw.availableFrom || null,
+        portfolioUrl: raw.portfolioUrl || null,
+        preferredCities: raw.preferredCities
+          .split(',')
+          .map((x) => x.trim())
+          .filter(Boolean),
+        preferredOpportunityTypes,
+        matchingAlertsEnabled: raw.matchingAlertsEnabled,
+      })
+      .subscribe({
+        next: (profile) => {
+          this.profile.set(profile);
+          this.editingProfile.set(false);
+          this.message.set('Your reusable application profile was saved.');
+        },
+        error: () => this.error.set('Your application profile could not be saved.'),
+      });
   }
 
   clearFilters(): void {
@@ -183,11 +276,24 @@ export class SpacesPage {
           this.message.set(`Your application for “${item.title}” was sent to ${item.businessName}.`);
           this.selected.set(null);
           this.applicationForm.reset();
+          this.loadWorkspace();
         },
         error: () =>
           this.error.set(
             'The application could not be sent. You may have applied already, or need a professional account.',
           ),
+      });
+  }
+
+  withdraw(application: SpaceApplication): void {
+    this.http
+      .post(`${environment.apiUrl}/api/v1/professional/space-applications/${application.id}/withdraw`, {})
+      .subscribe({
+        next: () => {
+          this.message.set('Application withdrawn.');
+          this.loadWorkspace();
+        },
+        error: () => this.error.set('This application can no longer be withdrawn.'),
       });
   }
 
