@@ -682,6 +682,7 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                     b.ToTable("BusinessLocations", t =>
                         {
                             t.HasCheckConstraint("CK_BusinessLocation_Latitude", "\"Latitude\" IS NULL OR \"Latitude\" BETWEEN -90 AND 90");
+
                             t.HasCheckConstraint("CK_BusinessLocation_Longitude", "\"Longitude\" IS NULL OR \"Longitude\" BETWEEN -180 AND 180");
                         });
                 });
@@ -757,6 +758,10 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("WorkspaceName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -955,7 +960,9 @@ namespace GlowBook.Infrastructure.Persistence.Migrations
                     b.ToTable("WorkspaceOpportunities", t =>
                         {
                             t.HasCheckConstraint("CK_WorkspaceOpportunity_Dates", "\"EndDate\" IS NULL OR \"EndDate\" >= \"StartDate\"");
+
                             t.HasCheckConstraint("CK_WorkspaceOpportunity_Rate", "\"RateAmount\" IS NULL OR \"RateAmount\" >= 0");
+
                             t.HasCheckConstraint("CK_WorkspaceOpportunity_Spaces", "\"SpacesAvailable\" BETWEEN 1 AND 50");
                         });
                 });

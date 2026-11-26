@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonTextarea, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
 import { ConfirmationService } from '../../core/ui/confirmation.service';
+
+import { ProfessionalNavComponent } from './professional-nav.component';
 
 interface BusinessProfile {
   tradingName: string;
@@ -40,7 +41,6 @@ interface PortfolioImage {
   styleUrls: ['./profile.page.scss'],
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -49,6 +49,7 @@ interface PortfolioImage {
     IonInput,
     IonTextarea,
     IonButton,
+    ProfessionalNavComponent,
   ],
 })
 export class ProfilePage {

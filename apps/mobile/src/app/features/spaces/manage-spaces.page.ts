@@ -2,7 +2,6 @@ import { KeyValuePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCheckbox,
@@ -19,6 +18,7 @@ import {
 } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { ProfessionalNavComponent } from '../professional/professional-nav.component';
 
 import { type OpportunityStatus, type SpaceApplication, type SpaceOpportunity, workspaceLabels } from './space.models';
 
@@ -29,7 +29,6 @@ import { type OpportunityStatus, type SpaceApplication, type SpaceOpportunity, w
   imports: [
     KeyValuePipe,
     ReactiveFormsModule,
-    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -42,6 +41,7 @@ import { type OpportunityStatus, type SpaceApplication, type SpaceOpportunity, w
     IonSelectOption,
     IonCheckbox,
     IonButton,
+    ProfessionalNavComponent,
   ],
 })
 export class ManageSpacesPage {

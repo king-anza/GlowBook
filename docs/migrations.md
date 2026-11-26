@@ -11,5 +11,6 @@
 - `AddPrivacyNoticeAcceptance`: separately versioned and timestamped privacy-notice acceptance on user accounts.
 - `AddBusinessLocationCoordinates`: optional latitude/longitude fields for primary salon locations, with database range constraints. Existing address-only salons remain valid and continue to appear in manual city/suburb searches; they are excluded only when a customer explicitly enables distance-based discovery.
 - `AddDemoBusinessFlag`: classifies seeded or administrator-selected salons as demo data independently of their active/suspended marketplace status.
+- `AddProfessionalWorkspaceCapacity`: adds an optional, owner-managed chair or workspace label to staff. Existing staff remain valid with no assignment; the calendar treats an unassigned staff member as an independent capacity lane until the owner assigns a shared workspace label.
 
 These migrations are generated and model-drift checks pass, but they have not been applied to a user or production database. Before applying, generate and inspect an idempotent SQL script, verify a backup, use least-privilege deployment credentials and follow `operations-runbook.md`.

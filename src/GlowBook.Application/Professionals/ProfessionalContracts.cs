@@ -5,10 +5,10 @@ namespace GlowBook.Application.Professionals;
 
 public sealed record LocationRequest([property: Required, MaxLength(150)] string AddressLine1, string? AddressLine2, [property: Required, MaxLength(100)] string Suburb, [property: Required, MaxLength(100)] string City, [property: Required, RegularExpression("^(Eastern Cape|Free State|Gauteng|KwaZulu-Natal|Limpopo|Mpumalanga|North West|Northern Cape|Western Cape)$")] string Province, [property: Required, RegularExpression("^[0-9]{4}$")] string PostalCode, [property: Range(-90, 90)] double? Latitude = null, [property: Range(-180, 180)] double? Longitude = null);
 public sealed record BusinessRequest([property: Required, MaxLength(150)] string TradingName, [property: MaxLength(2000)] string Description, [property: MaxLength(2000)] string CancellationPolicy, [property: EmailAddress] string? PublicEmail, [property: Phone] string? PublicPhone, [property: Required] LocationRequest Location, Guid? ConcurrencyToken);
-public sealed record StaffRequest([property: Required, MaxLength(100)] string DisplayName, [property: MaxLength(1000)] string Biography, bool AcceptingBookings = true);
+public sealed record StaffRequest([property: Required, MaxLength(100)] string DisplayName, [property: MaxLength(1000)] string Biography, [property: MaxLength(100)] string? WorkspaceName = null, bool AcceptingBookings = true);
 public sealed record ReviewRequest([property: MaxLength(1000)] string? Reason);
 public sealed record BusinessDto(Guid Id, string TradingName, string Description, string CancellationPolicy, string? PublicEmail, string? PublicPhone, bool IsDemo, BusinessApprovalStatus Status, string? ReviewReason, Guid ConcurrencyToken, LocationRequest Location, IReadOnlyCollection<StaffDto> Staff);
-public sealed record StaffDto(Guid Id, string DisplayName, string Biography, bool IsActive, bool AcceptingBookings);
+public sealed record StaffDto(Guid Id, string DisplayName, string Biography, string? WorkspaceName, bool IsActive, bool AcceptingBookings);
 public sealed record PortfolioImageRequest([property: Required, Url, RegularExpression("^https://.*", ErrorMessage = "Image URL must use HTTPS.")] string ImageUrl, [property: Required, MaxLength(200)] string AltText, [property: Range(0, 9)] int DisplayOrder);
 public sealed record PortfolioImageDto(Guid Id, string ImageUrl, string AltText, int DisplayOrder, PortfolioImageStatus Status);
 public sealed record AdminPortfolioImageDto(Guid Id, string BusinessName, string ImageUrl, string AltText, PortfolioImageStatus Status, DateTime CreatedAtUtc);
@@ -38,15 +38,32 @@ public sealed record ProfessionalDashboardDto(
     int PublishedSpaceCount,
     int PendingSpaceApplicationCount,
     IReadOnlyCollection<ProfessionalDashboardBookingDto> TodayBookings);
+public sealed record ProfessionalInsightPointDto(DateOnly Date, int BookingCount, int CompletedCount, int CancelledCount, int NoShowCount);
+public sealed record ProfessionalInsightsDto(
+    int PeriodDays,
+    DateOnly From,
+    DateOnly To,
+    int BookingVolume,
+    int CompletedCount,
+    int CancellationCount,
+    int NoShowCount,
+    int? RepeatCustomerCount,
+    bool CustomerPrivacyThresholdMet,
+    int CapacityMinutes,
+    int BookedMinutes,
+    decimal ChairUtilisationPercent,
+    IReadOnlyCollection<ProfessionalInsightPointDto> Daily);
 
 public interface IProfessionalService
 {
     Task<BusinessDto?> GetAsync(Guid ownerId, CancellationToken ct);
     Task<ProfessionalOnboardingDto> OnboardingAsync(Guid ownerId, CancellationToken ct);
     Task<ProfessionalDashboardDto> DashboardAsync(Guid ownerId, CancellationToken ct);
+    Task<ProfessionalInsightsDto> InsightsAsync(Guid ownerId, int periodDays, CancellationToken ct);
     Task<BusinessDto> SaveAsync(Guid ownerId, string ownerName, BusinessRequest request, CancellationToken ct);
     Task<bool> SubmitAsync(Guid ownerId, CancellationToken ct);
     Task<StaffDto?> AddStaffAsync(Guid ownerId, StaffRequest request, CancellationToken ct);
+    Task<StaffDto?> UpdateStaffAsync(Guid ownerId, Guid staffId, StaffRequest request, CancellationToken ct);
     Task<IReadOnlyCollection<BusinessDto>> PendingAsync(CancellationToken ct);
     Task<IReadOnlyCollection<BusinessDto>> ManagedAsync(CancellationToken ct);
     Task<bool> ReviewAsync(Guid actorId, Guid businessId, BusinessApprovalStatus status, string? reason, CancellationToken ct);

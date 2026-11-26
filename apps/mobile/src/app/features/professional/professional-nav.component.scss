@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+.studio-nav__toggle {
+  display: none;
+}
+.studio-nav__panel {
+  position: sticky;
+  top: calc(var(--glow-space-4) + env(safe-area-inset-top, 0px));
+  display: grid;
+  gap: var(--glow-space-4);
+  padding: var(--glow-space-4);
+  border: 1px solid var(--glow-line);
+  border-radius: var(--glow-radius);
+  background: var(--glow-surface);
+  box-shadow: var(--glow-shadow-sm);
+}
+.studio-nav__brand {
+  display: flex;
+  min-height: var(--glow-target-min);
+  gap: var(--glow-space-2);
+  align-items: center;
+  color: var(--glow-plum);
+  font-size: var(--glow-text-lg);
+  text-decoration: none;
+}
+.studio-nav__group {
+  display: grid;
+  gap: 0.2rem;
+}
+.studio-nav__group p {
+  margin: 0 0 0.25rem;
+  color: var(--glow-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.studio-nav__group a {
+  display: flex;
+  min-height: var(--glow-target-min);
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--glow-radius-sm);
+  color: var(--glow-ink);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.studio-nav__group a:hover,
+.studio-nav__group a:focus-visible {
+  background: var(--glow-surface-soft);
+}
+.studio-nav__group a.active {
+  background: var(--glow-accent-soft);
+  color: var(--glow-plum);
+}
+@media (max-width: 760px) {
+  .studio-nav__toggle {
+    display: flex;
+    width: 100%;
+    min-height: var(--glow-target-min);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--glow-line);
+    border-radius: var(--glow-radius-sm);
+    background: var(--glow-surface);
+    color: var(--glow-ink);
+    font: inherit;
+    font-weight: 800;
+  }
+  .studio-nav__toggle span:last-child {
+    color: var(--glow-plum);
+    font-size: 0.78rem;
+  }
+  .studio-nav__panel {
+    position: static;
+    display: none;
+    margin-top: var(--glow-space-2);
+    box-shadow: none;
+  }
+  .studio-nav__panel--open {
+    display: grid;
+  }
+}

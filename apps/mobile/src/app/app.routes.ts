@@ -54,8 +54,17 @@ export const routes: Routes = [
     loadComponent: () => import('./features/professional/services.page').then((m) => m.ServicesPage),
   },
   {
-    path: 'professional/availability',
+    path: 'professional/calendar',
     loadComponent: () => import('./features/professional/availability.page').then((m) => m.AvailabilityPage),
+  },
+  {
+    path: 'professional/availability',
+    redirectTo: 'professional/calendar',
+    pathMatch: 'full',
+  },
+  {
+    path: 'professional/insights',
+    loadComponent: () => import('./features/professional/insights.page').then((m) => m.InsightsPage),
   },
   {
     path: 'professional/bookings',

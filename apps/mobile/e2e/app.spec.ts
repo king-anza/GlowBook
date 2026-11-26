@@ -132,6 +132,79 @@ test('shows the professional daily dashboard without inventing activity', async 
   await expect(page.getByRole('link', { name: /Studio setup/ })).toContainText('33%');
 });
 
+test('uses responsive studio navigation and shows calendar capacity and private insights', async ({ page }) => {
+  await page.route('**/api/v1/professional/business', (route) =>
+    route.fulfill({
+      json: {
+        staff: [
+          {
+            id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+            displayName: 'Lerato',
+            biography: 'Stylist',
+            workspaceName: 'Chair 1',
+            acceptingBookings: true,
+          },
+        ],
+      },
+    }),
+  );
+  await page.route('**/api/v1/professional/calendar?**', (route) =>
+    route.fulfill({
+      json: {
+        from: '2026-11-26',
+        to: '2026-12-02',
+        timeZone: 'Africa/Johannesburg',
+        staff: [],
+        events: [],
+        days: [
+          {
+            date: '2026-11-26',
+            scheduledMinutes: 480,
+            bookedMinutes: 120,
+            blockedMinutes: 30,
+            utilisationPercent: 25,
+            staffedWorkspaceCount: 1,
+            conflicts: [],
+          },
+        ],
+      },
+    }),
+  );
+  await page.route('**/api/v1/professional/insights?**', (route) =>
+    route.fulfill({
+      json: {
+        periodDays: 30,
+        from: '2026-10-28',
+        to: '2026-11-26',
+        bookingVolume: 4,
+        completedCount: 2,
+        cancellationCount: 1,
+        noShowCount: 0,
+        repeatCustomerCount: null,
+        customerPrivacyThresholdMet: false,
+        capacityMinutes: 480,
+        bookedMinutes: 120,
+        chairUtilisationPercent: 25,
+        daily: [],
+      },
+    }),
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/professional/calendar');
+  await expect(page.getByRole('heading', { name: 'Calendar and capacity.' })).toBeVisible();
+  await expect(page.getByText('120 booked · 480 scheduled · 30 blocked minutes')).toBeVisible();
+  const menu = page.getByRole('button', { name: /Studio workspace/ });
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  await menu.click();
+  await expect(menu).toHaveAttribute('aria-expanded', 'true');
+  await page
+    .getByRole('navigation', { name: 'Professional workspace' })
+    .getByRole('link', { name: 'Insights' })
+    .click();
+  await expect(page.getByRole('heading', { name: 'Understand the rhythm of your studio.' })).toBeVisible();
+  await expect(page.getByText('Shown once at least 3 customers')).toBeVisible();
+});
+
 test('uses a bottom navigation on mobile and restores it to the desktop header', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/home');

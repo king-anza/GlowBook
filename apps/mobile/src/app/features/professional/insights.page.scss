@@ -1,0 +1,114 @@
+.insights__heading {
+  display: flex;
+  gap: var(--glow-space-4);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.insights__period {
+  display: flex;
+  flex: 0 0 auto;
+  padding: 0.2rem;
+  border-radius: var(--glow-radius-pill);
+  background: var(--glow-surface-soft);
+}
+.insights__period button {
+  min-height: var(--glow-target-min);
+  padding: 0 0.85rem;
+  border: 0;
+  border-radius: var(--glow-radius-pill);
+  background: transparent;
+  color: var(--glow-muted);
+  font: inherit;
+  font-weight: 800;
+}
+.insights__period button.active {
+  background: var(--glow-surface);
+  color: var(--glow-plum);
+  box-shadow: var(--glow-shadow-sm);
+}
+.insights__range,
+.insights__privacy {
+  margin: 0;
+  color: var(--glow-muted);
+  font-size: 0.82rem;
+}
+.insights__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--glow-space-3);
+}
+.insights__metrics article {
+  display: grid;
+  gap: 0.35rem;
+}
+.insights__metrics span,
+.insights__metrics small {
+  color: var(--glow-muted);
+}
+.insights__metrics strong {
+  color: var(--glow-plum);
+  font-size: 2rem;
+}
+.insights__utilisation {
+  grid-column: span 2;
+}
+.insights__bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--glow-radius-pill);
+  background: var(--glow-surface-soft);
+}
+.insights__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--glow-plum);
+}
+.insights__trend h2 {
+  margin: 0.2rem 0;
+}
+.insights__trend ol {
+  display: flex;
+  min-height: 180px;
+  gap: 0.35rem;
+  align-items: end;
+  overflow-x: auto;
+  margin: var(--glow-space-4) 0 0;
+  padding: 0 0 var(--glow-space-2);
+  list-style: none;
+}
+.insights__trend li {
+  display: grid;
+  min-width: 34px;
+  gap: 0.2rem;
+  justify-items: center;
+  color: var(--glow-muted);
+  font-size: 0.68rem;
+}
+.insights__day-bar {
+  width: 18px;
+  min-height: 12px;
+  max-height: 132px;
+  border-radius: var(--glow-radius-pill) var(--glow-radius-pill) 3px 3px;
+  background: var(--glow-plum);
+}
+.insights__trend strong {
+  color: var(--glow-ink);
+}
+@media (max-width: 900px) {
+  .insights__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .insights__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .insights__metrics {
+    grid-template-columns: 1fr;
+  }
+  .insights__utilisation {
+    grid-column: auto;
+  }
+}

@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using GlowBook.Application.Bookings;
 using GlowBook.Application.Accounts;
+using GlowBook.Application.Availability;
 using GlowBook.Application.Catalogue;
 using GlowBook.Application.Identity;
 using GlowBook.Application.Professionals;
@@ -49,6 +50,16 @@ public sealed class MvpJourneyTests
             location = new { addressLine1 = "1 Main Road", addressLine2 = (string?)null, suburb = "Sandton", city = "Johannesburg", province = "Gauteng", postalCode = "2196" }, concurrencyToken = (Guid?)null
         });
         var staffId = Assert.Single(business.Staff).Id;
+        var assignedWorkspaceResponse = await client.PatchAsJsonAsync($"/api/v1/professional/staff/{staffId}", new
+        {
+            displayName = "Professional",
+            biography = "Integration test professional",
+            workspaceName = "Chair 1",
+            acceptingBookings = true
+        });
+        await SuccessAsync(Task.FromResult(assignedWorkspaceResponse));
+        var assignedWorkspace = await assignedWorkspaceResponse.Content.ReadFromJsonAsync<StaffDto>();
+        Assert.Equal("Chair 1", assignedWorkspace!.WorkspaceName);
         var portfolioImage = await PostAsync<PortfolioImageDto>(client, "/api/v1/professional/portfolio-images", new { imageUrl = "https://example.test/portfolio.jpg", altText = "Finished silk press hairstyle", displayOrder = 0 });
         var categoryId = Guid.Parse("44444444-4444-4444-4444-000000000001");
         var service = await PostAsync<ServiceDto>(client, "/api/v1/professional/services", new { categoryId, name = "Silk press", description = "Wash and style", concurrencyToken = (Guid?)null });
@@ -57,6 +68,9 @@ public sealed class MvpJourneyTests
 
         var localDate = NextWeekday(DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2)), DayOfWeek.Monday);
         await SuccessAsync(client.PutAsJsonAsync($"/api/v1/professional/staff/{staffId}/weekly-availability", new[] { new { dayOfWeek = (int)DayOfWeek.Monday, startTime = "09:00:00", endTime = "11:00:00" } }));
+        var calendar = await client.GetFromJsonAsync<ProfessionalCalendarDto>($"/api/v1/professional/calendar?from={localDate:yyyy-MM-dd}&to={localDate:yyyy-MM-dd}");
+        Assert.Equal("Chair 1", Assert.Single(calendar!.Staff).WorkspaceName);
+        Assert.Equal(120, Assert.Single(calendar.Days).ScheduledMinutes);
         await SuccessAsync(client.PostAsJsonAsync("/api/v1/professional/business/submit", new { }));
 
         Authorize(client, adminToken);
@@ -77,6 +91,8 @@ public sealed class MvpJourneyTests
         Authorize(client, customerToken);
         var first = await PostAsync<BookingDto>(client, "/api/v1/bookings", new { offeringId = offering.Id, startUtc = slots[0].StartUtc, idempotencyKey = "journey-complete", notes = "Please avoid scented products." });
         Authorize(client, professionalToken);
+        var conflictingBlock = await client.PostAsJsonAsync($"/api/v1/professional/staff/{staffId}/blocked-times", new { startUtc = first.StartUtc, endUtc = first.EndUtc, reason = "Training" });
+        Assert.Equal(System.Net.HttpStatusCode.Conflict, conflictingBlock.StatusCode);
         var initialProfessionalBookings = await client.GetFromJsonAsync<List<BookingDto>>("/api/v1/professional/bookings");
         var pending = Assert.Single(initialProfessionalBookings!, x => x.Id == first.Id);
         Assert.Equal(first.ConcurrencyToken, pending.ConcurrencyToken);
@@ -84,6 +100,10 @@ public sealed class MvpJourneyTests
         var professionalBookings = await client.GetFromJsonAsync<List<BookingDto>>("/api/v1/professional/bookings");
         var confirmed = Assert.Single(professionalBookings!, x => x.Id == first.Id);
         await SuccessAsync(client.PostAsJsonAsync($"/api/v1/professional/bookings/{first.Id}/complete", new { reason = (string?)null, concurrencyToken = confirmed.ConcurrencyToken }));
+        var insights = await client.GetFromJsonAsync<ProfessionalInsightsDto>("/api/v1/professional/insights?periodDays=30");
+        Assert.NotNull(insights);
+        Assert.False(insights.CustomerPrivacyThresholdMet);
+        Assert.Null(insights.RepeatCustomerCount);
 
         Authorize(client, customerToken);
         var review = await PostAsync<ReviewDto>(client, $"/api/v1/bookings/{first.Id}/review", new { rating = 5, comment = "Excellent service", concurrencyToken = (Guid?)null });

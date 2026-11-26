@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonContent,
@@ -18,6 +17,8 @@ import {
 
 import { environment } from '../../../environments/environment';
 
+import { ProfessionalNavComponent } from './professional-nav.component';
+
 interface Category {
   id: string;
   name: string;
@@ -25,6 +26,9 @@ interface Category {
 interface Staff {
   id: string;
   displayName: string;
+  biography: string;
+  workspaceName: string | null;
+  acceptingBookings: boolean;
 }
 interface Offering {
   id: string;
@@ -55,7 +59,6 @@ interface Business {
   templateUrl: './services.page.html',
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -67,6 +70,7 @@ interface Business {
     IonSelect,
     IonSelectOption,
     IonButton,
+    ProfessionalNavComponent,
   ],
 })
 export class ServicesPage {
@@ -78,6 +82,7 @@ export class ServicesPage {
   readonly message = signal<string | null>(null);
   readonly editingService = signal<ServiceItem | null>(null);
   readonly editingOffering = signal<{ serviceId: string; offering: Offering } | null>(null);
+  readonly editingStaff = signal<Staff | null>(null);
   readonly serviceForm = this.fb.nonNullable.group({
     categoryId: ['', Validators.required],
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -86,6 +91,7 @@ export class ServicesPage {
   readonly staffForm = this.fb.nonNullable.group({
     displayName: ['', Validators.required],
     biography: [''],
+    workspaceName: ['', Validators.maxLength(100)],
     acceptingBookings: [true],
   });
   readonly offeringForm = this.fb.nonNullable.group({
@@ -120,14 +126,32 @@ export class ServicesPage {
   }
   addStaff(): void {
     if (this.staffForm.invalid) return this.staffForm.markAllAsTouched();
-    this.http.post(`${environment.apiUrl}/api/v1/professional/staff`, this.staffForm.getRawValue()).subscribe({
+    const editing = this.editingStaff();
+    const request = editing
+      ? this.http.patch(`${environment.apiUrl}/api/v1/professional/staff/${editing.id}`, this.staffForm.getRawValue())
+      : this.http.post(`${environment.apiUrl}/api/v1/professional/staff`, this.staffForm.getRawValue());
+    request.subscribe({
       next: () => {
-        this.staffForm.reset({ acceptingBookings: true });
-        this.message.set('Staff member added.');
+        this.staffForm.reset({ workspaceName: '', acceptingBookings: true });
+        this.editingStaff.set(null);
+        this.message.set(editing ? 'Staff workspace updated.' : 'Staff member added.');
         this.loadBusiness();
       },
-      error: () => this.message.set('Unable to add staff.'),
+      error: () => this.message.set(`Unable to ${editing ? 'update' : 'add'} staff.`),
     });
+  }
+  editStaff(member: Staff): void {
+    this.editingStaff.set(member);
+    this.staffForm.setValue({
+      displayName: member.displayName,
+      biography: member.biography,
+      workspaceName: member.workspaceName ?? '',
+      acceptingBookings: member.acceptingBookings,
+    });
+  }
+  cancelStaffEdit(): void {
+    this.editingStaff.set(null);
+    this.staffForm.reset({ workspaceName: '', acceptingBookings: true });
   }
   addOffering(): void {
     if (this.offeringForm.invalid) return this.offeringForm.markAllAsTouched();

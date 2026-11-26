@@ -1,0 +1,33 @@
+<nav class="studio-nav" aria-label="Professional workspace">
+  <button
+    class="studio-nav__toggle"
+    type="button"
+    aria-controls="studio-navigation"
+    [attr.aria-expanded]="open()"
+    (click)="toggle()"
+  >
+    <span>Studio workspace</span><span aria-hidden="true">{{ open() ? 'Close' : 'Menu' }}</span>
+  </button>
+  <div id="studio-navigation" class="studio-nav__panel" [class.studio-nav__panel--open]="open()">
+    <a class="studio-nav__brand" routerLink="/professional/dashboard" (click)="close()">
+      <span aria-hidden="true">✦</span><strong>Studio</strong>
+    </a>
+    <div class="studio-nav__group">
+      <p>Overview</p>
+      <a routerLink="/professional/dashboard" routerLinkActive="active" (click)="close()">Dashboard</a>
+      <a routerLink="/professional/insights" routerLinkActive="active" (click)="close()">Insights</a>
+      <a routerLink="/professional/onboarding" routerLinkActive="active" (click)="close()">Setup checklist</a>
+    </div>
+    <div class="studio-nav__group">
+      <p>Appointments</p>
+      <a routerLink="/professional/calendar" routerLinkActive="active" (click)="close()">Calendar & capacity</a>
+      <a routerLink="/professional/bookings" routerLinkActive="active" (click)="close()">Booking requests</a>
+    </div>
+    <div class="studio-nav__group">
+      <p>Business</p>
+      <a routerLink="/professional/services" routerLinkActive="active" (click)="close()">Services & staff</a>
+      <a routerLink="/professional/profile" routerLinkActive="active" (click)="close()">Business profile</a>
+      <a routerLink="/professional/spaces" routerLinkActive="active" (click)="close()">Glow Spaces</a>
+    </div>
+  </div>
+</nav>

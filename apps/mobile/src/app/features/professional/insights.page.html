@@ -1,0 +1,76 @@
+<ion-header
+  ><ion-toolbar><ion-title>Studio insights</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell professional-page insights">
+    <app-professional-nav />
+    <section class="page-heading insights__heading">
+      <div>
+        <p class="eyebrow">Useful, privacy-conscious signals</p>
+        <h1>Understand the rhythm of your studio.</h1>
+        <p>
+          Review bookings, customer return patterns and chair utilisation without exposing individual client activity.
+        </p>
+      </div>
+      <div class="insights__period" aria-label="Insight period">
+        <button type="button" [class.active]="periodDays() === 30" (click)="setPeriod(30)">30 days</button>
+        <button type="button" [class.active]="periodDays() === 90" (click)="setPeriod(90)">90 days</button>
+      </div>
+    </section>
+    @if (error()) {
+    <app-feedback-banner tone="error" [message]="error()!" actionLabel="Try again" (action)="load()" />
+    } @if (loading()) {
+    <section class="surface-card" role="status">Calculating studio insights…</section>
+    } @else if (insights(); as item) {
+    <p class="insights__range">{{ item.from | date: 'd MMM y' }} – {{ item.to | date: 'd MMM y' }}</p>
+    <section class="insights__metrics" aria-label="Booking insights">
+      <article class="surface-card">
+        <span>Booking volume</span><strong>{{ item.bookingVolume }}</strong
+        ><small>{{ item.completedCount }} completed</small>
+      </article>
+      <article class="surface-card">
+        <span>Repeat customers</span
+        ><strong>{{ item.customerPrivacyThresholdMet ? item.repeatCustomerCount : '—' }}</strong
+        ><small
+          >{{ item.customerPrivacyThresholdMet ? 'customers with 2+ completed visits' : 'Shown once at least 3 customers
+          are in the period' }}</small
+        >
+      </article>
+      <article class="surface-card">
+        <span>Cancellations</span><strong>{{ rate(item.cancellationCount, item.bookingVolume) }}%</strong
+        ><small>{{ item.cancellationCount }} cancelled bookings</small>
+      </article>
+      <article class="surface-card">
+        <span>No-shows</span><strong>{{ rate(item.noShowCount, item.bookingVolume) }}%</strong
+        ><small>{{ item.noShowCount }} no-show bookings</small>
+      </article>
+      <article class="surface-card insights__utilisation">
+        <span>Chair utilisation</span><strong>{{ item.chairUtilisationPercent }}%</strong>
+        <div class="insights__bar" role="img" [attr.aria-label]="item.chairUtilisationPercent + '% chair utilisation'">
+          <span [style.width.%]="item.chairUtilisationPercent > 100 ? 100 : item.chairUtilisationPercent"></span>
+        </div>
+        <small>{{ item.bookedMinutes }} booked minutes from {{ item.capacityMinutes }} available</small>
+      </article>
+    </section>
+    <section class="surface-card insights__trend" aria-labelledby="trend-title">
+      <div>
+        <p class="eyebrow">Daily pattern</p>
+        <h2 id="trend-title">Bookings over time</h2>
+      </div>
+      <ol>
+        @for (point of item.daily; track point.date) {
+        <li [attr.aria-label]="point.date + ': ' + point.bookingCount + ' bookings'">
+          <span class="insights__day-bar" [style.height.px]="12 + point.bookingCount * 8"></span>
+          <time [attr.datetime]="point.date">{{ point.date | date: 'd MMM' }}</time>
+          <strong>{{ point.bookingCount }}</strong>
+        </li>
+        }
+      </ol>
+    </section>
+    <p class="insights__privacy">
+      Repeat-customer totals are suppressed for periods with fewer than three distinct customers. No customer names,
+      notes or sensitive profile information are used in these insights.
+    </p>
+    }
+  </main>
+</ion-content>

@@ -63,6 +63,7 @@ public sealed class StaffMember
     public Guid? LinkedUserId { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public string Biography { get; set; } = string.Empty;
+    public string? WorkspaceName { get; set; }
     public bool IsActive { get; set; } = true;
     public bool AcceptingBookings { get; set; } = true;
     public DateTime CreatedAtUtc { get; set; }

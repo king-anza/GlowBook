@@ -8,6 +8,8 @@ import { environment } from '../../../environments/environment';
 import { EmptyStateComponent } from '../../core/ui/empty-state.component';
 import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
+import { ProfessionalNavComponent } from './professional-nav.component';
+
 interface DashboardBooking {
   id: string;
   customerName: string;
@@ -45,6 +47,7 @@ interface DashboardSummary {
     IonContent,
     EmptyStateComponent,
     FeedbackBannerComponent,
+    ProfessionalNavComponent,
   ],
 })
 export class DashboardPage {

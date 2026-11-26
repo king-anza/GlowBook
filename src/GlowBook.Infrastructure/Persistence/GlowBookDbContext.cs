@@ -90,6 +90,7 @@ public sealed class GlowBookDbContext(DbContextOptions<GlowBookDbContext> option
         {
             entity.Property(x => x.DisplayName).HasMaxLength(100).IsRequired();
             entity.Property(x => x.Biography).HasMaxLength(1000);
+            entity.Property(x => x.WorkspaceName).HasMaxLength(100);
             entity.HasOne(x => x.Business).WithMany(x => x.Staff).HasForeignKey(x => x.BusinessId).OnDelete(DeleteBehavior.Cascade);
         });
         builder.Entity<PortfolioImage>(entity =>

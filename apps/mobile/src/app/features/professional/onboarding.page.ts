@@ -6,6 +6,8 @@ import { IonButton, IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/a
 import { environment } from '../../../environments/environment';
 import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
 
+import { ProfessionalNavComponent } from './professional-nav.component';
+
 interface OnboardingSummary {
   accountVerified: boolean;
   businessComplete: boolean;
@@ -32,7 +34,16 @@ interface OnboardingStep {
   selector: 'app-professional-onboarding',
   templateUrl: './onboarding.page.html',
   styleUrls: ['./onboarding.page.scss'],
-  imports: [RouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, FeedbackBannerComponent],
+  imports: [
+    RouterLink,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButton,
+    FeedbackBannerComponent,
+    ProfessionalNavComponent,
+  ],
 })
 export class OnboardingPage {
   private readonly http = inject(HttpClient);
@@ -97,7 +108,7 @@ export class OnboardingPage {
         title: 'Publish availability',
         description: 'Add weekly hours for every active professional accepting bookings.',
         complete: item?.availabilityComplete ?? false,
-        route: '/professional/availability',
+        route: '/professional/calendar',
         action: 'Set hours',
       },
       {

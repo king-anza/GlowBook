@@ -1,5 +1,7 @@
 @use 'theme/discovery';
 
+@use './app/features/professional/availability.page.scss';
+
 @import '@ionic/angular/css/core.css';
 @import '@ionic/angular/css/normalize.css';
 @import '@ionic/angular/css/structure.css';
@@ -989,30 +991,28 @@ ion-card-title {
     justify-self: start;
   }
 }
-.professional-nav {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  margin: 0 0 20px;
-  padding-bottom: 4px;
-  scrollbar-width: none;
+.professional-page {
+  display: grid;
+  max-width: 1240px;
+  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
+  gap: var(--glow-space-5);
 }
-.professional-nav a {
-  display: inline-flex;
-  min-height: var(--glow-target-min);
-  align-items: center;
-  flex: 0 0 auto;
-  padding: 9px 13px;
-  border-radius: var(--glow-radius-pill);
-  background: var(--glow-surface);
-  color: var(--glow-muted);
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-decoration: none;
+.professional-page > app-professional-nav {
+  grid-row: 1 / span 100;
 }
-.professional-nav a.active {
-  background: var(--ion-color-primary);
-  color: white;
+.professional-page > :not(app-professional-nav) {
+  grid-column: 2;
+}
+@media (max-width: 760px) {
+  .professional-page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--glow-space-3);
+  }
+  .professional-page > app-professional-nav,
+  .professional-page > :not(app-professional-nav) {
+    grid-column: 1;
+    grid-row: auto;
+  }
 }
 .booking-confirm {
   position: relative;
