@@ -54,7 +54,7 @@ export class AuthPage {
     displayName: ['', [Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(10)]],
-    professional: [false],
+    accountType: ['customer' as 'customer' | 'professional'],
     acceptTerms: [false],
     confirmMinimumAge: [false],
   });
@@ -83,6 +83,10 @@ export class AuthPage {
     this.error.set(null);
     this.message.set(null);
     this.form.controls.password.setValue('');
+  }
+
+  selectAccountType(accountType: 'customer' | 'professional'): void {
+    this.form.controls.accountType.setValue(accountType);
   }
 
   submit(): void {
@@ -118,7 +122,7 @@ export class AuthPage {
       });
       return;
     }
-    this.auth.register(value.email, value.password, value.displayName, value.professional).subscribe({
+    this.auth.register(value.email, value.password, value.displayName, value.accountType === 'professional').subscribe({
       next: () => {
         this.changeMode('login');
         this.form.controls.email.setValue(value.email);

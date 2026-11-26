@@ -32,5 +32,8 @@ describe('AuthPage', () => {
     expect(page.passwordRequirements.every((requirement) => requirement.met)).toBe(false);
     page.form.controls.password.setValue('GlowTester1!');
     expect(page.passwordRequirements.every((requirement) => requirement.met)).toBe(true);
+    expect(page.form.controls.accountType.value).toBe('customer');
+    page.selectAccountType('professional');
+    expect(page.form.controls.accountType.value).toBe('professional');
   });
 });

@@ -212,7 +212,7 @@ test('registers and requests account recovery', async ({ page }) => {
   await page.getByLabel('Password').fill('ValidPass!1');
   await page.getByText('I accept the terms and privacy notice').click();
   await page.getByText('I confirm that I am at least 18').click();
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByRole('button', { name: 'Create customer account' }).click();
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
   await page.locator('ion-button', { hasText: 'Verify email or reset password' }).click();
   const recoveryPage = page.locator('app-recovery');
@@ -221,6 +221,26 @@ test('registers and requests account recovery', async ({ page }) => {
   await expect(
     recoveryPage.getByText('If the account exists, password-reset instructions have been sent.'),
   ).toBeVisible();
+});
+
+test('registers a clearly selected beauty professional account', async ({ page }) => {
+  let professionalRegistration = false;
+  await page.route('**/api/v1/auth/register/professional', (route) => {
+    professionalRegistration = true;
+    return route.fulfill({ status: 202 });
+  });
+  await page.goto('/auth');
+  await page.locator('ion-segment-button[value="register"]').click();
+  const professional = page.getByRole('radio', { name: /Beauty professional/ });
+  await professional.click();
+  await expect(professional).toHaveAttribute('aria-checked', 'true');
+  await page.getByLabel('Display name').fill('Glow Professional');
+  await page.getByLabel('Email').fill('professional@example.test');
+  await page.getByLabel('Password').fill('ValidPass!1');
+  await page.getByText('I accept the terms and privacy notice').click();
+  await page.getByText('I confirm that I am at least 18').click();
+  await page.getByRole('button', { name: 'Create professional account' }).click();
+  await expect.poll(() => professionalRegistration).toBe(true);
 });
 
 test('signs in, discovers a service, and books a slot', async ({ page }) => {

@@ -59,9 +59,42 @@
               }
             </ul>
           </section>
-          <ion-item class="field"
-            ><ion-checkbox formControlName="professional">I am a beauty professional</ion-checkbox></ion-item
-          >
+          <fieldset class="account-type" role="radiogroup" aria-labelledby="account-type-title">
+            <legend id="account-type-title">Choose your account type</legend>
+            <p>You can book beauty services with either account. Professional accounts also include studio tools.</p>
+            <div class="account-type__grid">
+              <button
+                class="account-type__option"
+                type="button"
+                role="radio"
+                [attr.aria-checked]="form.controls.accountType.value === 'customer'"
+                [class.account-type__option--selected]="form.controls.accountType.value === 'customer'"
+                (click)="selectAccountType('customer')"
+              >
+                <span class="account-type__icon" aria-hidden="true">♡</span>
+                <strong>Customer</strong>
+                <small>Discover salons, book appointments and manage your reviews.</small>
+                <span class="account-type__check" aria-hidden="true"
+                  >{{ form.controls.accountType.value === 'customer' ? '✓' : '' }}</span
+                >
+              </button>
+              <button
+                class="account-type__option"
+                type="button"
+                role="radio"
+                [attr.aria-checked]="form.controls.accountType.value === 'professional'"
+                [class.account-type__option--selected]="form.controls.accountType.value === 'professional'"
+                (click)="selectAccountType('professional')"
+              >
+                <span class="account-type__icon" aria-hidden="true">✦</span>
+                <strong>Beauty professional</strong>
+                <small>Create your studio, services, availability and Glow Spaces listings.</small>
+                <span class="account-type__check" aria-hidden="true"
+                  >{{ form.controls.accountType.value === 'professional' ? '✓' : '' }}</span
+                >
+              </button>
+            </div>
+          </fieldset>
           <ion-item class="field"
             ><ion-checkbox formControlName="acceptTerms">I accept the terms and privacy notice</ion-checkbox></ion-item
           >
@@ -76,7 +109,8 @@
         <app-feedback-banner tone="success" [message]="message()!" [dismissible]="true" (dismiss)="message.set(null)" />
         }
         <ion-button expand="block" type="submit" [disabled]="busy()" [class.is-busy]="busy()" [attr.aria-busy]="busy()"
-          >{{ busy() ? 'Please wait…' : mode() === 'login' ? 'Sign in' : 'Create account' }}</ion-button
+          >{{ busy() ? 'Please wait…' : mode() === 'login' ? 'Sign in' : form.controls.accountType.value ===
+          'professional' ? 'Create professional account' : 'Create customer account' }}</ion-button
         >
       </form>
       <div class="action-row auth-links">
