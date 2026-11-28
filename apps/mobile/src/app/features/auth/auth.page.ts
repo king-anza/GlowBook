@@ -19,6 +19,7 @@ import {
 
 import { AuthService } from '../../core/auth/auth.service';
 import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 
 @Component({
   selector: 'app-auth',
@@ -40,6 +41,7 @@ import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component
     IonButton,
     RouterLink,
     FeedbackBannerComponent,
+    FormBehaviorDirective,
   ],
 })
 export class AuthPage {

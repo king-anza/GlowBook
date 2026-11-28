@@ -12,6 +12,7 @@ import {
   cutOutline,
   eyeOutline,
   handLeftOutline,
+  helpCircleOutline,
   locationOutline,
   notificationsOutline,
   optionsOutline,
@@ -26,6 +27,7 @@ import {
 import { environment } from '../environments/environment';
 
 import { AuthService } from './core/auth/auth.service';
+import { NetworkStatusService } from './core/network/network-status.service';
 import { NotificationService } from './core/notifications/notification.service';
 
 @Component({
@@ -40,6 +42,7 @@ export class AppComponent {
   private navigationTimer: ReturnType<typeof setTimeout> | null = null;
   readonly auth = inject(AuthService);
   readonly notifications = inject(NotificationService);
+  readonly network = inject(NetworkStatusService);
   readonly isDemo = environment.demoMode;
   readonly navigating = signal(false);
 
@@ -56,6 +59,7 @@ export class AppComponent {
       cutOutline,
       eyeOutline,
       handLeftOutline,
+      helpCircleOutline,
       locationOutline,
       notificationsOutline,
       optionsOutline,

@@ -95,7 +95,8 @@
           >
         </ion-list>
       </div>
-      <ion-button expand="block" type="submit">{{ editing() ? 'Save changes' : 'Create draft' }}</ion-button
+      <ion-button expand="block" type="submit" [disabled]="actions.busy('manage-space-save')"
+        >{{ actions.busy('manage-space-save') ? 'Saving…' : editing() ? 'Save changes' : 'Create draft' }}</ion-button
       >@if(editing()){<ion-button expand="block" fill="clear" type="button" (click)="cancelEdit()"
         >Cancel edit</ion-button
       >}
@@ -116,9 +117,24 @@
         </p>
         <div class="action-row">
           <ion-button size="small" fill="outline" (click)="edit(item)">Edit</ion-button>@if(item.status !==
-          'Published'){<ion-button size="small" (click)="setStatus(item,'Published')">Publish</ion-button
-          >}@else{<ion-button size="small" fill="outline" (click)="setStatus(item,'Paused')">Pause</ion-button
-          >}<ion-button size="small" fill="clear" (click)="setStatus(item,'Filled')">Mark filled</ion-button>
+          'Published'){<ion-button
+            size="small"
+            [disabled]="actions.busy('space-status-' + item.id)"
+            (click)="setStatus(item,'Published')"
+            >Publish</ion-button
+          >}@else{<ion-button
+            size="small"
+            fill="outline"
+            [disabled]="actions.busy('space-status-' + item.id)"
+            (click)="setStatus(item,'Paused')"
+            >Pause</ion-button
+          >}<ion-button
+            size="small"
+            fill="clear"
+            [disabled]="actions.busy('space-status-' + item.id)"
+            (click)="setStatus(item,'Filled')"
+            >Mark filled</ion-button
+          >
         </div>
       </article>
       }@empty{
@@ -136,8 +152,18 @@
         <ion-button size="small" fill="outline" (click)="viewApplication(application)">View application</ion-button>
         @if(application.status === 'Submitted' || application.status === 'Viewed'){
         <div class="action-row">
-          <ion-button size="small" (click)="review(application,'Accepted')">Accept</ion-button
-          ><ion-button size="small" fill="outline" (click)="review(application,'Declined')">Decline</ion-button>
+          <ion-button
+            size="small"
+            [disabled]="actions.busy('review-application-' + application.id)"
+            (click)="review(application,'Accepted')"
+            >Accept</ion-button
+          ><ion-button
+            size="small"
+            fill="outline"
+            [disabled]="actions.busy('review-application-' + application.id)"
+            (click)="review(application,'Declined')"
+            >Decline</ion-button
+          >
         </div>
         }
       </article>
@@ -171,8 +197,18 @@
       </ol>
       @if(application.status === 'Submitted' || application.status === 'Viewed'){
       <div class="action-row">
-        <ion-button size="small" (click)="review(application,'Accepted')">Accept</ion-button
-        ><ion-button size="small" fill="outline" (click)="review(application,'Declined')">Decline</ion-button>
+        <ion-button
+          size="small"
+          [disabled]="actions.busy('review-application-' + application.id)"
+          (click)="review(application,'Accepted')"
+          >Accept</ion-button
+        ><ion-button
+          size="small"
+          fill="outline"
+          [disabled]="actions.busy('review-application-' + application.id)"
+          (click)="review(application,'Declined')"
+          >Decline</ion-button
+        >
       </div>
       }
     </section>

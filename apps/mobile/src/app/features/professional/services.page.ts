@@ -16,6 +16,7 @@ import {
 } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 
 import { ProfessionalNavComponent } from './professional-nav.component';
 
@@ -59,6 +60,7 @@ interface Business {
   templateUrl: './services.page.html',
   imports: [
     ReactiveFormsModule,
+    FormBehaviorDirective,
     IonHeader,
     IonToolbar,
     IonTitle,

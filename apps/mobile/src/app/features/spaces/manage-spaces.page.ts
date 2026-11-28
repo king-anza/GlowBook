@@ -19,6 +19,8 @@ import {
 } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { ActionGuardService } from '../../core/ui/action-guard.service';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 import { ProfessionalNavComponent } from '../professional/professional-nav.component';
 
 import { type OpportunityStatus, type SpaceApplication, type SpaceOpportunity, workspaceLabels } from './space.models';
@@ -30,6 +32,7 @@ import { type OpportunityStatus, type SpaceApplication, type SpaceOpportunity, w
   imports: [
     KeyValuePipe,
     ReactiveFormsModule,
+    FormBehaviorDirective,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -49,6 +52,7 @@ export class ManageSpacesPage {
   private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  readonly actions = inject(ActionGuardService);
   readonly highlightedApplicationId = this.route.snapshot.queryParamMap.get('application');
   readonly opportunities = signal<SpaceOpportunity[]>([]);
   readonly applications = signal<SpaceApplication[]>([]);
@@ -89,6 +93,7 @@ export class ManageSpacesPage {
   }
   save(): void {
     if (this.form.invalid) return this.form.markAllAsTouched();
+    if (!this.startAction('manage-space-save')) return;
     const item = this.editing();
     const raw = this.form.getRawValue();
     const body = {
@@ -109,8 +114,12 @@ export class ManageSpacesPage {
         this.message.set(item ? 'Opportunity updated.' : 'Draft opportunity created. Publish it when ready.');
         this.cancelEdit();
         this.load();
+        this.actions.end('manage-space-save');
       },
-      error: () => this.message.set('The opportunity could not be saved. Check the dates and required fields.'),
+      error: () => {
+        this.message.set('The opportunity could not be saved. Your entries are preserved.');
+        this.actions.end('manage-space-save');
+      },
     });
   }
   edit(item: SpaceOpportunity): void {
@@ -138,21 +147,34 @@ export class ManageSpacesPage {
     });
   }
   setStatus(item: SpaceOpportunity, status: OpportunityStatus): void {
+    const key = `space-status-${item.id}`;
+    if (!this.startAction(key)) return;
     this.http.post(`${environment.apiUrl}/api/v1/professional/spaces/${item.id}/status/${status}`, {}).subscribe({
       next: () => {
         this.message.set(`“${item.title}” is now ${status.toLowerCase()}.`);
         this.load();
+        this.actions.end(key);
       },
-      error: () => this.message.set('Only approved salons can publish opportunities.'),
+      error: () => {
+        this.message.set('Only approved salons can publish opportunities.');
+        this.actions.end(key);
+      },
     });
   }
   review(application: SpaceApplication, status: 'Accepted' | 'Declined'): void {
+    const key = `review-application-${application.id}`;
+    if (!this.startAction(key)) return;
     this.http
       .post(`${environment.apiUrl}/api/v1/professional/space-applications/${application.id}/${status}`, {})
       .subscribe({
         next: () => {
           this.message.set(`Application ${status.toLowerCase()}.`);
           this.load();
+          this.actions.end(key);
+        },
+        error: () => {
+          this.message.set('The application changed or the connection failed. Refresh and try again.');
+          this.actions.end(key);
         },
       });
   }
@@ -164,5 +186,10 @@ export class ManageSpacesPage {
       .subscribe({
         next: () => this.load(),
       });
+  }
+  private startAction(key: string): boolean {
+    const result = this.actions.begin(key);
+    if (result === 'offline') this.message.set('Reconnect before making this change. It was not queued.');
+    return result === 'started';
   }
 }

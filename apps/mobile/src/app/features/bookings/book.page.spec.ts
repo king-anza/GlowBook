@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
+import { NetworkStatusService } from '../../core/network/network-status.service';
 
 import { BookPage } from './book.page';
 
@@ -55,6 +56,10 @@ describe('BookPage', () => {
     expect(booking.request.body.idempotencyKey).toMatch(/^[0-9a-f-]{36}$/i);
     booking.flush({});
     expect(router.navigateByUrl).toHaveBeenCalledWith('/bookings');
+    TestBed.inject(NetworkStatusService).online.set(false);
+    page.book(slot);
+    http.expectNone(`${environment.apiUrl}/api/v1/bookings`);
+    expect(page.error()).toContain('Nothing was queued');
     http.verify();
   });
 });

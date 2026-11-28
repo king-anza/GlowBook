@@ -28,6 +28,7 @@
       <a routerLink="/professional/services" routerLinkActive="active" (click)="close()">Services & staff</a>
       <a routerLink="/professional/profile" routerLinkActive="active" (click)="close()">Business profile</a>
       <a routerLink="/professional/spaces" routerLinkActive="active" (click)="close()">Glow Spaces</a>
+      <a routerLink="/help" [queryParams]="{ topic: 'professional' }" (click)="close()">Studio help</a>
     </div>
   </div>
 </nav>

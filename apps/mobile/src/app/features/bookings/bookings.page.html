@@ -59,8 +59,14 @@
             [(ngModel)]="reviewComments[existing.id]"
           />
           <div class="action-row">
-            <ion-button size="small" (click)="updateReview(existing)">Update review</ion-button
-            ><ion-button size="small" color="danger" fill="outline" (click)="deleteReview(existing)"
+            <ion-button size="small" [disabled]="busyId() === existing.id" (click)="updateReview(existing)"
+              >Update review</ion-button
+            ><ion-button
+              size="small"
+              color="danger"
+              fill="outline"
+              [disabled]="busyId() === existing.id"
+              (click)="deleteReview(existing)"
               >Remove review</ion-button
             >
           </div>
@@ -78,7 +84,9 @@
             labelPlacement="stacked"
             [(ngModel)]="reviewComments[booking.id]"
           />
-          <ion-button size="small" (click)="review(booking)">Submit review</ion-button>
+          <ion-button size="small" [disabled]="busyId() === booking.id" (click)="review(booking)"
+            >Submit review</ion-button
+          >
           }
         </div>
         }

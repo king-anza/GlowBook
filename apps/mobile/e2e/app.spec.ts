@@ -30,7 +30,7 @@ test('offers an in-context retry after discovery fails', async ({ page }) => {
   await page.route('**/api/v1/categories', (route) => route.fulfill({ json: [] }));
   await page.route('**/api/v1/businesses?**', (route) => {
     attempts += 1;
-    if (attempts === 1) return route.fulfill({ status: 503, json: { title: 'Unavailable' } });
+    if (attempts <= 2) return route.fulfill({ status: 503, json: { title: 'Unavailable' } });
     return route.fulfill({ json: { page: 1, pageSize: 20, totalCount: 0, items: [] } });
   });
 
@@ -68,6 +68,52 @@ test('keeps form controls readable when the browser prefers dark mode', async ({
   await expect
     .poll(() => page.getByLabel('Email').evaluate((element) => getComputedStyle(element).color))
     .toBe('rgb(39, 33, 62)');
+});
+
+test('focuses invalid forms and labels required and optional fields', async ({ page }) => {
+  await page.goto('/auth');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page.locator('.field-error').first()).toHaveText('This field is required.');
+  await expect(page.getByText('Required').first()).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText('complete email address');
+});
+
+test('provides searchable contextual help and accessible support routes', async ({ page }) => {
+  await page.goto('/help?topic=spaces');
+  await expect(page.getByRole('heading', { name: 'How can we help?' })).toBeVisible();
+  await expect(page.getByText('Use Glow Spaces safely')).toBeVisible();
+  await page.getByLabel('Search help').fill('never queued');
+  await expect(page.getByText('Offline and slow-connection behavior')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Email support' })).toHaveAttribute(
+    'href',
+    /mailto:support@glowbylunamay\.co\.za/,
+  );
+});
+
+test('shows cached booking details offline without replaying actions', async ({ page, context }) => {
+  const booking = {
+    id: 'cached-booking',
+    businessName: 'Glow Studio',
+    serviceName: 'Silk press',
+    staffName: 'Lerato',
+    startUtc: '2026-12-01T08:00:00Z',
+    status: 'Confirmed',
+    concurrencyToken: 'v1',
+  };
+  await page.route('**/api/v1/bookings', (route) => route.fulfill({ json: [booking] }));
+  await page.route('**/api/v1/reviews', (route) => route.fulfill({ json: [] }));
+  await page.goto('/bookings');
+  await expect(page.getByText('Silk press')).toBeVisible();
+  await page.getByRole('link', { name: 'Discover' }).click();
+  await page.unroute('**/api/v1/bookings');
+  await context.setOffline(true);
+  try {
+    await page.getByRole('link', { name: 'My bookings' }).click();
+    await expect(page.getByText('Silk press')).toBeVisible();
+    await expect(page.locator('.network-banner')).toContainText(/offline|cached/i);
+  } finally {
+    await context.setOffline(false);
+  }
 });
 
 test('keeps the requested Discover, bookings, Studio and Account shell on mobile and desktop', async ({ page }) => {

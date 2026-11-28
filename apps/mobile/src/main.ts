@@ -15,13 +15,14 @@ import { routes } from './app/app.routes';
 import { authInterceptor } from './app/core/auth/auth.interceptor';
 import { AuthService } from './app/core/auth/auth.service';
 import { demoInterceptor } from './app/core/demo/demo.interceptor';
+import { networkResilienceInterceptor } from './app/core/network/network-resilience.interceptor';
 import { glowNavigationAnimation } from './app/core/ui/navigation.animation';
 
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular({ navAnimation: glowNavigationAnimation }),
-    provideHttpClient(withInterceptors([demoInterceptor, authInterceptor])),
+    provideHttpClient(withInterceptors([demoInterceptor, authInterceptor, networkResilienceInterceptor])),
     provideAppInitializer(() => inject(AuthService).restoreSession()),
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
   ],

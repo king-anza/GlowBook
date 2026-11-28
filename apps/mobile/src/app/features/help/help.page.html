@@ -1,0 +1,70 @@
+<ion-header
+  ><ion-toolbar><ion-title>Help centre</ion-title></ion-toolbar></ion-header
+>
+<ion-content>
+  <main class="page-shell help-shell">
+    <section class="help-hero">
+      <p class="eyebrow">Clear guidance, when you need it</p>
+      <h1>How can we help?</h1>
+      <p>Search practical guidance for appointments, salons, Glow Spaces, studio tools and account access.</p>
+      <ion-item class="help-search" lines="none"
+        ><ion-input
+          label="Search help"
+          labelPlacement="stacked"
+          placeholder="Try “cancel”, “space match” or “offline”"
+          [ngModel]="query()"
+          (ngModelChange)="search($event)"
+      /></ion-item>
+    </section>
+    <nav class="topic-row" aria-label="Help topics">
+      @for (topic of [['all','All'],['bookings','Bookings'],['salons','Salons'],['spaces','Glow
+      Spaces'],['professional','Studio'],['account','Account'],['connection','Connection']]; track topic[0]) {
+      <button
+        type="button"
+        [class.active]="selectedTopic() === topic[0]"
+        [attr.aria-pressed]="selectedTopic() === topic[0]"
+        (click)="chooseTopic(topic[0])"
+      >
+        {{ topic[1] }}
+      </button>
+      }
+    </nav>
+    <section class="help-results" aria-live="polite">
+      @for (article of filtered(); track article.id) {
+      <details class="surface-card" [id]="article.id" [open]="selectedTopic() === article.topic">
+        <summary><span>{{ article.title }}</span><small>{{ article.summary }}</small></summary>
+        <ol>
+          @for (step of article.steps; track step) {
+          <li>{{ step }}</li>
+          }
+        </ol>
+        @if (article.topic === 'bookings') {<a routerLink="/bookings">Open my bookings</a>} @if (article.topic ===
+        'spaces') {<a routerLink="/spaces">Open Glow Spaces</a>} @if (article.topic === 'professional') {<a
+          routerLink="/professional/onboarding"
+          >Open studio setup</a
+        >} @if (article.topic === 'account') {<a routerLink="/auth/recovery">Open account help</a>}
+      </details>
+      } @empty {
+      <div class="surface-card empty-help">
+        <h2>No matching help articles</h2>
+        <p>Try a shorter search or choose All.</p>
+        <ion-button fill="outline" (click)="query.set(''); chooseTopic('all')">Clear search</ion-button>
+      </div>
+      }
+    </section>
+    <section class="surface-card contact-card" id="contact">
+      <div>
+        <p class="eyebrow">Still need help?</p>
+        <h2>Contact Glow support</h2>
+        <p>
+          Include the screen you were using and what happened. Never email a password, reset token or full payment
+          details.
+        </p>
+      </div>
+      <div class="contact-actions">
+        <a class="button-link" href="mailto:support@glowbylunamay.co.za?subject=Glow%20app%20support">Email support</a
+        ><a routerLink="/auth/recovery">Account access help</a>
+      </div>
+    </section>
+  </main>
+</ion-content>

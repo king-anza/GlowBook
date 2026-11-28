@@ -139,9 +139,9 @@ This is the working checklist for improving the complete customer, professional 
 
 ### Phase UX-G — Quality, safety and operations
 
-- [ ] **UX-701: Form-behaviour standard** — Live validation, optional/required labels, first-error focus, preserved input after API errors, duplicate-submit prevention and precise messages throughout.
-- [ ] **UX-702: Offline and weak-network experience** — Cached booking details, retry queues only where safe, connection status and prevention of duplicate transactional actions.
-- [ ] **UX-703: Help and guided education** — Contextual onboarding, searchable help, booking/salon/Glow Spaces explanations and accessible contact/support routes.
+- [x] **UX-701: Form-behaviour standard** — Live validation, optional/required labels, first-error focus, preserved input after API errors, duplicate-submit prevention and precise messages throughout.
+- [x] **UX-702: Offline and weak-network experience** — Cached booking details, retry queues only where safe, connection status and prevention of duplicate transactional actions.
+- [x] **UX-703: Help and guided education** — Contextual onboarding, searchable help, booking/salon/Glow Spaces explanations and accessible contact/support routes.
 - [ ] **UX-704: Admin experience redesign** — Prioritised moderation queues, search/filtering, entity histories, reasoned decisions, audit links and responsive tables/cards.
 - [ ] **UX-705: Safety and abuse controls** — Report/block flows, fake-listing review, consent-aware images, dispute intake and transparent enforcement statuses.
 - [ ] **UX-706: Experience analytics** — Privacy-conscious measurement of search success, abandonment, booking conversion, repeat usage and onboarding completion with documented retention.

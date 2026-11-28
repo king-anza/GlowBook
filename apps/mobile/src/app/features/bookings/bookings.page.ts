@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { IonButton, IonContent, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { NetworkStatusService } from '../../core/network/network-status.service';
 import { ConfirmationService } from '../../core/ui/confirmation.service';
 import { EmptyStateComponent } from '../../core/ui/empty-state.component';
 import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
@@ -46,6 +47,7 @@ export class BookingsPage {
   private readonly http = inject(HttpClient);
   private readonly confirmation = inject(ConfirmationService);
   private readonly route = inject(ActivatedRoute);
+  private readonly network = inject(NetworkStatusService);
   readonly highlightedId = this.route.snapshot.queryParamMap.get('booking');
   readonly bookings = signal<Booking[]>([]);
   readonly loading = signal(true);
@@ -67,9 +69,9 @@ export class BookingsPage {
       ))
     )
       return;
-    this.busyId.set(booking.id);
     this.message.set(null);
     this.error.set(null);
+    if (!this.startAction(booking.id)) return;
     this.http
       .post(`${environment.apiUrl}/api/v1/bookings/${booking.id}/cancel`, {
         reason: null,
@@ -88,6 +90,7 @@ export class BookingsPage {
       });
   }
   review(booking: Booking): void {
+    if (!this.startAction(booking.id)) return;
     this.http
       .post(`${environment.apiUrl}/api/v1/bookings/${booking.id}/review`, {
         rating: this.reviewRatings[booking.id] ?? 5,
@@ -96,15 +99,20 @@ export class BookingsPage {
       .subscribe({
         next: () => {
           this.message.set('Thank you for your review.');
+          this.busyId.set(null);
           this.loadReviews();
         },
-        error: () => this.error.set('This booking cannot be reviewed.'),
+        error: () => {
+          this.error.set('This booking cannot be reviewed. Your comment is preserved.');
+          this.busyId.set(null);
+        },
       });
   }
   reviewFor(bookingId: string): Review | undefined {
     return this.reviews().find((item) => item.bookingId === bookingId);
   }
   updateReview(review: Review): void {
+    if (!this.startAction(review.id)) return;
     this.http
       .patch<Review>(`${environment.apiUrl}/api/v1/reviews/${review.id}`, {
         rating: this.reviewRatings[review.id] ?? review.rating,
@@ -114,9 +122,13 @@ export class BookingsPage {
       .subscribe({
         next: () => {
           this.message.set('Review updated.');
+          this.busyId.set(null);
           this.loadReviews();
         },
-        error: () => this.error.set('The review changed. Refresh and try again.'),
+        error: () => {
+          this.error.set('The review changed. Your edits are preserved; refresh and try again.');
+          this.busyId.set(null);
+        },
       });
   }
   async deleteReview(review: Review): Promise<void> {
@@ -128,12 +140,17 @@ export class BookingsPage {
       ))
     )
       return;
+    if (!this.startAction(review.id)) return;
     this.http.delete(`${environment.apiUrl}/api/v1/reviews/${review.id}`).subscribe({
       next: () => {
         this.message.set('Review removed.');
+        this.busyId.set(null);
         this.loadReviews();
       },
-      error: () => this.error.set('The review could not be removed.'),
+      error: () => {
+        this.error.set('The review could not be removed.');
+        this.busyId.set(null);
+      },
     });
   }
   load(): void {
@@ -159,5 +176,15 @@ export class BookingsPage {
         this.reviewComments[item.id] = item.comment ?? '';
       }
     });
+  }
+  private startAction(id: string): boolean {
+    if (this.busyId()) return false;
+    if (!this.network.online()) {
+      this.error.set('Reconnect before making this change. It was not queued or submitted.');
+      return false;
+    }
+    this.busyId.set(id);
+    this.error.set(null);
+    return true;
   }
 }

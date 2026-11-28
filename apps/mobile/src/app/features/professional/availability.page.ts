@@ -16,6 +16,7 @@ import {
 } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 
 import { ProfessionalNavComponent } from './professional-nav.component';
 
@@ -73,6 +74,7 @@ interface ProfessionalCalendar {
   imports: [
     DatePipe,
     ReactiveFormsModule,
+    FormBehaviorDirective,
     IonHeader,
     IonToolbar,
     IonTitle,

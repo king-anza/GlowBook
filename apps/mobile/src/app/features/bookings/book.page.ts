@@ -1,11 +1,13 @@
 import { DatePipe, Location } from '@angular/common';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, type HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonItem, IonTextarea } from '@ionic/angular';
 
 import { environment } from '../../../environments/environment';
+import { NetworkStatusService } from '../../core/network/network-status.service';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 
 interface Slot {
   startUtc: string;
@@ -26,7 +28,16 @@ interface TimeGroup {
   selector: 'app-book',
   templateUrl: './book.page.html',
   styleUrls: ['./book.page.scss'],
-  imports: [DatePipe, ReactiveFormsModule, IonContent, IonButton, IonItem, IonTextarea],
+  imports: [
+    DatePipe,
+    ReactiveFormsModule,
+    RouterLink,
+    IonContent,
+    IonButton,
+    IonItem,
+    IonTextarea,
+    FormBehaviorDirective,
+  ],
 })
 export class BookPage {
   private readonly http = inject(HttpClient);
@@ -34,6 +45,7 @@ export class BookPage {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly fb = inject(FormBuilder);
+  private readonly network = inject(NetworkStatusService);
   private readonly staffId = this.route.snapshot.paramMap.get('staffId')!;
   private readonly offeringId = this.route.snapshot.paramMap.get('offeringId')!;
   private readonly rangeStart = this.startOfTomorrow();
@@ -123,6 +135,10 @@ export class BookPage {
   }
   book(slot: Slot): void {
     if (this.submitting() || this.notesForm.invalid) return;
+    if (!this.network.online()) {
+      this.error.set('Reconnect before requesting this appointment. Nothing was queued or submitted.');
+      return;
+    }
     this.error.set(null);
     this.submitting.set(true);
     const notes = this.notesForm.controls.notes.value.trim();
@@ -139,8 +155,14 @@ export class BookPage {
           this.submitting.set(false);
           void this.router.navigateByUrl('/bookings');
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
+          if (error.status === 0) {
+            this.error.set(
+              'The connection dropped before the request completed. Your selection and notes are preserved; check My bookings before trying again.',
+            );
+            return;
+          }
           this.error.set('That time has just become unavailable. Choose another available time.');
           this.selectedSlot.set(null);
           this.loadAvailability();

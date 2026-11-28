@@ -6,21 +6,26 @@
           <img src="assets/glowbook/logo.png" alt="" />
           <span class="prototype-brand__lockup"><strong>Glow</strong><small>by LunaMay</small></span>
         </a>
-        @if (auth.isAuthenticated()) {
-          <a
-            routerLink="/notifications"
-            class="notification-bell"
-            aria-label="Notifications"
-            [attr.aria-current]="router.url.startsWith('/notifications') ? 'page' : null"
-          >
-            <ion-icon name="notifications-outline" aria-hidden="true" />
-            @if (notifications.unreadCount()) {
-              <span [attr.aria-label]="notifications.unreadCount() + ' unread notifications'">{{
-                notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount()
-              }}</span>
-            }
-          </a>
-        }
+        <div class="header-actions">
+          <a routerLink="/help" class="header-help" aria-label="Help centre"
+            ><ion-icon name="help-circle-outline" aria-hidden="true"
+          /></a>
+          @if (auth.isAuthenticated()) {
+            <a
+              routerLink="/notifications"
+              class="notification-bell"
+              aria-label="Notifications"
+              [attr.aria-current]="router.url.startsWith('/notifications') ? 'page' : null"
+            >
+              <ion-icon name="notifications-outline" aria-hidden="true" />
+              @if (notifications.unreadCount()) {
+                <span [attr.aria-label]="notifications.unreadCount() + ' unread notifications'">{{
+                  notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount()
+                }}</span>
+              }
+            </a>
+          }
+        </div>
       </div>
     </ion-toolbar>
   </ion-header>
@@ -65,6 +70,17 @@
   @if (isDemo) {
     <div class="demo-banner" role="status">
       Demo mode — sample data only. Bookings and account changes are simulated.
+    </div>
+  }
+  @if (!network.online() || network.weakConnection() || network.usingCachedData()) {
+    <div class="network-banner" role="status" aria-live="polite">
+      @if (!network.online()) {
+        You are offline. Transactional actions are paused; cached booking details remain available.
+      } @else if (network.usingCachedData()) {
+        Live booking data is unavailable. Showing the latest details cached in this session.
+      } @else {
+        Your connection appears slow. Safe reads may retry once; booking actions are never submitted automatically.
+      }
     </div>
   }
   <ion-router-outlet></ion-router-outlet>

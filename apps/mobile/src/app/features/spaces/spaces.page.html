@@ -10,6 +10,7 @@
         <p>Discover flexible workspaces and genuine staff vacancies from approved beauty businesses.</p>
       </div>
       <a class="hero-owner-link" routerLink="/professional/spaces">List an available space</a>
+      <a routerLink="/help" [queryParams]="{ topic: 'spaces' }">How Glow Spaces works</a>
     </section>
 
     <form class="surface-card filter-row" [formGroup]="filters" (ngSubmit)="load()">
@@ -110,7 +111,9 @@
             ></ion-item
           >
         </ion-list>
-        <ion-button type="submit">Save application profile</ion-button>
+        <ion-button type="submit" [disabled]="actions.busy('space-profile')"
+          >{{ actions.busy('space-profile') ? 'Saving…' : 'Save application profile' }}</ion-button
+        >
         @if (profile()) {<ion-button type="button" fill="clear" (click)="editingProfile.set(false)">Cancel</ion-button>}
       </form>
       }
@@ -200,7 +203,11 @@
           <div class="card-actions">
             <ion-button fill="clear" size="small" (click)="share(item)">Share</ion-button> @if
             (auth.hasRole('Professional')) {
-            <ion-button fill="clear" size="small" (click)="toggleSaved(item)"
+            <ion-button
+              fill="clear"
+              size="small"
+              [disabled]="actions.busy('save-space-' + item.id)"
+              (click)="toggleSaved(item)"
               >{{ item.isSaved ? 'Saved' : 'Save' }}</ion-button
             ><ion-button fill="clear" size="small" color="medium" (click)="reporting.set(item)">Report</ion-button> }
           </div>
@@ -243,7 +250,9 @@
               labelPlacement="stacked"
               autoGrow="true"
               formControlName="message" /></ion-item></ion-list
-        ><ion-button expand="block" type="submit">Send application</ion-button>
+        ><ion-button expand="block" type="submit" [disabled]="actions.busy('apply-space-' + item.id)"
+          >{{ actions.busy('apply-space-' + item.id) ? 'Sending…' : 'Send application' }}</ion-button
+        >
       </form>
       } }
     </section>
@@ -273,7 +282,9 @@
               autoGrow="true"
               formControlName="details"
           /></ion-item> </ion-list
-        ><ion-button expand="block" type="submit">Send report</ion-button>
+        ><ion-button expand="block" type="submit" [disabled]="actions.busy('report-space-' + item.id)"
+          >{{ actions.busy('report-space-' + item.id) ? 'Sending…' : 'Send report' }}</ion-button
+        >
       </form>
     </section>
     } @if (auth.hasRole('Professional') && myApplications().length) {
@@ -296,7 +307,13 @@
             }
           </ol>
           @if (application.status === 'Submitted' || application.status === 'Viewed') {
-          <ion-button fill="outline" size="small" (click)="withdraw(application)">Withdraw application</ion-button>
+          <ion-button
+            fill="outline"
+            size="small"
+            [disabled]="actions.busy('withdraw-application-' + application.id)"
+            (click)="withdraw(application)"
+            >Withdraw application</ion-button
+          >
           }
         </article>
         }

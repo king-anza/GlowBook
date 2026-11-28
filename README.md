@@ -14,6 +14,7 @@ Glow by LunaMay is a modular-monolith mobile platform for discovering and bookin
 - `tests` — backend unit and integration tests
 - `docs/requirements.md` — product and engineering requirements
 - `docs/backlog.md` — implementation and prerequisite status
+- `docs/resilience-and-help.md` — form, weak-network cache/retry and support behaviour
 
 ## Prerequisites
 

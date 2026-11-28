@@ -20,8 +20,10 @@ import {
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/auth/auth.service';
+import { ActionGuardService } from '../../core/ui/action-guard.service';
 import { EmptyStateComponent } from '../../core/ui/empty-state.component';
 import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 
 import type {
   MatchedOpportunity,
@@ -39,6 +41,7 @@ import { workspaceLabels } from './space.models';
   styleUrls: ['./spaces.page.scss'],
   imports: [
     ReactiveFormsModule,
+    FormBehaviorDirective,
     KeyValuePipe,
     DatePipe,
     RouterLink,
@@ -64,6 +67,7 @@ export class SpacesPage {
   readonly route = inject(ActivatedRoute);
   readonly highlightedId = this.route.snapshot.queryParamMap.get('opportunity');
   readonly auth = inject(AuthService);
+  readonly actions = inject(ActionGuardService);
   readonly opportunities = signal<SpaceOpportunity[]>([]);
   readonly matches = signal<Record<string, MatchedOpportunity>>({});
   readonly myApplications = signal<SpaceApplication[]>([]);
@@ -179,6 +183,7 @@ export class SpacesPage {
 
   saveProfile(): void {
     if (this.profileForm.invalid) return this.profileForm.markAllAsTouched();
+    if (!this.startAction('space-profile')) return;
     const raw = this.profileForm.getRawValue();
     const preferredOpportunityTypes: OpportunityType[] = [];
     if (raw.chairRental) preferredOpportunityTypes.push('ChairRental');
@@ -202,8 +207,12 @@ export class SpacesPage {
           this.profile.set(profile);
           this.editingProfile.set(false);
           this.message.set('Your reusable application profile was saved.');
+          this.actions.end('space-profile');
         },
-        error: () => this.error.set('Your application profile could not be saved.'),
+        error: () => {
+          this.error.set('Your application profile could not be saved. Your entries are still here.');
+          this.actions.end('space-profile');
+        },
       });
   }
 
@@ -225,17 +234,24 @@ export class SpacesPage {
   }
 
   toggleSaved(item: SpaceOpportunity): void {
+    const key = `save-space-${item.id}`;
+    if (!this.startAction(key)) return;
     const request = item.isSaved
       ? this.http.delete(`${environment.apiUrl}/api/v1/professional/spaces/${item.id}/saved`)
       : this.http.put(`${environment.apiUrl}/api/v1/professional/spaces/${item.id}/saved`, {});
     request.subscribe({
-      next: () =>
+      next: () => {
         this.opportunities.update((items) =>
           items.map((candidate) =>
             candidate.id === item.id ? { ...candidate, isSaved: !candidate.isSaved } : candidate,
           ),
-        ),
-      error: () => this.error.set('Use a signed-in professional account to save opportunities.'),
+        );
+        this.actions.end(key);
+      },
+      error: () => {
+        this.error.set('Use a signed-in professional account to save opportunities.');
+        this.actions.end(key);
+      },
     });
   }
 
@@ -250,6 +266,8 @@ export class SpacesPage {
   }
 
   report(item: SpaceOpportunity): void {
+    const key = `report-space-${item.id}`;
+    if (!this.startAction(key)) return;
     this.http
       .post(`${environment.apiUrl}/api/v1/professional/spaces/${item.id}/reports`, this.reportForm.getRawValue())
       .subscribe({
@@ -257,14 +275,20 @@ export class SpacesPage {
           this.reporting.set(null);
           this.reportForm.reset({ reason: 'Misleading', details: '' });
           this.message.set('Thank you. The opportunity was reported for review.');
+          this.actions.end(key);
         },
-        error: () => this.error.set('The report could not be sent. You may have reported this opportunity already.'),
+        error: () => {
+          this.error.set('The report could not be sent. Your details are preserved so you can try again.');
+          this.actions.end(key);
+        },
       });
   }
 
   apply(item: SpaceOpportunity): void {
     if (!this.auth.isAuthenticated()) return;
     if (this.applicationForm.invalid) return this.applicationForm.markAllAsTouched();
+    const key = `apply-space-${item.id}`;
+    if (!this.startAction(key)) return;
     this.error.set(null);
     this.http
       .post(
@@ -277,23 +301,32 @@ export class SpacesPage {
           this.selected.set(null);
           this.applicationForm.reset();
           this.loadWorkspace();
+          this.actions.end(key);
         },
-        error: () =>
+        error: () => {
           this.error.set(
             'The application could not be sent. You may have applied already, or need a professional account.',
-          ),
+          );
+          this.actions.end(key);
+        },
       });
   }
 
   withdraw(application: SpaceApplication): void {
+    const key = `withdraw-application-${application.id}`;
+    if (!this.startAction(key)) return;
     this.http
       .post(`${environment.apiUrl}/api/v1/professional/space-applications/${application.id}/withdraw`, {})
       .subscribe({
         next: () => {
           this.message.set('Application withdrawn.');
           this.loadWorkspace();
+          this.actions.end(key);
         },
-        error: () => this.error.set('This application can no longer be withdrawn.'),
+        error: () => {
+          this.error.set('This application can no longer be withdrawn.');
+          this.actions.end(key);
+        },
       });
   }
 
@@ -301,5 +334,12 @@ export class SpacesPage {
     if (item.ratePeriod === 'Negotiable' || item.rateAmount === null) return 'Rate negotiable';
     if (item.ratePeriod === 'RevenueShare') return `${item.rateAmount}% revenue share`;
     return `R${item.rateAmount} / ${item.ratePeriod.toLowerCase()}`;
+  }
+
+  private startAction(key: string): boolean {
+    const result = this.actions.begin(key);
+    if (result === 'offline')
+      this.error.set('Reconnect before making this change. It has not been queued or submitted.');
+    return result === 'started';
   }
 }

@@ -22,8 +22,8 @@
             [(ngModel)]="email" /></ion-item
       ></ion-list>
       <div class="action-row">
-        <ion-button (click)="requestVerification()">Resend verification email</ion-button
-        ><ion-button fill="outline" (click)="requestReset()">Request password reset</ion-button>
+        <ion-button [disabled]="busy()" (click)="requestVerification()">Resend verification email</ion-button
+        ><ion-button fill="outline" [disabled]="busy()" (click)="requestReset()">Request password reset</ion-button>
       </div>
     </section>
     <section class="surface-card" style="margin-top: 16px">
@@ -63,9 +63,9 @@
       </ion-list>
       <div class="action-row">
         @if (action !== 'reset') {
-        <ion-button (click)="verify()">Verify email</ion-button>
+        <ion-button [disabled]="busy()" (click)="verify()">Verify email</ion-button>
         } @if (action !== 'verify') {
-        <ion-button fill="outline" (click)="reset()">Reset password</ion-button>
+        <ion-button fill="outline" [disabled]="busy()" (click)="reset()">Reset password</ion-button>
         }
       </div>
     </section>

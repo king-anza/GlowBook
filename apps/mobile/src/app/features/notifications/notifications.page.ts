@@ -5,6 +5,7 @@ import { IonButton, IonCheckbox, IonContent, IonHeader, IonItem, IonList, IonTit
 
 import { NotificationService } from '../../core/notifications/notification.service';
 import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 
 @Component({
   selector: 'app-notifications',
@@ -22,6 +23,7 @@ import { FeedbackBannerComponent } from '../../core/ui/feedback-banner.component
     IonTitle,
     IonToolbar,
     FeedbackBannerComponent,
+    FormBehaviorDirective,
   ],
 })
 export class NotificationsPage {

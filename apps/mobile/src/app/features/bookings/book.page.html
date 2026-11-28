@@ -7,6 +7,7 @@
           <p class="eyebrow">BOOK YOUR APPOINTMENT</p>
           <h1>Choose a date and time</h1>
           <p>All times are displayed in <strong>{{ timeZone }}</strong>.</p>
+          <a routerLink="/help" [queryParams]="{ topic: 'bookings' }">How booking requests work</a>
         </header>
         @if (error()) {
         <div class="notice notice--error booking-error" role="alert">

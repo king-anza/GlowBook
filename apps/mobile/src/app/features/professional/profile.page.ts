@@ -5,6 +5,7 @@ import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonTextarea, IonTi
 
 import { environment } from '../../../environments/environment';
 import { ConfirmationService } from '../../core/ui/confirmation.service';
+import { FormBehaviorDirective } from '../../core/ui/form-behavior.directive';
 
 import { ProfessionalNavComponent } from './professional-nav.component';
 
@@ -41,6 +42,7 @@ interface PortfolioImage {
   styleUrls: ['./profile.page.scss'],
   imports: [
     ReactiveFormsModule,
+    FormBehaviorDirective,
     IonHeader,
     IonToolbar,
     IonTitle,
